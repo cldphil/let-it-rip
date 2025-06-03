@@ -1,15 +1,15 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24866v1",
-  "extraction_timestamp": "2025-06-03 02:37:55.035441",
+  "extraction_timestamp": "2025-06-03 04:30:00.048354",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper introduces TalkingHeadBench, the first manually curated, multi-generator, multi-modal benchmark designed specifically for evaluating detector robustness against state-of-the-art talking-head deepfakes.",
+    "The paper introduces TalkingHeadBench, the first manually curated, multi-generator, multi-modal benchmark designed specifically for evaluating the robustness of deepfake detectors against state-of-the-art talking-head deepfakes.",
     "The benchmark features high-quality synthetic videos generated using six academic and one commercial talking-head generator using both audio and video-driven diffusion and transformer-based models.",
     "The authors carefully design evaluation protocols to assess the generalization and robustness of state-of-the-art (SOTA) deepfake detectors across identity and generator shifts in training and testing data.",
     "The paper presents a detailed error analysis using Grad-CAM to identify common failure cases of SOTA detectors on different generators and inform future improvements in detection strategies.",
     "The TalkingHeadBench benchmark is hosted on HuggingFace, providing train-test data for all generators across multiple protocols to accelerate research towards more robust and generalizable detection models."
   ],
-  "main_contribution": "The primary contribution of this paper is the introduction of TalkingHeadBench, a comprehensive benchmark and analysis framework for evaluating the robustness and generalization capabilities of sta...",
+  "main_contribution": "The primary contribution of this paper is the introduction of TalkingHeadBench, a comprehensive benchmark and analysis framework for evaluating the robustness and generalization capabilities of talking-head deepfake detection models against state-of-the-art generative techniques. It aims to accelerate research towards more robust and generalizable detection models in the face of rapidly evolving d",
   "limitations": [],
   "future_work": [],
   "study_type": "empirical",
@@ -26,7 +26,7 @@
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Evaluating the robustness and generalization of talking-head deepfake detection models against state-of-the-art generators.",
+  "problem_addressed": "Evaluating the robustness and generalization of deepfake detection models against state-of-the-art talking-head deepfakes.",
   "prerequisites": [
     "Deep Learning",
     "Computer Vision",
@@ -35,10 +35,11 @@
   "comparable_approaches": [],
   "real_world_applications": [
     "Misinformation Detection",
-    "Social Engineering Attack Prevention"
+    "Cybersecurity",
+    "Media Forensics"
   ],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
+  "evidence_strength": 0.9,
+  "practical_applicability": 0.8,
   "extraction_confidence": 0.8,
   "has_code_available": false,
   "has_dataset_available": true,

@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24877v1",
-  "extraction_timestamp": "2025-06-03 02:38:22.884854",
+  "extraction_timestamp": "2025-06-03 04:30:02.051658",
   "extraction_version": "1.0",
   "key_findings": [
     "AdaHuman introduces a novel framework for generating high-fidelity animatable 3D avatars from a single in-the-wild image, addressing the limitations of previous methods that struggle to produce highly detailed, animation-ready avatars.",
@@ -9,7 +9,7 @@
     "Extensive evaluation on public benchmarks and in-the-wild images demonstrates that AdaHuman significantly outperforms state-of-the-art methods in both avatar reconstruction and reposing.",
     "AdaHuman generates highly realistic standardized A-pose avatars with minimal self-occlusion, enabling rigging and animation with any input motion, addressing a significant challenge in previous methods."
   ],
-  "main_contribution": "AdaHuman is a novel framework that generates high-fidelity animatable 3D avatars from a single in-the-wild image by incorporating a pose-conditioned 3D joint diffusion model and a compositional 3DG...",
+  "main_contribution": "AdaHuman is a novel framework that generates high-fidelity animatable 3D avatars from a single in-the-wild image by incorporating a pose-conditioned 3D joint diffusion model and a compositional 3DGS refinement module, enabling the generation of highly detailed, animation-ready avatars with minimal self-occlusion, outperforming state-of-the-art methods in avatar reconstruction and reposing.",
   "limitations": [],
   "future_work": [],
   "study_type": "empirical",

@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24862v1",
-  "extraction_timestamp": "2025-06-03 02:38:55.210678",
+  "extraction_timestamp": "2025-06-03 04:30:19.830256",
   "extraction_version": "1.0",
   "key_findings": [
     "To ensure comprehensive comparisons, our benchmark\nincorporates a wide range of evaluation metrics assessing critical aspects.\nThis structured and multifaceted framework enables researchers to thoroughly\nidentify both the strengths and weaknesses of different models, fostering\ntargeted improvements."

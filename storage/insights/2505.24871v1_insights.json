@@ -1,32 +1,27 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24871v1",
-  "extraction_timestamp": "2025-06-03 02:38:11.733500",
+  "extraction_timestamp": "2025-06-03 04:30:02.460159",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper proposes a Multi-Domain Data Mixture (MoDoMoDo) framework that combines multiple datasets from diverse multimodal task domains during post-training of multimodal large language models (MLLMs) using reinforcement learning with verifiable rewards (RLVR).",
-    "By incorporating a mixture of datasets spanning different multimodal capabilities like vision, audio, and spatial reasoning, the approach aims to enable broad coverage and generalization across a wide range of multimodal tasks for MLLMs.",
-    "Experiments show that multi-domain RLVR training with mixture prediction strategies improves the post-trained MLLM's accuracy on out-of-distribution benchmarks by an average of 5.24% compared to uniform data mixture, and 20.74% compared to the pre-finetuning baseline.",
-    "The MoDoMoDo framework combines multiple reward models corresponding to each dataset during RLVR, allowing the MLLM to learn diverse multimodal capabilities simultaneously.",
-    "The mixture sampling strategy used to combine datasets during training is a key factor influencing the performance gains achieved by the multi-domain approach."
+    "The paper proposes MoDoMoDo, a framework that combines multi-domain data mixtures with multimodal large language model (MLLM) reinforcement learning using verifiable rewards (RLVR) to boost the general reasoning capabilities of MLLMs across diverse multimodal tasks.",
+    "By incorporating multiple datasets from diverse multimodal task domains during post-training instead of relying on a single dataset, MoDoMoDo aims to ensure broad coverage and generalization across a wide range of capabilities required by MLLMs.",
+    "The experiments showcase that multi-domain RLVR training, when combined with mixture prediction strategies, can significantly improve the post-trained model's accuracy on out-of-distribution benchmarks by an average of 5.24% compared to uniform data mixture, and by a total of 20.74% compared to the pre-finetuning baseline.",
+    "The approach addresses the challenge of effective post-training of MLLMs, which must integrate diverse data modalities with fundamentally different problem features and translate into a broad spectrum of distinct capabilities.",
+    "The paper highlights the importance of incorporating diverse multimodal data during post-training to achieve the wide range of capabilities required by MLLMs, given the vast number of distinct tasks arising from multimodal compositions."
   ],
-  "main_contribution": "The paper proposes a novel Multi-Domain Data Mixture (MoDoMoDo) framework that combines reinforcement learning with verifiable rewards on multiple datasets spanning diverse multimodal domains like ...",
-  "limitations": [
-    "Limited discussion on the specific mixture sampling strategies explored",
-    "No comparison to alternative multi-task or multi-domain learning approaches"
-  ],
-  "future_work": [
-    "Exploring more advanced mixture sampling and prediction strategies"
-  ],
+  "main_contribution": "The primary contribution of this paper is the MoDoMoDo framework, which combines multi-domain data mixtures with multimodal large language model reinforcement learning using verifiable rewards to boost the general reasoning capabilities of MLLMs across diverse multimodal tasks. By incorporating multiple datasets from diverse multimodal domains during post-training, MoDoMoDo aims to ensure broad co",
+  "limitations": [],
+  "future_work": [],
   "study_type": "empirical",
   "industry_applications": [],
   "techniques_used": [
     "fine_tuning",
     "reinforcement_learning"
   ],
-  "implementation_complexity": "high",
+  "implementation_complexity": "medium",
   "resource_requirements": {
-    "team_size": "medium_team",
-    "estimated_time_weeks": 8,
+    "team_size": "small_team",
+    "estimated_time_weeks": 4,
     "compute_requirements": "",
     "data_requirements": "",
     "budget_tier": null,
@@ -34,19 +29,12 @@
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Enabling effective post-training of multimodal large language models across diverse multimodal capabilities",
-  "prerequisites": [
-    "Machine learning",
-    "Natural language processing",
-    "Reinforcement learning"
-  ],
-  "comparable_approaches": [
-    "Single-domain RLVR fine-tuning",
-    "Multi-task learning"
-  ],
+  "problem_addressed": "Effective post-training of multimodal large language models (MLLMs) to integrate diverse data modalities and achieve a wide range of capabilities across multimodal tasks.",
+  "prerequisites": [],
+  "comparable_approaches": [],
   "real_world_applications": [],
   "evidence_strength": 0.8,
-  "practical_applicability": 0.6,
+  "practical_applicability": 0.7,
   "extraction_confidence": 0.8,
   "has_code_available": false,
   "has_dataset_available": false,

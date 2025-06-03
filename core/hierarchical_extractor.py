@@ -431,7 +431,7 @@ IMPORTANT INSTRUCTIONS:
         """Create minimal insights when extraction fails."""
         return PaperInsights(
             paper_id=paper.get('id', 'unknown'),
-            main_contribution=paper.get('title', 'Unknown')[:200],
+            main_contribution=paper.get('title', 'Unknown')[:500],
             key_findings=["Extraction failed - minimal insights only"],
             study_type=StudyType.UNKNOWN,
             implementation_complexity=ComplexityLevel.UNKNOWN,

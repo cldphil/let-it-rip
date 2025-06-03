@@ -103,7 +103,7 @@ class PaperInsights(BaseModel):
     # Core insights
     key_findings: List[str] = Field(
         default_factory=list,
-        description="Key findings from the paper (max 5, 1-2 sentences each)"
+        description="Key findings from the paper (max 10, 1-2 sentences each)"
     )
     main_contribution: str = Field(
         default="",
@@ -178,13 +178,13 @@ class PaperInsights(BaseModel):
     @validator('key_findings')
     def limit_key_findings(cls, v):
         """Ensure we don't have too many key findings."""
-        return v[:5] if len(v) > 5 else v
+        return v[:10] if len(v) > 10 else v
     
     @validator('main_contribution')
     def validate_main_contribution(cls, v):
         """Ensure main contribution is not too long."""
-        if len(v) > 200:
-            return v[:197] + "..."
+        if len(v) > 500:
+            return v[:497] + "..."
         return v
     
     def to_searchable_text(self) -> str:

@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24858v1",
-  "extraction_timestamp": "2025-06-03 02:39:36.709375",
+  "extraction_timestamp": "2025-06-03 04:30:28.784861",
   "extraction_version": "1.0",
   "key_findings": [
     "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, to improve the faithful calibration of large language models (LLMs) in expressing uncertainty.",
@@ -9,7 +9,7 @@
     "LLMs often suffer from hallucinations, producing inaccurate information while communicating it in a decisive manner, which can undermine trustworthiness and cause potential harm in high-stakes settings.",
     "For LLMs to be deployed reliably and responsibly, it is essential that their linguistically expressed confidence faithfully reflects their internal uncertainty."
   ],
-  "main_contribution": "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, which robustly improves the faithful calibration of large language models (LLMs) in expres...",
+  "main_contribution": "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, which robustly improves the faithful calibration of large language models (LLMs) in expressing uncertainty across diverse models and task domains, enabling up to 61% improvement in faithfulness and achieving an 83% win rate over original generations as judged by humans.",
   "limitations": [],
   "future_work": [],
   "study_type": "empirical",

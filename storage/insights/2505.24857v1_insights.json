@@ -1,15 +1,15 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24857v1",
-  "extraction_timestamp": "2025-06-03 02:40:14.204244",
+  "extraction_timestamp": "2025-06-03 04:30:29.697153",
   "extraction_version": "1.0",
   "key_findings": [
     "The paper proposes an Entropy Bounded (EB) Sampler, an adaptive sampling approach for Masked Diffusion Models (MDMs) that accelerates sampling by 2-3x on coding and math reasoning benchmarks without loss in performance compared to existing samplers.",
-    "MDMs sample fixed-length sequences as discrete tokens from a vocabulary, starting from a sequence of mask tokens and iteratively updating tokens until all tokens are unmasked. The EB-Sampler determines an efficient order for unmasking tokens based on model predictions and entropy bounds.",
-    "The EB-Sampler formulates the sampling process as an optimization problem with an approximate error tolerance, providing an error analysis that motivates the algorithmic choices.",
-    "The proposed approach is validated not only on large MDMs like LLaDa and Dream, but also on smaller reasoning tasks like maze navigation and Sudoku, where autoregressive models often struggle.",
-    "The EB-Sampler represents a broad family of adaptive samplers for MDMs, offering a potential alternative to autoregressive generation for language tasks."
+    "EB-Sampler is formulated as part of a broad family of adaptive samplers, and the paper provides an error analysis that motivates the algorithmic choices made in the design of EB-Sampler.",
+    "The proposed approach leverages the masked modeling paradigm used in MDMs, where tokens are iteratively unmasked in a specific order, deviating from the random order used during training.",
+    "Recent large MDMs like LLaDa and Dream have shown competitive performance compared to similarly sized autoregressive models on language tasks by unmasking tokens in a favorable order dictated by model predictions.",
+    "The EB-Sampler approach is also validated on smaller reasoning tasks like maze navigation and Sudoku, which are often challenging for autoregressive models."
   ],
-  "main_contribution": "The paper introduces the Entropy Bounded (EB) Sampler, an adaptive sampling approach for Masked Diffusion Models (MDMs) that accelerates the sampling process by 2-3x on coding and math reasoning be...",
+  "main_contribution": "The paper introduces the Entropy Bounded (EB) Sampler, an adaptive sampling approach for Masked Diffusion Models (MDMs) that accelerates the sampling process by 2-3x on coding and math reasoning benchmarks without sacrificing performance. The EB-Sampler is formulated as part of a broader family of adaptive samplers, and the paper provides an error analysis that motivates the algorithmic choices ma",
   "limitations": [],
   "future_work": [],
   "study_type": "empirical",
@@ -18,7 +18,7 @@
   "implementation_complexity": "medium",
   "resource_requirements": {
     "team_size": "small_team",
-    "estimated_time_weeks": 8,
+    "estimated_time_weeks": 4,
     "compute_requirements": "",
     "data_requirements": "",
     "budget_tier": null,
@@ -27,20 +27,9 @@
   },
   "success_metrics": [],
   "problem_addressed": "Accelerating the sampling process for Masked Diffusion Models (MDMs) while maintaining performance.",
-  "prerequisites": [
-    "Python",
-    "PyTorch",
-    "GPU access"
-  ],
-  "comparable_approaches": [
-    "Random order unmasking",
-    "Autoregressive models (ARMs)"
-  ],
-  "real_world_applications": [
-    "Language generation",
-    "Code generation",
-    "Mathematical reasoning"
-  ],
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
   "evidence_strength": 0.8,
   "practical_applicability": 0.7,
   "extraction_confidence": 0.8,
