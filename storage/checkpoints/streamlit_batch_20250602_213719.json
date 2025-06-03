@@ -1,0 +1,39 @@
+{
+  "processed_ids": [],
+  "timestamp": "2025-06-03T02:44:31.116035",
+  "stats": {
+    "total_processed": 0,
+    "successful": 0,
+    "failed": 50,
+    "skipped": 0,
+    "total_time": 0.0,
+    "total_cost": 0.0,
+    "errors": [
+      {
+        "paper_id": "2505.24878v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-03T02:38:19.758737"
+      },
+      {
+        "paper_id": "2505.24858v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-03T02:39:55.357890"
+      },
+      {
+        "paper_id": "2505.24830v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-03T02:41:33.653567"
+      },
+      {
+        "paper_id": "2505.24779v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-03T02:42:49.499717"
+      },
+      {
+        "paper_id": "2505.24731v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-03T02:43:52.369094"
+      }
+    ]
+  }
+}

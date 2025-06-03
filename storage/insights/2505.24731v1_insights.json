@@ -1,0 +1,41 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24731v1",
+  "extraction_timestamp": "2025-06-03 02:43:18.900745",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Then, through three case studies, we\nempirically show that circuit stability and the lack thereof can characterize\nand predict different aspects of generalization."
+  ],
+  "main_contribution": "Circuit Stability Characterizes Language Model Generalization. Extensively evaluating the capabilities of (large) language models is\ndifficult",
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [
+    "general"
+  ],
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "team_size": "not_specified",
+    "estimated_time_weeks": null,
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

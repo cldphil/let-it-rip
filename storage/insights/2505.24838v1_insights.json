@@ -1,0 +1,43 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24838v1",
+  "extraction_timestamp": "2025-06-03 02:39:25.553501",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "VideoCAD is a large-scale synthetic dataset consisting of over 41K annotated video recordings of CAD operations, generated using an automated framework for collecting high-fidelity UI action data from human-made CAD designs.",
+    "It offers an order of magnitude higher complexity in UI interaction learning for real-world engineering tasks, having up to a 20\u00d7 longer time horizon than other datasets.",
+    "The authors propose VideoCADFormer, a state-of-the-art model for learning CAD interactions directly from video, which outperforms multiple behavior cloning baselines.",
+    "VideoCAD introduces a visual question-answering (VQA) benchmark designed to evaluate multimodal large language models' (LLMs) spatial reasoning and video understanding abilities, consisting of 1,200 visual questions.",
+    "The experiments highlight a critical gap in spatial reasoning of LLMs in precise engineering tasks, suggesting the need for precise action grounding, multi-modal and spatial reasoning, and long-horizon dependencies."
+  ],
+  "main_contribution": "The primary contribution of this paper is the introduction of VideoCAD, a large-scale synthetic dataset of annotated video recordings of CAD operations, along with a state-of-the-art model, VideoCA...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "team_size": "medium_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Learning UI interactions from professional precision 3D CAD tools and evaluating multimodal large language models' spatial reasoning and video understanding abilities.",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Software automation",
+    "CAD modeling"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

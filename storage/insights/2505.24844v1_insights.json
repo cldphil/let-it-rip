@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24844v1",
+  "extraction_timestamp": "2025-06-03 02:40:10.915000",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The proposed Chameleon framework employs leverage scores to quantify domain importance within a learned embedding space, allowing for efficient data mixing during language model pretraining and finetuning.",
+    "Chameleon constructs a domain affinity matrix over domain embeddings, and the induced leverage scores determine a mixture that upweights domains sharing common representations in the embedding space.",
+    "Experiments showed that Chameleon's computed weights improved performance on pretraining domains with a fraction of the compute compared to existing methods.",
+    "Chameleon can adapt to data changes without proxy retraining, boosting few-shot reasoning accuracies when transferred to new data.",
+    "On finetuning tasks, Chameleon enabled efficient domain reweighting, consistently improving test perplexity on all finetuning domains over uniform mixture baselines."
+  ],
+  "main_contribution": "Chameleon introduces a flexible and efficient data mixing framework that employs leverage scores to quantify domain importance within a learned embedding space, allowing for direct transfer to new ...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "fine_tuning"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Efficient data mixing for language model pretraining and finetuning",
+  "prerequisites": [
+    "Python",
+    "Machine Learning"
+  ],
+  "comparable_approaches": [
+    "Uniform data mixing",
+    "Other data reweighting methods"
+  ],
+  "real_world_applications": [
+    "Language model pretraining",
+    "Domain adaptation for language models"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

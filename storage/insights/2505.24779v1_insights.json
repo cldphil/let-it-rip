@@ -1,0 +1,46 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24779v1",
+  "extraction_timestamp": "2025-06-03 02:42:34.525308",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The proposed framework, EVA-MILP, provides a unified and extensible methodology for evaluating the quality of MILP instance generation methods across multiple dimensions: mathematical validity, structural similarity, computational hardness, and utility in downstream machine learning tasks.",
+    "A key innovation is the in-depth analysis of solver-internal features, such as comparing distributions of root node gap, heuristic success rates, and cut plane usage, leveraging the solver's dynamic solution behavior as an 'expert assessment' to reveal nuanced computational resemblances.",
+    "The framework offers a structured approach with clearly defined solver-independent and solver-dependent metrics, facilitating robust comparisons among diverse generation techniques and spurring the development of higher-quality instance generators.",
+    "The effectiveness of the framework in systematically comparing the fidelity of instance sets is demonstrated using contemporary generative models.",
+    "The framework aims to enhance the reliability of research reliant on synthetic MILP data by providing a standardized evaluation methodology."
+  ],
+  "main_contribution": "This paper introduces a comprehensive benchmark framework designed for the systematic and objective evaluation of MILP instance generation methods. The framework provides a unified and extensible m...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Assessing the fidelity and utility of synthetic MILP instances, which has significantly outpaced standardized evaluation techniques.",
+  "prerequisites": [
+    "Knowledge of MILP",
+    "Access to MILP solvers"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Optimization research",
+    "Machine learning with MILP data"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

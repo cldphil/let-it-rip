@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24858v1",
+  "extraction_timestamp": "2025-06-03 02:39:36.709375",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, to improve the faithful calibration of large language models (LLMs) in expressing uncertainty.",
+    "MetaFaith robustly improves faithful calibration across diverse models and task domains, enabling up to 61% improvement in faithfulness and achieving an 83% win rate over original generations as judged by humans.",
+    "Standard prompt approaches and existing factuality-based calibration techniques provide only marginal gains and can even harm faithful calibration.",
+    "LLMs often suffer from hallucinations, producing inaccurate information while communicating it in a decisive manner, which can undermine trustworthiness and cause potential harm in high-stakes settings.",
+    "For LLMs to be deployed reliably and responsibly, it is essential that their linguistically expressed confidence faithfully reflects their internal uncertainty."
+  ],
+  "main_contribution": "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, which robustly improves the faithful calibration of large language models (LLMs) in expres...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving the faithful calibration of large language models in expressing uncertainty",
+  "prerequisites": [
+    "Natural Language Processing",
+    "Large Language Models"
+  ],
+  "comparable_approaches": [
+    "Standard prompt approaches",
+    "Factuality-based calibration techniques"
+  ],
+  "real_world_applications": [
+    "High-stakes decision-making",
+    "Risk assessment",
+    "Trustworthy AI systems"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,55 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24778v1",
+  "extraction_timestamp": "2025-06-03 02:42:34.093007",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes a framework to evaluate the confidence of large language models (LLMs) in using epistemic markers (e.g. 'fairly certain', 'undoubtedly') to convey uncertainty in their responses.",
+    "The marker confidence is calculated as the accuracy of answers containing a specific marker, evaluated across multiple models and datasets.",
+    "Results show that while markers perform well on in-distribution data, their stability declines for out-of-distribution contexts.",
+    "More powerful LLM models demonstrate better understanding and usage of epistemic markers compared to smaller models.",
+    "An example shows that for the marker 'fairly certain' on the StrategyQA dataset, GPT-4 had a marker confidence of around 64.52%, getting 20 out of 31 responses correct."
+  ],
+  "main_contribution": "This paper introduces a novel framework to systematically evaluate how well large language models can use epistemic markers (linguistic cues like 'fairly certain') to accurately convey their uncert...",
+  "limitations": [
+    "Evaluation is limited to a predefined set of epistemic markers",
+    "Marker confidence may not fully capture the semantic nuances of verbal uncertainty expressions"
+  ],
+  "future_work": [
+    "Explore methods to improve LLM calibration of epistemic markers, especially in out-of-distribution settings"
+  ],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": "Multiple GPUs (unspecified)",
+    "data_requirements": "Multiple datasets (unspecified)",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating the ability of large language models to accurately convey uncertainty using epistemic markers",
+  "prerequisites": [
+    "Python",
+    "Natural Language Processing",
+    "Access to LLM models"
+  ],
+  "comparable_approaches": [
+    "Numerical confidence estimation methods for LLMs"
+  ],
+  "real_world_applications": [
+    "Improving trust and transparency in conversational AI systems"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

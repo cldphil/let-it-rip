@@ -1,0 +1,61 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24850v1",
+  "extraction_timestamp": "2025-06-03 02:39:35.232733",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes a new method called Reinforcement Distillation (REDI) for improving the reasoning abilities of large language models (LLMs) on tasks like mathematics by leveraging both positive and negative examples from teacher data.",
+    "REDI combines supervised fine-tuning (SFT) with reinforcement learning techniques like DPO and SimPO, outperforming baseline SFT or SFT combined with DPO/SimPO on mathematical reasoning tasks.",
+    "The Qwen-REDI-1.5B model, post-trained on just 131k positive and negative examples from the open Open-R1 dataset, achieved 83.1% on the MATH-500 benchmark (pass@1), matching or surpassing the performance of a model post-trained on 800k proprietary data.",
+    "REDI establishes a new state-of-the-art for 1.5B models post-trained offline with openly available data on various mathematical reasoning benchmarks.",
+    "The approach leverages negative signals from teacher data, which is a unique aspect compared to typical reinforcement learning methods that rely solely on positive examples."
+  ],
+  "main_contribution": "This paper introduces Reinforcement Distillation (REDI), a novel method that combines supervised fine-tuning with reinforcement learning techniques like DPO and SimPO to improve the reasoning abili...",
+  "limitations": [
+    "The approach requires access to high-quality teacher data with both positive and negative examples.",
+    "The computational requirements for reinforcement learning can be significant, especially for larger models."
+  ],
+  "future_work": [
+    "Exploring the application of REDI to other domains beyond mathematics, such as natural language reasoning or scientific reasoning."
+  ],
+  "study_type": "empirical",
+  "industry_applications": [
+    "education"
+  ],
+  "techniques_used": [
+    "fine_tuning",
+    "reinforcement_learning",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "team_size": "medium_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": "Not specified",
+    "data_requirements": "131k positive and negative examples from Open-R1 dataset",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving the reasoning abilities of large language models on complex tasks like mathematics.",
+  "prerequisites": [
+    "Python",
+    "PyTorch",
+    "Access to LLM and teacher data"
+  ],
+  "comparable_approaches": [
+    "Reinforcement learning",
+    "Supervised fine-tuning"
+  ],
+  "real_world_applications": [
+    "Automated tutoring systems",
+    "Mathematical question-answering"
+  ],
+  "evidence_strength": 0.9,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

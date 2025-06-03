@@ -1,0 +1,59 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24757v1",
+  "extraction_timestamp": "2025-06-03 02:42:48.283407",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes LGAR, a zero-shot LLM-Guided Abstract Ranker composed of an LLM-based graded relevance scorer and a dense re-ranker for abstract screening in systematic literature reviews (SLRs).",
+    "LGAR outperforms existing question-answering (QA) based ranking approaches by 5-10 percentage points in mean average precision, mitigating error propagation issues faced by QA methods.",
+    "The authors manually extracted inclusion/exclusion criteria and research questions for 57 SLRs, mostly in the medical domain, enabling principled comparisons between approaches and leveraging the capabilities of large language models (LLMs).",
+    "LGAR utilizes a two-stage ranking approach: (1) the LLM ranker makes use of the extracted SLR criteria to score abstracts, and (2) a dense re-ranker further refines the ranking.",
+    "The extensive experiments demonstrate the effectiveness of LGAR in automating the abstract screening process for SLRs, which is typically very expensive and time-consuming."
+  ],
+  "main_contribution": "The paper introduces LGAR, a zero-shot LLM-guided neural ranking approach for abstract screening in systematic literature reviews. It leverages large language models to evaluate SLR inclusion/exclu...",
+  "limitations": [
+    "The approach requires manually extracting SLR criteria and research questions, which can be time-consuming for a large number of SLRs."
+  ],
+  "future_work": [
+    "Exploring automated extraction of SLR criteria and research questions from the review protocols."
+  ],
+  "study_type": "empirical",
+  "industry_applications": [
+    "healthcare"
+  ],
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": "Not specified",
+    "data_requirements": "57 SLRs with manually extracted criteria and research questions",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Automating the abstract screening process for systematic literature reviews, which is typically very expensive and time-consuming.",
+  "prerequisites": [
+    "Python",
+    "PyTorch",
+    "Large Language Models",
+    "Dense Retrieval"
+  ],
+  "comparable_approaches": [
+    "Question-Answering based ranking approaches"
+  ],
+  "real_world_applications": [
+    "Medical research",
+    "Evidence-based practice",
+    "Literature review automation"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

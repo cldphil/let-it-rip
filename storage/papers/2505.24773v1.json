@@ -1,0 +1,16 @@
+{
+  "id": "http://arxiv.org/abs/2505.24773v1",
+  "title": "AFLoRA: Adaptive Federated Fine-Tuning of Large Language Models with\n  Resource-Aware Low-Rank Adaption",
+  "summary": "Federated fine-tuning has emerged as a promising approach to adapt foundation\nmodels to downstream tasks using decentralized data. However, real-world\ndeployment remains challenging due to the high computational and communication\ndemands of fine-tuning Large Language Models (LLMs) on clients with data and\nsystem resources that are heterogeneous and constrained. In such settings, the\nglobal model's performance is often bottlenecked by the weakest clients and\nfurther degraded by the non-IID nature of local data. Although existing methods\nleverage parameter-efficient techniques such as Low-Rank Adaptation (LoRA) to\nreduce communication and computation overhead, they often fail to\nsimultaneously ensure accurate aggregation of low-rank updates and maintain low\nsystem costs, thereby hindering overall performance. To address these\nchallenges, we propose AFLoRA, an adaptive and lightweight federated\nfine-tuning framework for LLMs. AFLoRA decouples shared and client-specific\nupdates to reduce overhead and improve aggregation accuracy, incorporates\ndiagonal matrix-based rank pruning to better utilize local resources, and\nemploys rank-aware aggregation with public data refinement to strengthen\ngeneralization under data heterogeneity. Extensive experiments demonstrate that\nAFLoRA outperforms state-of-the-art methods in both accuracy and efficiency,\nproviding a practical solution for efficient LLM adaptation in heterogeneous\nenvironments in the real world.",
+  "authors": [
+    "Yajie Zhou",
+    "Xiaoyi Pang",
+    "Zhibo Wang"
+  ],
+  "published": "2025-05-30T16:35:32Z",
+  "updated": "2025-05-30T16:35:32Z",
+  "categories": [
+    "cs.LG"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2505.24773v1",
+  "full_text": 

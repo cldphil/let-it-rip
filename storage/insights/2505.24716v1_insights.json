@@ -1,0 +1,61 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24716v1",
+  "extraction_timestamp": "2025-06-03 02:44:06.387669",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes using large language models (LLMs) to automatically generate schema mappings between diverse data sources, addressing the challenge of manually writing mappings which requires understanding the semantics of each source.",
+    "It identifies three key challenges in using LLMs for schema mapping: (1) handling large schemas that exceed LLM context windows through sampling and aggregation techniques, (2) enabling more expressive mappings like GLaV which strain LLM context windows, and (3) mitigating the computational cost of repeated LLM calls through strategies like data type prefiltering.",
+    "The motivation comes from a real-world NIH project that aims to integrate biomedical data from various sources (clinical trials, research literature, adverse effects) to repurpose drugs for treating rare diseases.",
+    "Writing correct schema mappings often requires cross-referencing natural language documentation, the source schema, and the target schema, making it a time-consuming and error-prone process that could benefit from LLM-based automation.",
+    "The paper presents a theoretical approach and identifies key challenges, but does not provide empirical results or a fully implemented solution."
+  ],
+  "main_contribution": "This paper proposes using large language models (LLMs) to automatically generate schema mappings between diverse data sources, addressing the challenge of manually writing mappings which is time-co...",
+  "limitations": [
+    "No empirical results or implementation details provided",
+    "Potential limitations of LLMs in handling complex schema mappings not discussed"
+  ],
+  "future_work": [
+    "Implement and evaluate the proposed LLM-based schema mapping approach empirically"
+  ],
+  "study_type": "theoretical",
+  "industry_applications": [
+    "healthcare",
+    "finance"
+  ],
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "Not specified",
+    "data_requirements": "Not specified",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Automating the time-consuming and error-prone process of writing schema mappings between diverse data sources",
+  "prerequisites": [
+    "Natural Language Processing",
+    "Schema Mapping",
+    "Large Language Models"
+  ],
+  "comparable_approaches": [
+    "Manual schema mapping",
+    "Rule-based schema mapping"
+  ],
+  "real_world_applications": [
+    "Biomedical data integration",
+    "Financial data integration",
+    "Enterprise data integration"
+  ],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.6,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

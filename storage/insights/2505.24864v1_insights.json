@@ -1,0 +1,47 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24864v1",
+  "extraction_timestamp": "2025-06-03 02:38:32.769496",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes a methodology that incorporates KL divergence control, reference policy resetting, and a diverse suite of tasks for prolonged reinforcement learning (RL) to expand the reasoning boundaries of large language models.",
+    "RL-trained models consistently outperformed base models across a wide range of evaluations, including scenarios where base models failed entirely regardless of the number of attempts.",
+    "The improvements in reasoning boundaries correlated strongly with the task competence of the base model and the training duration, suggesting that RL can explore and populate new regions of the solution space over time.",
+    "The findings offer insights into the conditions under which RL can meaningfully expand the reasoning boundaries of language models, establishing a foundation for future work on long-horizon RL for reasoning.",
+    "The authors release model weights to support further research: https://huggingface.co/nvidia/Nemotron-Research-Reasoning-Qwen-1.5B."
+  ],
+  "main_contribution": "The paper proposes a methodology that incorporates KL divergence control, reference policy resetting, and a diverse suite of tasks for prolonged reinforcement learning (RL) to expand the reasoning ...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "fine_tuning",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 4,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Expanding the reasoning boundaries of large language models",
+  "prerequisites": [
+    "Python",
+    "PyTorch",
+    "GPU access"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

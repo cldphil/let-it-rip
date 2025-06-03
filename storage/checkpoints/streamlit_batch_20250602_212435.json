@@ -1,0 +1,21 @@
+{
+  "processed_ids": [
+    "2505.24875v1",
+    "2505.24870v1",
+    "2505.24878v1",
+    "2505.24871v1",
+    "2505.24876v1",
+    "2505.24873v1",
+    "2505.24877v1"
+  ],
+  "timestamp": "2025-06-03T02:24:49.624701",
+  "stats": {
+    "total_processed": 0,
+    "successful": 7,
+    "failed": 0,
+    "skipped": 0,
+    "total_time": 0.0,
+    "total_cost": 0.14,
+    "errors": []
+  }
+}

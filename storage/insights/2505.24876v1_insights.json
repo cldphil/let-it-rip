@@ -1,0 +1,45 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24876v1",
+  "extraction_timestamp": "2025-06-03 02:38:20.145211",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The Agent-X benchmark evaluates deep multimodal reasoning capabilities of AI agents in vision-centric tasks, where queries avoid explicit tool references or instructions to encourage independent reasoning and action.",
+    "The evaluation framework assesses the correctness and logical coherence of each reasoning step, as well as the effectiveness of tool usage throughout the task.",
+    "Even state-of-the-art models like GPT, Gemini, and Qwen families struggle to solve multi-step vision tasks in Agent-X, achieving less than 50% full-chain success.",
+    "The findings highlight key bottlenecks in current large multimodal models' reasoning and tool-use capabilities, identifying future research directions in vision-centric agentic reasoning models.",
+    "The approach helps distinguish genuine logical progression from inconsistencies and confabulations in reasoning chains, as illustrated through examples."
+  ],
+  "main_contribution": "The paper introduces Agent-X, a benchmark for evaluating deep multimodal reasoning in vision-centric agentic tasks, where AI agents must perceive inputs, invoke tools, and execute actions without e...",
+  "limitations": [],
+  "future_work": [
+    "Developing improved vision-centric agentic reasoning models based on the identified bottlenecks"
+  ],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating deep multimodal reasoning capabilities of AI agents in vision-centric tasks",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Intelligent virtual assistants",
+    "Robotics"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.6,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,25 @@
+{
+  "id": "http://arxiv.org/abs/2505.24803v2",
+  "title": "Guiding Generative Storytelling with Knowledge Graphs",
+  "summary": "Large Language Models (LLMs) have shown great potential in automated story\ngeneration, but challenges remain in maintaining long-form coherence and\nproviding users with intuitive and effective control. Retrieval-Augmented\nGeneration (RAG) has proven effective in reducing hallucinations in text\ngeneration; however, the use of structured data to support generative\nstorytelling remains underexplored. This paper investigates how knowledge\ngraphs (KGs) can enhance LLM-based storytelling by improving narrative quality\nand enabling user-driven modifications. We propose a KG-assisted storytelling\npipeline and evaluate its effectiveness through a user study with 15\nparticipants. Participants created their own story prompts, generated stories,\nand edited knowledge graphs to shape their narratives. Through quantitative and\nqualitative analysis, our findings demonstrate that knowledge graphs\nsignificantly enhance story quality in action-oriented and structured\nnarratives within our system settings. Additionally, editing the knowledge\ngraph increases users' sense of control, making storytelling more engaging,\ninteractive, and playful.",
+  "authors": [
+    "Zhijun Pan",
+    "Antonios Andronis",
+    "Eva Hayek",
+    "Oscar AP Wilkinson",
+    "Ilya Lasy",
+    "Annette Parry",
+    "Guy Gadney",
+    "Tim J. Smith",
+    "Mick Grierson"
+  ],
+  "published": "2025-05-30T17:08:21Z",
+  "updated": "2025-06-02T17:37:17Z",
+  "categories": [
+    "cs.CL",
+    "cs.HC"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2505.24803v2",
+  "full_text": "",
+  "text_length": 0
+}

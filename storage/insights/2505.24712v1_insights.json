@@ -1,0 +1,44 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24712v1",
+  "extraction_timestamp": "2025-06-03 02:43:49.344195",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "HESEIA is a dataset of 46,499 sentences created by 370 high-school teachers and 5,370 students from 189 Latin American schools, capturing intersectional biases across multiple demographic axes and school subjects relevant to their local contexts and lived experiences.",
+    "Unlike existing benchmarks that are crowdsourced, HESEIA was co-designed by educational communities through a professional development course where teachers used minimal pairs to create sentences expressing stereotypes relevant to their school subjects and communities.",
+    "The dataset demonstrates diversity in terms of demographic axes represented as well as the knowledge areas included, containing more stereotypes unrecognized by current large language models compared to previous datasets.",
+    "HESEIA is intended to support bias assessments grounded in the perspectives of communities affected by biases, addressing critiques that existing datasets may not adequately represent minority groups.",
+    "The co-design process with educators aimed to create a dataset that reflects local contexts and pedagogical expertise, capturing biases relevant to the lived experiences of the communities involved."
+  ],
+  "main_contribution": "This paper introduces HESEIA, a large-scale dataset of 46,499 sentences created through a professional development course involving 370 high-school teachers and 5,370 students from 189 Latin Americ...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "medium_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "",
+    "data_requirements": "46,499 examples",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Existing datasets for evaluating social biases in large language models may not adequately represent the perspectives and lived experiences of minority groups.",
+  "prerequisites": [],
+  "comparable_approaches": [
+    "Crowdsourced datasets like CrowS-Pairs, Multilingual CrowS-Pairs, and StereoSet"
+  ],
+  "real_world_applications": [
+    "Bias assessment and mitigation for large language models"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

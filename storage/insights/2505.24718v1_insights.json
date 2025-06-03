@@ -1,0 +1,50 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24718v1",
+  "extraction_timestamp": "2025-06-03 02:44:31.015741",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes a Thinking-While-Grounding Reinforced Policy Optimization (TW-GRPO) method that aims to improve video reasoning by focusing the model's thinking process on semantically critical spatio-temporal cues in the video.",
+    "TW-GRPO achieves state-of-the-art performance on several video reasoning benchmarks, including 50.4% accuracy on CLEVRER (18.8% improvement over Video-R1) and 65.8% on MMVU.",
+    "The method addresses the issue of verbose and unfocused thinking chains produced by existing chain-of-thought reasoning approaches when applied to multimodal language-video models.",
+    "TW-GRPO uses soft reward signals based on video grounding, which enables learning from partial correctness instead of relying on sparse, binary rewards from single-choice question-answering tasks.",
+    "The approach prioritizes semantically critical spatio-temporal cues in the video, which can improve learning efficiency and reasoning quality for complex multimodal tasks."
+  ],
+  "main_contribution": "The paper introduces a novel Thinking-While-Grounding Reinforced Policy Optimization (TW-GRPO) method that improves video reasoning by focusing the model's thinking process on semantically critical...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "fine_tuning",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 4,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving video reasoning by focusing the model's thinking process on semantically critical spatio-temporal cues in the video, and addressing the issues of verbose and unfocused thinking chains, and sparse binary rewards in existing approaches.",
+  "prerequisites": [
+    "Python",
+    "PyTorch",
+    "GPU access"
+  ],
+  "comparable_approaches": [
+    "BERT fine-tuning",
+    "GPT-3 prompting"
+  ],
+  "real_world_applications": [],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

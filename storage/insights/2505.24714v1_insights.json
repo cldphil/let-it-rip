@@ -1,0 +1,44 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24714v1",
+  "extraction_timestamp": "2025-06-03 02:44:15.673643",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The FinMME dataset was created through a combination of manual curation and automated crawling, prioritizing copyright compliance and selecting materials authorized for public dissemination.",
+    "A rigorous three-stage cleaning process was employed, involving automated deduplication, format standardization, and manual review, to ensure the authoritativeness and legality of data sources.",
+    "The annotation process involved a team of 20 annotators, including 12 junior annotators with basic finance knowledge and 8 experts from academia and the finance industry.",
+    "The annotation and review process required approximately 800 cumulative hours of effort.",
+    "The dataset encompasses more than 11,000 high-quality financial research samples across 18 financial domains and 6 asset classes, featuring 10 major chart types and 21 subtypes."
+  ],
+  "main_contribution": "The primary contribution of this paper is the introduction of FinMME, a comprehensive benchmark dataset for evaluating multimodal large language models (MLLMs) in the financial domain. The dataset ...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [
+    "finance"
+  ],
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "medium_team",
+    "estimated_time_weeks": 4,
+    "compute_requirements": "",
+    "data_requirements": "11,000 examples",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "The lack of effective and specialized multimodal evaluation datasets in the financial domain for assessing the performance of multimodal large language models (MLLMs).",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Evaluating the performance of MLLMs in financial applications"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

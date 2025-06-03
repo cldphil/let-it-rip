@@ -1,0 +1,58 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24768v1",
+  "extraction_timestamp": "2025-06-03 02:42:26.391742",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper investigates the impact of dataset diversity on the performance of language models during supervised fine-tuning (SFT).",
+    "Six distinct diversity-control strategies spanning macro-, meso-, and microscopic levels were applied to both instructions and responses to construct fixed-size datasets from a corpus of 117,000 open-source SFT samples.",
+    "Results showed that while macroscopic and mesoscopic strategies led to higher performance with increasing diversity, the microscopic strategy in responses exhibited a stronger correlation between model performance and the degree of diversity, as well as superior performance with maximum diversity across all strategies.",
+    "The microscopic strategy involved decomposing instructions into atomic components and increasing diversity by covering more instruction unit tags.",
+    "The findings offer actionable insights for constructing high-performance SFT datasets by controlling diversity at different levels."
+  ],
+  "main_contribution": "This paper advances research on dataset diversity for supervised fine-tuning of large language models. It evaluates six distinct diversity-control strategies spanning macro, meso, and micro levels,...",
+  "limitations": [
+    "The study is limited to open-source SFT samples and may not generalize to proprietary or domain-specific datasets."
+  ],
+  "future_work": [
+    "Explore the impact of dataset diversity on few-shot and zero-shot learning scenarios."
+  ],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [
+    "fine_tuning",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 8,
+    "compute_requirements": "Not specified",
+    "data_requirements": "117,000 open-source SFT samples",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving the performance of language models during supervised fine-tuning by controlling dataset diversity.",
+  "prerequisites": [
+    "Python",
+    "Deep learning frameworks (e.g., PyTorch, TensorFlow)",
+    "GPU access"
+  ],
+  "comparable_approaches": [
+    "Standard fine-tuning without diversity control",
+    "Data augmentation techniques"
+  ],
+  "real_world_applications": [
+    "Conversational AI assistants",
+    "Question-answering systems",
+    "Text generation tasks"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

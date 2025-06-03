@@ -1,0 +1,41 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24862v1",
+  "extraction_timestamp": "2025-06-03 02:38:55.210678",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "To ensure comprehensive comparisons, our benchmark\nincorporates a wide range of evaluation metrics assessing critical aspects.\nThis structured and multifaceted framework enables researchers to thoroughly\nidentify both the strengths and weaknesses of different models, fostering\ntargeted improvements."
+  ],
+  "main_contribution": "To further\nenhance the performance of story visualization frameworks in real-world\nscenarios, we introduce a comprehensive evaluation benchmark, ViStoryBench",
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [
+    "general"
+  ],
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "team_size": "not_specified",
+    "estimated_time_weeks": null,
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

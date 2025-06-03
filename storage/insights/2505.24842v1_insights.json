@@ -1,0 +1,40 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24842v1",
+  "extraction_timestamp": "2025-06-03 02:40:12.151616",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The study evaluates the vulnerability of distilled language models to adversarial bias injection attacks during the distillation process, revealing significant security and trustworthiness issues with current defense mechanisms like perplexity filtering, bias detection systems, and LLM-based autorater frameworks.",
+    "The authors propose practical design principles to build more effective adversarial bias mitigation strategies for distilled language models in the future.",
+    "Model distillation has gained traction due to the computational resources required for inference with state-of-the-art large language models, making them impractical for many real-world applications.",
+    "Major companies have introduced text-based distillation services that enable users to train their own specialized, smaller models by querying larger models, without the need for extensive computational resources for training from scratch.",
+    "The large-scale deployment of model distillation services raises concerns about the potential for adversarial bias injection during the distillation process, which could lead to the propagation of harmful biases in the distilled models."
+  ],
+  "main_contribution": "This paper investigates the vulnerability of distilled language models to adversarial bias injection attacks during the distillation process, and proposes practical design principles to build more ...",
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "industry_applications": [],
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "team_size": "small_team",
+    "estimated_time_weeks": 12,
+    "compute_requirements": "",
+    "data_requirements": "",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Addressing the potential for adversarial bias injection in distilled language models and the propagation of harmful biases.",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.8,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}
