@@ -1,61 +1,43 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24850v1",
-  "extraction_timestamp": "2025-06-03 04:30:32.462483",
+  "extraction_timestamp": "2025-06-04 03:13:13.247826",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper proposes a new method called Reinforcement Distillation (REDI) for improving the reasoning abilities of large language models (LLMs) on tasks like mathematics, by leveraging both positive and negative examples during the distillation process.",
-    "REDI outperforms baseline methods like Rejection Sampling Supervised Fine-Tuning (SFT) and SFT combined with DPO/SimPO on mathematical reasoning tasks.",
-    "The Qwen-REDI-1.5B model, post-trained on just 131k positive and negative examples from the open Open-R1 dataset, achieves an 83.1% score on the MATH-500 benchmark (pass@1), matching or surpassing the performance of a model post-trained on 800k proprietary data.",
-    "REDI establishes a new state-of-the-art for 1.5B models post-trained offline with openly available data on various mathematical reasoning benchmarks.",
-    "Unlike computationally intensive reinforcement learning approaches that require strong base models, REDI can effectively distill reasoning abilities into weaker base models using a relatively small amount of data."
+    "Recent advances in model distillation demonstrate that data from advanced\nreasoning models (e.g., DeepSeek-R1, OpenAI's o1) can effectively transfer\ncomplex reasoning abilities to smaller, efficient student models. However,\nstandard practices employ rejection sampling, discarding incorrect reasoning\nexamples -- valuable, yet often underutilized data.",
+    "This paper addresses the\ncritical question: How can both positive and negative distilled reasoning\ntraces be effectively leveraged to maximize LLM reasoning performance in an\noffline setting? To this end, We propose Reinforcement Distillation (REDI), a\ntwo-stage framework. Stage 1 learns from positive traces via Supervised\nFine-Tuning (SFT).",
+    "Stage 2 further refines the model using both positive and\nnegative traces through our proposed REDI objective. This novel objective is a\nsimple, reference-free loss function that outperforms established methods like\nDPO and SimPO in this distillation context.",
+    "Our empirical evaluations\ndemonstrate REDI's superiority over baseline Rejection Sampling SFT or SFT\ncombined with DPO/SimPO on mathematical reasoning tasks.",
+    "Notably, the\nQwen-REDI-1.5B model, post-trained on just 131k positive and negative examples\nfrom the open Open-R1 dataset, achieves an 83.1% score on MATH-500 (pass@1).\nIts performance matches or surpasses that of DeepSeek-R1-Distill-Qwen-1.5B (a\nmodel post-trained on 800k proprietary data) across various mathematical\nreasoning benchmarks, establishing a new state-of-the-art for 1.5B models\npost-trained offline with openly available data."
   ],
-  "main_contribution": "The paper introduces Reinforcement Distillation (REDI), a novel method that leverages both positive and negative examples during the distillation process to effectively instill advanced reasoning abilities, such as mathematical reasoning, into large language models. REDI outperforms baseline approaches and achieves state-of-the-art performance on various benchmarks, even with a relatively small am",
   "limitations": [
-    "The paper does not provide details on the computational resources required for training REDI models."
+    "Full text not analyzed",
+    "Detailed methodology not available"
   ],
-  "future_work": [
-    "Exploring the application of REDI to other domains beyond mathematical reasoning."
-  ],
-  "study_type": "empirical",
-  "industry_applications": [
-    "education",
-    "finance"
-  ],
+  "future_work": [],
+  "study_type": "unknown",
   "techniques_used": [
     "fine_tuning",
-    "reinforcement_learning",
-    "prompt_engineering"
+    "retrieval_augmented_generation",
+    "reinforcement_learning"
   ],
-  "implementation_complexity": "medium",
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "small_team",
-    "estimated_time_weeks": 4,
     "compute_requirements": null,
-    "data_requirements": "131k examples",
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Improving the reasoning abilities of large language models on complex tasks like mathematics.",
-  "prerequisites": [
-    "Python",
-    "Deep Learning frameworks (e.g., PyTorch, TensorFlow)",
-    "GPU access"
-  ],
-  "comparable_approaches": [
-    "Reinforcement Learning",
-    "Supervised Fine-Tuning"
-  ],
-  "real_world_applications": [
-    "educational applications",
-    "financial modeling"
-  ],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
-  "extraction_confidence": 0.8,
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
   "has_code_available": false,
-  "has_dataset_available": true,
+  "has_dataset_available": false,
   "reproducibility_score": null,
   "industry_validation": false
 }

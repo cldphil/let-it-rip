@@ -1,42 +1,37 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24876v1",
-  "extraction_timestamp": "2025-06-03 04:30:00.511132",
+  "extraction_timestamp": "2025-06-04 03:12:59.802558",
   "extraction_version": "1.0",
   "key_findings": [
-    "The Agent-X benchmark evaluates deep multimodal reasoning capabilities of AI agents in vision-centric tasks, where queries avoid explicit tool references or instructions to encourage independent reasoning and action.",
-    "The evaluation framework assesses the correctness and logical coherence of each reasoning step, as well as the effectiveness of tool usage throughout the task.",
-    "Even state-of-the-art models like GPT, Gemini, and Qwen families struggle to solve multi-step vision tasks in Agent-X, achieving less than 50% full-chain success.",
-    "The results highlight key bottlenecks in current large multimodal models' reasoning and tool-use capabilities, identifying future research directions in vision-centric agentic reasoning models.",
-    "The Agent-X benchmark aims to distinguish genuine reasoning from inconsistencies and confabulations in reasoning chains, as illustrated by an example in Figure 1."
+    "Deep reasoning is fundamental for solving complex tasks, especially in\nvision-centric scenarios that demand sequential, multimodal understanding.\nHowever, existing benchmarks typically evaluate agents with fully synthetic,\nsingle-turn queries, limited visual modalities, and lack a framework to assess\nreasoning quality over multiple steps as required in real-world settings. To\naddress this, we introduce Agent-X, a large-scale benchmark for evaluating\nvision-centric agents multi-step and deep reasoning capabilities in real-world,\nmultimodal settings. Agent- X features 828 agentic tasks with authentic visual\ncontexts, including images, multi-image comparisons, videos, and instructional\ntext. These tasks span six major agentic environments: general visual\nreasoning, web browsing, security and surveillance, autonomous driving, sports,\nand math reasoning. Our benchmark requires agents to integrate tool use with\nexplicit, stepwise decision-making in these diverse settings.",
+    "In addition, we\npropose a fine-grained, step-level evaluation framework that assesses the\ncorrectness and logical coherence of each reasoning step and the effectiveness\nof tool usage throughout the task.",
+    "Our results reveal that even the\nbest-performing models, including GPT, Gemini, and Qwen families, struggle to\nsolve multi-step vision tasks, achieving less than 50% full-chain success.\nThese findings highlight key bottlenecks in current LMM reasoning and tool-use\ncapabilities and identify future research directions in vision-centric agentic\nreasoning models. Our data and code are publicly available at\nhttps://github.com/mbzuai-oryx/Agent-X."
   ],
-  "main_contribution": "This paper introduces Agent-X, a benchmark for evaluating deep multimodal reasoning capabilities of AI agents in vision-centric tasks. It provides an evaluation framework that assesses the logical coherence of reasoning steps and tool usage effectiveness, revealing significant performance gaps even in state-of-the-art models.",
-  "limitations": [],
-  "future_work": [
-    "Developing improved vision-centric agentic reasoning models based on the identified bottlenecks."
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
   ],
-  "study_type": "empirical",
-  "industry_applications": [],
+  "future_work": [],
+  "study_type": "unknown",
   "techniques_used": [],
-  "implementation_complexity": "medium",
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "small_team",
-    "estimated_time_weeks": 12,
-    "compute_requirements": "",
-    "data_requirements": "",
+    "compute_requirements": null,
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Evaluating deep multimodal reasoning capabilities of AI agents in vision-centric tasks.",
+  "problem_addressed": "",
   "prerequisites": [],
   "comparable_approaches": [],
   "real_world_applications": [],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.6,
-  "extraction_confidence": 0.8,
-  "has_code_available": true,
-  "has_dataset_available": true,
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
   "reproducibility_score": null,
   "industry_validation": false
 }

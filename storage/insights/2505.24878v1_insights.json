@@ -1,55 +1,37 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24878v1",
-  "extraction_timestamp": "2025-06-03 04:30:16.079590",
+  "extraction_timestamp": "2025-06-04 03:12:59.934722",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper introduces Open CaptchaWorld, a comprehensive web-based platform for testing and benchmarking multimodal language models on solving various types of CAPTCHA challenges.",
-    "The authors evaluate state-of-the-art multimodal LLM agents like GPT-4, Claude, and Gemini on 20 types of modern CAPTCHA puzzles using a unified Browser Use agent setup.",
-    "The results show a significant performance gap between humans (93.3% success rate) and the best performing agent, Browser-Use Openai-o3 (40% success rate), highlighting the limitations of current multimodal agents on CAPTCHA solving tasks.",
-    "The paper conducts a fine-grained case study to analyze the success and failure patterns of different models across different CAPTCHA types and reasoning demands.",
-    "The Open CaptchaWorld benchmark serves as a vital tool for diagnosing the capabilities and limitations of multimodal reasoning systems, guiding the development of more robust agents for real-world web interactions."
+    "CAPTCHAs have been a critical bottleneck for deploying web agents in\nreal-world applications, often blocking them from completing end-to-end\nautomation tasks.",
+    "While modern multimodal LLM agents have demonstrated\nimpressive performance in static perception tasks, their ability to handle\ninteractive, multi-step reasoning challenges like CAPTCHAs is largely untested.\nTo address this gap, we introduce Open CaptchaWorld, the first web-based\nbenchmark and platform specifically designed to evaluate the visual reasoning\nand interaction capabilities of MLLM-powered agents through diverse and dynamic\nCAPTCHA puzzles.",
+    "Our benchmark spans 20 modern CAPTCHA types, totaling 225\nCAPTCHAs, annotated with a new metric we propose: CAPTCHA Reasoning Depth,\nwhich quantifies the number of cognitive and motor steps required to solve each\npuzzle.",
+    "Experimental results show that humans consistently achieve near-perfect\nscores, state-of-the-art MLLM agents struggle significantly, with success rates\nat most 40.0% by Browser-Use Openai-o3, far below human-level performance,\n93.3%.",
+    "This highlights Open CaptchaWorld as a vital benchmark for diagnosing\nthe limits of current multimodal agents and guiding the development of more\nrobust multimodal reasoning systems. Code and Data are available at this https\nURL."
   ],
-  "main_contribution": "The paper introduces Open CaptchaWorld, a comprehensive web-based platform for testing and benchmarking the performance of multimodal language models on solving various types of CAPTCHA challenges. It provides a unified experimental setup and evaluation metrics to fairly compare different models and approaches, revealing the significant performance gap between humans and state-of-the-art multimoda",
   "limitations": [
-    "The paper does not provide details on the specific implementation or training of the evaluated models."
+    "Full text not analyzed",
+    "Detailed methodology not available"
   ],
-  "future_work": [
-    "Developing more advanced multimodal reasoning models and techniques to improve CAPTCHA solving capabilities."
-  ],
-  "study_type": "empirical",
-  "industry_applications": [],
-  "techniques_used": [
-    "prompt_engineering"
-  ],
-  "implementation_complexity": "medium",
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "small_team",
-    "estimated_time_weeks": 8,
-    "compute_requirements": "not specified",
-    "data_requirements": "not specified",
+    "compute_requirements": null,
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Evaluating the performance of multimodal language models on solving various types of CAPTCHA challenges, which is a critical task for enabling autonomous agents to interact with websites and web services.",
-  "prerequisites": [
-    "knowledge of multimodal language models",
-    "web development",
-    "CAPTCHA generation"
-  ],
-  "comparable_approaches": [
-    "Traditional CAPTCHA solving techniques",
-    "Visual question answering benchmarks"
-  ],
-  "real_world_applications": [
-    "Web security",
-    "Bot detection",
-    "Automated web interactions"
-  ],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
-  "extraction_confidence": 0.8,
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,

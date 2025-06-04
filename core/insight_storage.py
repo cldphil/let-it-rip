@@ -99,7 +99,11 @@ class InsightStorage:
     
     def _create_tables(self, conn):
         """Create tables in the given connection."""
+        # Drop and recreate insights table to ensure schema is correct
         conn.executescript("""
+            DROP TABLE IF EXISTS extraction_metadata;
+            DROP TABLE IF EXISTS insights;
+            
             CREATE TABLE IF NOT EXISTS papers (
                 paper_id TEXT PRIMARY KEY,
                 title TEXT NOT NULL,

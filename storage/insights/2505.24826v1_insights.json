@@ -1,0 +1,37 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24826v1",
+  "extraction_timestamp": "2025-06-04 03:13:24.056213",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "As large language models (LLMs) are increasingly used in legal applications,\ncurrent evaluation benchmarks tend to focus mainly on factual accuracy while\nlargely neglecting important linguistic quality aspects such as clarity,\ncoherence, and terminology.",
+    "To address this gap, we propose three steps: First,\nwe develop a regression model to evaluate the quality of legal texts based on\nclarity, coherence, and terminology. Second, we create a specialized set of\nlegal questions.",
+    "Third, we analyze 49 LLMs using this evaluation framework.\n  Our analysis identifies three key findings: First, model quality levels off\nat 14 billion parameters, with only a marginal improvement of $2.7\\%$ noted at\n72 billion parameters. Second, engineering choices such as quantization and\ncontext length have a negligible impact, as indicated by statistical\nsignificance thresholds above 0.016. Third, reasoning models consistently\noutperform base architectures. A significant outcome of our research is the\nrelease of a ranking list and Pareto analysis, which highlight the Qwen3 series\nas the optimal choice for cost-performance tradeoffs. This work not only\nestablishes standardized evaluation protocols for legal LLMs but also uncovers\nfundamental limitations in current training data refinement approaches. Code\nand models are available at: https://github.com/lyxx3rd/LegalEval-Q."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

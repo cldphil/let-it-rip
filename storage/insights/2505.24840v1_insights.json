@@ -1,0 +1,39 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24840v1",
+  "extraction_timestamp": "2025-06-04 03:13:18.160602",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "This paper reveals that many state-of-the-art large language models (LLMs)\nlack hierarchical knowledge about our visual world, unaware of even\nwell-established biology taxonomies. This shortcoming makes LLMs a bottleneck\nfor vision LLMs' hierarchical visual understanding (e.g., recognizing Anemone\nFish but not Vertebrate).",
+    "We arrive at these findings using about one million\nfour-choice visual question answering (VQA) tasks constructed from six\ntaxonomies and four image datasets.",
+    "Interestingly, finetuning a vision LLM\nusing our VQA tasks reaffirms LLMs' bottleneck effect to some extent because\nthe VQA tasks improve the LLM's hierarchical consistency more than the vision\nLLM's. We conjecture that one cannot make vision LLMs understand visual\nconcepts fully hierarchical until LLMs possess corresponding taxonomy\nknowledge."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "fine_tuning"
+  ],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

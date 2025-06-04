@@ -1,0 +1,37 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24838v1",
+  "extraction_timestamp": "2025-06-04 03:13:17.662747",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Computer-Aided Design (CAD) is a time-consuming and complex process,\nrequiring precise, long-horizon user interactions with intricate 3D interfaces.\nWhile recent advances in AI-driven user interface (UI) agents show promise,\nmost existing datasets and methods focus on short, low-complexity tasks in\nmobile or web applications, failing to capture the demands of professional\nengineering tools. In this work, we introduce VideoCAD, the first attempt at\nengineering UI interaction learning for precision tasks. Specifically, VideoCAD\nis a large-scale synthetic dataset consisting of over 41K annotated video\nrecordings of CAD operations, generated using an automated framework for\ncollecting high-fidelity UI action data from human-made CAD designs. Compared\nto existing datasets, VideoCAD offers an order of magnitude higher complexity\nin UI interaction learning for real-world engineering tasks, having up to a 20x\nlonger time horizon than other datasets.",
+    "We show two important downstream\napplications of VideoCAD: learning UI interactions from professional precision\n3D CAD tools and a visual question-answering (VQA) benchmark designed to\nevaluate multimodal large language models' (LLM) spatial reasoning and video\nunderstanding abilities.",
+    "To learn the UI interactions, we propose\nVideoCADFormer - a state-of-the-art model in learning CAD interactions directly\nfrom video, which outperforms multiple behavior cloning baselines. Both\nVideoCADFormer and the VQA benchmark derived from VideoCAD reveal key\nchallenges in the current state of video-based UI understanding, including the\nneed for precise action grounding, multi-modal and spatial reasoning, and\nlong-horizon dependencies."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

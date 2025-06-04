@@ -1,0 +1,41 @@
+{
+  "paper_id": "http://arxiv.org/abs/2505.24844v1",
+  "extraction_timestamp": "2025-06-04 03:13:18.755579",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Training data mixtures greatly impact the generalization performance of large\nlanguage models. Existing domain reweighting methods often rely on costly\nweight computations and require retraining when new data is introduced. To this\nend, we introduce a flexible and efficient data mixing framework, Chameleon,\nthat employs leverage scores to quantify domain importance within a learned\nembedding space. We first construct a domain affinity matrix over domain\nembeddings.",
+    "The induced leverage scores determine a mixture that upweights\ndomains sharing common representations in embedding space. This formulation\nallows direct transfer to new data by computing the new domain embeddings.",
+    "In\nexperiments, we demonstrate improvements over three key scenarios: (i) our\ncomputed weights improve performance on pretraining domains with a fraction of\nthe compute of existing methods; (ii) Chameleon can adapt to data changes\nwithout proxy retraining, boosting few-shot reasoning accuracies when\ntransferred to new data; (iii) our method enables efficient domain reweighting\nin finetuning, consistently improving test perplexity on all finetuning domains\nover uniform mixture. Our code is available at\nhttps://github.com/LIONS-EPFL/Chameleon."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "fine_tuning",
+    "retrieval_augmented_generation",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

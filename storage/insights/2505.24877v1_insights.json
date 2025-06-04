@@ -1,43 +1,35 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24877v1",
-  "extraction_timestamp": "2025-06-03 04:30:02.051658",
+  "extraction_timestamp": "2025-06-04 03:13:01.675930",
   "extraction_version": "1.0",
   "key_findings": [
-    "AdaHuman introduces a novel framework for generating high-fidelity animatable 3D avatars from a single in-the-wild image, addressing the limitations of previous methods that struggle to produce highly detailed, animation-ready avatars.",
-    "It incorporates a pose-conditioned 3D joint diffusion model that synthesizes consistent multi-view images in arbitrary poses alongside corresponding 3D Gaussian Splats (3DGS) reconstruction at each diffusion step.",
-    "It also includes a compositional 3DGS refinement module that enhances the details of local body parts through image-to-image refinement and seamlessly integrates them using a novel crop-aware camera ray map, producing a cohesive detailed 3D avatar.",
-    "Extensive evaluation on public benchmarks and in-the-wild images demonstrates that AdaHuman significantly outperforms state-of-the-art methods in both avatar reconstruction and reposing.",
-    "AdaHuman generates highly realistic standardized A-pose avatars with minimal self-occlusion, enabling rigging and animation with any input motion, addressing a significant challenge in previous methods."
+    "Existing methods for image-to-3D avatar generation struggle to produce highly\ndetailed, animation-ready avatars suitable for real-world applications. We\nintroduce AdaHuman, a novel framework that generates high-fidelity animatable\n3D avatars from a single in-the-wild image. AdaHuman incorporates two key\ninnovations: (1) A pose-conditioned 3D joint diffusion model that synthesizes\nconsistent multi-view images in arbitrary poses alongside corresponding 3D\nGaussian Splats (3DGS) reconstruction at each diffusion step; (2) A\ncompositional 3DGS refinement module that enhances the details of local body\nparts through image-to-image refinement and seamlessly integrates them using a\nnovel crop-aware camera ray map, producing a cohesive detailed 3D avatar. These\ncomponents allow AdaHuman to generate highly realistic standardized A-pose\navatars with minimal self-occlusion, enabling rigging and animation with any\ninput motion.",
+    "Extensive evaluation on public benchmarks and in-the-wild images\ndemonstrates that AdaHuman significantly outperforms state-of-the-art methods\nin both avatar reconstruction and reposing. Code and models will be publicly\navailable for research purposes."
   ],
-  "main_contribution": "AdaHuman is a novel framework that generates high-fidelity animatable 3D avatars from a single in-the-wild image by incorporating a pose-conditioned 3D joint diffusion model and a compositional 3DGS refinement module, enabling the generation of highly detailed, animation-ready avatars with minimal self-occlusion, outperforming state-of-the-art methods in avatar reconstruction and reposing.",
-  "limitations": [],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
   "future_work": [],
-  "study_type": "empirical",
-  "industry_applications": [],
+  "study_type": "unknown",
   "techniques_used": [],
-  "implementation_complexity": "high",
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "medium_team",
-    "estimated_time_weeks": 12,
-    "compute_requirements": "",
-    "data_requirements": "",
+    "compute_requirements": null,
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Generating high-quality animatable 3D human avatars suitable for real-world applications.",
+  "problem_addressed": "",
   "prerequisites": [],
   "comparable_approaches": [],
-  "real_world_applications": [
-    "gaming",
-    "animation",
-    "virtual reality"
-  ],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
-  "extraction_confidence": 0.8,
-  "has_code_available": true,
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
   "industry_validation": false

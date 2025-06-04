@@ -1,50 +1,38 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24858v1",
-  "extraction_timestamp": "2025-06-03 04:30:28.784861",
+  "extraction_timestamp": "2025-06-04 03:13:12.974925",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, to improve the faithful calibration of large language models (LLMs) in expressing uncertainty.",
-    "MetaFaith robustly improves faithful calibration across diverse models and task domains, enabling up to 61% improvement in faithfulness and achieving an 83% win rate over original generations as judged by humans.",
-    "Standard prompt approaches and existing factuality-based calibration techniques provide only marginal gains and can even harm faithful calibration.",
-    "LLMs often suffer from hallucinations, producing inaccurate information while communicating it in a decisive manner, which can undermine trustworthiness and cause potential harm in high-stakes settings.",
-    "For LLMs to be deployed reliably and responsibly, it is essential that their linguistically expressed confidence faithfully reflects their internal uncertainty."
+    "A critical component in the trustworthiness of LLMs is reliable uncertainty\ncommunication, yet LLMs often use assertive language when conveying false\nclaims, leading to over-reliance and eroded trust.",
+    "We present the first\nsystematic study of $\\textit{faithful confidence calibration}$ of LLMs,\nbenchmarking models' ability to use linguistic expressions of uncertainty that\n$\\textit{faithfully reflect}$ their intrinsic uncertainty, across a\ncomprehensive array of models, datasets, and prompting strategies.",
+    "Our results\ndemonstrate that LLMs largely fail at this task, and that existing\ninterventions are insufficient: standard prompt approaches provide only\nmarginal gains, and existing, factuality-based calibration techniques can even\nharm faithful calibration. To address this critical gap, we introduce\nMetaFaith, a novel prompt-based calibration approach inspired by human\nmetacognition.",
+    "We show that MetaFaith robustly improves faithful calibration\nacross diverse models and task domains, enabling up to 61% improvement in\nfaithfulness and achieving an 83% win rate over original generations as judged\nby humans."
   ],
-  "main_contribution": "The paper introduces MetaFaith, a novel prompt-based calibration approach inspired by human metacognition, which robustly improves the faithful calibration of large language models (LLMs) in expressing uncertainty across diverse models and task domains, enabling up to 61% improvement in faithfulness and achieving an 83% win rate over original generations as judged by humans.",
-  "limitations": [],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
   "future_work": [],
-  "study_type": "empirical",
-  "industry_applications": [],
+  "study_type": "unknown",
   "techniques_used": [
     "prompt_engineering"
   ],
-  "implementation_complexity": "medium",
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "small_team",
-    "estimated_time_weeks": 8,
-    "compute_requirements": "",
-    "data_requirements": "",
+    "compute_requirements": null,
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Improving the faithful calibration of large language models in expressing uncertainty",
-  "prerequisites": [
-    "Natural Language Processing",
-    "Large Language Models"
-  ],
-  "comparable_approaches": [
-    "Standard prompt approaches",
-    "Factuality-based calibration techniques"
-  ],
-  "real_world_applications": [
-    "High-stakes decision-making",
-    "Risk assessment",
-    "Trustworthy AI systems"
-  ],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
-  "extraction_confidence": 0.8,
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,

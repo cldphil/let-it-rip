@@ -1,45 +1,38 @@
 {
   "paper_id": "http://arxiv.org/abs/2505.24864v1",
-  "extraction_timestamp": "2025-06-03 04:30:12.289801",
+  "extraction_timestamp": "2025-06-04 03:13:06.454733",
   "extraction_version": "1.0",
   "key_findings": [
-    "The paper proposes a methodology that incorporates KL divergence control, reference policy resetting, and a diverse suite of tasks for prolonged reinforcement learning (RL) to expand the reasoning boundaries of large language models.",
-    "RL-trained models consistently outperformed base models across a wide range of evaluations, including scenarios where base models failed entirely regardless of the number of attempts.",
-    "The improvements in reasoning boundaries correlated strongly with the task competence of the base model and the training duration, suggesting that RL can explore and populate new regions of the solution space over time.",
-    "The findings offer insights into the conditions under which RL can meaningfully expand the reasoning boundaries of language models, establishing a foundation for future work on long-horizon RL for reasoning.",
-    "The authors release model weights to support further research: https://huggingface.co/nvidia/Nemotron-Research-Reasoning-Qwen-1.5B."
+    "Recent advances in reasoning-centric language models have highlighted\nreinforcement learning (RL) as a promising method for aligning models with\nverifiable rewards.",
+    "However, it remains contentious whether RL truly expands a\nmodel's reasoning capabilities or merely amplifies high-reward outputs already\nlatent in the base model's distribution, and whether continually scaling up RL\ncompute reliably leads to improved reasoning performance. In this work, we\nchallenge prevailing assumptions by demonstrating that prolonged RL (ProRL)\ntraining can uncover novel reasoning strategies that are inaccessible to base\nmodels, even under extensive sampling. We introduce ProRL, a novel training\nmethodology that incorporates KL divergence control, reference policy\nresetting, and a diverse suite of tasks. Our empirical analysis reveals that\nRL-trained models consistently outperform base models across a wide range of\npass@k evaluations, including scenarios where base models fail entirely\nregardless of the number of attempts.",
+    "We further show that reasoning boundary\nimprovements correlates strongly with task competence of base model and\ntraining duration, suggesting that RL can explore and populate new regions of\nsolution space over time.",
+    "These findings offer new insights into the conditions\nunder which RL meaningfully expands reasoning boundaries in language models and\nestablish a foundation for future work on long-horizon RL for reasoning. We\nrelease model weights to support further research:\nhttps://huggingface.co/nvidia/Nemotron-Research-Reasoning-Qwen-1.5B."
   ],
-  "main_contribution": "The paper proposes a methodology that incorporates KL divergence control, reference policy resetting, and a diverse suite of tasks for prolonged reinforcement learning (RL) to expand the reasoning boundaries of large language models. The RL-trained models consistently outperformed base models across a wide range of evaluations, and the improvements correlated with task competence and training dura",
-  "limitations": [],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
   "future_work": [],
-  "study_type": "empirical",
-  "industry_applications": [],
+  "study_type": "unknown",
   "techniques_used": [
-    "fine_tuning",
-    "prompt_engineering"
+    "reinforcement_learning"
   ],
-  "implementation_complexity": "medium",
+  "implementation_complexity": "unknown",
   "resource_requirements": {
-    "team_size": "small_team",
-    "estimated_time_weeks": 4,
-    "compute_requirements": "",
-    "data_requirements": "",
+    "compute_requirements": null,
+    "data_requirements": null,
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Expanding the reasoning boundaries of large language models",
-  "prerequisites": [
-    "Python",
-    "PyTorch",
-    "GPU access"
-  ],
+  "problem_addressed": "",
+  "prerequisites": [],
   "comparable_approaches": [],
   "real_world_applications": [],
-  "evidence_strength": 0.8,
-  "practical_applicability": 0.7,
-  "extraction_confidence": 0.8,
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
