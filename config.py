@@ -18,9 +18,9 @@ class Config:
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
     
     # LLM Settings
-    LLM_MODEL = "claude-3-sonnet-20240229"  # Anthropic Claude 3 Sonnet
+    LLM_MODEL = "claude-sonnet-4-20250514"  # Anthropic Claude Sonnet 4
     LLM_TEMPERATURE = 0.1  # Low temperature for consistent structured output
-    LLM_MAX_TOKENS = 1000  # Max tokens for metadata extraction
+    LLM_MAX_TOKENS = 2000  # Increased for longer key findings
     LLM_TIMEOUT = 30  # Timeout in seconds
     
     # arXiv API Settings
@@ -36,16 +36,17 @@ class Config:
     RESULTS_MAX_CHARS = 600
     CONCLUSION_MAX_CHARS = 600
     
-    # Quality Scoring Weights
-    ACADEMIC_WEIGHT = 0.4
-    PRACTICAL_WEIGHT = 0.4
-    RECENCY_WEIGHT = 0.2
-    RECENCY_DECAY_RATE = 0.2  # Quality decay per year
+    # Quality Scoring Weights (updated to prioritize key factors)
+    RECENCY_WEIGHT = 0.25  # Prioritize recent research
+    QUALITY_WEIGHT = 0.25  # Overall quality score
+    EVIDENCE_WEIGHT = 0.25  # Evidence strength
+    APPLICABILITY_WEIGHT = 0.25  # Practical applicability
+    RECENCY_DECAY_RATE = 0.1  # Quality decay per year (10%)
     
     # Processing Settings
     BATCH_SIZE = 10  # Number of papers to process in each batch
     MAX_RETRIES = 3  # Retry attempts for failed API calls
-    ENABLE_FULL_TEXT = False  # Whether to extract full text by default
+    ENABLE_FULL_TEXT = True  # Enable full text extraction for enhanced key findings
     ENABLE_LLM_TAGGING = True  # Whether to use LLM for tagging (vs heuristics)
     
     # Output Settings
@@ -70,40 +71,24 @@ class Config:
         "transformer"
     ]
     
-    # Business Tag Categories
+    # Business Tag Categories (streamlined - removed industry, team_size, timeline)
     METHODOLOGY_TYPES = [
         "case_study", 
         "theoretical", 
         "empirical", 
         "pilot", 
         "survey",
-        "not_specified"
-    ]
-    
-    INDUSTRIES = [
-        "healthcare",
-        "finance", 
-        "retail",
-        "manufacturing",
-        "education",
-        "government",
-        "general",
-        "other"
+        "meta_analysis",
+        "review",
+        "unknown"
     ]
     
     COMPLEXITY_LEVELS = [
         "low",
         "medium", 
         "high",
-        "not_specified"
-    ]
-    
-    TEAM_SIZES = [
-        "solo",
-        "small_team",
-        "large_team", 
-        "enterprise",
-        "not_specified"
+        "very_high",
+        "unknown"
     ]
     
     SUCCESS_METRICS = [
@@ -117,15 +102,29 @@ class Config:
     ]
     
     TECHNICAL_REQUIREMENTS = [
-        "machine_learning",
-        "deep_learning",
-        "nlp",
-        "computer_vision", 
-        "cloud_computing",
-        "apis",
-        "data_engineering",
-        "mlops",
-        "gpu_required"
+        "fine_tuning",
+        "retrieval_augmented_generation",
+        "prompt_engineering",
+        "multi_agent",
+        "chain_of_thought",
+        "reinforcement_learning",
+        "few_shot_learning",
+        "zero_shot_learning",
+        "transfer_learning",
+        "ensemble_methods"
+    ]
+    
+    # Enhanced Key Findings Configuration
+    MAX_KEY_FINDINGS = 10  # Allow up to 10 detailed findings per paper
+    MIN_FINDING_LENGTH = 50  # Minimum characters per finding
+    FOCUS_AREAS = [
+        "methods",
+        "results", 
+        "implications",
+        "uniqueness",
+        "practical_applications",
+        "conclusions",
+        "limitations"
     ]
     
     @classmethod

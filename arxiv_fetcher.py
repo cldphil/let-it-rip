@@ -255,7 +255,7 @@ class ArxivGenAIFetcher:
 
 def main():
     """
-    Main function to demonstrate the arXiv fetcher with metadata extraction.
+    Main function to demonstrate the arXiv fetcher with direct core module usage.
     """
     print("=== arXiv Generative AI Research Fetcher ===")
     print(f"Searching for papers from {datetime.now().year}")
@@ -263,9 +263,8 @@ def main():
     # Initialize fetcher
     fetcher = ArxivGenAIFetcher()
     
-    # Initialize metadata extractor
-    from metadata_extractor import MetadataExtractor
-    extractor = MetadataExtractor()
+    # Import core modules directly (no wrapper needed)
+    from core import SyncBatchProcessor, InsightStorage
     
     # Choose whether to include full text
     include_text = input("Include full text extraction? (y/n): ").lower().startswith('y')
@@ -275,77 +274,48 @@ def main():
     papers = fetcher.fetch_papers(max_results=max_papers, include_full_text=include_text)
     
     if papers:
-        print(f"\n=== ENHANCING {len(papers)} PAPERS WITH METADATA EXTRACTION ===")
+        print(f"\n=== PROCESSING {len(papers)} PAPERS WITH ENHANCED EXTRACTION ===")
         
-        # Process each paper with metadata extraction
-        enhanced_papers = []
-        for i, paper in enumerate(papers, 1):
-            print(f"Processing paper {i}/{len(papers)}: {paper['title'][:60]}...")
+        # Initialize storage and processor directly
+        storage = InsightStorage()
+        processor = SyncBatchProcessor(storage=storage)
+        
+        # Process papers in batch
+        checkpoint_name = f"main_batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        stats = processor.process_papers(papers, checkpoint_name=checkpoint_name)
+        
+        if stats['successful'] > 0:
+            print(f"\nSuccessfully processed {stats['successful']} papers!")
+            print(f"Total cost: ${stats.get('total_cost', 0):.2f}")
+            print(f"Processing time: {stats.get('total_time', 0):.1f} seconds")
             
-            # Extract metadata and business tags
-            full_text = paper.get('full_text', '') if include_text else ''
-            enhanced_paper = extractor.process_paper(paper, full_text)
-            enhanced_papers.append(enhanced_paper)
+            # Print enhanced statistics
+            storage_stats = storage.get_statistics()
             
-            # Show quick summary
-            tags = enhanced_paper['business_tags']
-            print(f"  Quality Score: {enhanced_paper['quality_score']:.2f}")
-            print(f"  Industry: {', '.join(tags['industry'][:2])}")
-            print(f"  Complexity: {tags['implementation_complexity']}")
-            print()
+            print(f"\n=== ENHANCED STATISTICS ===")
+            print(f"Total papers in storage: {storage_stats['total_papers']}")
+            print(f"Average quality score: {storage_stats['average_quality_score']:.2f}")
+            print(f"Average evidence strength: {storage_stats['average_evidence_strength']:.2f}")
+            print(f"Average practical applicability: {storage_stats['average_practical_applicability']:.2f}")
+            print(f"Average key findings per paper: {storage_stats['average_key_findings_count']:.1f}")
+            print(f"Recent papers (last 2 years): {storage_stats['recent_papers_count']}")
+            
+            # Show complexity distribution
+            print(f"\n=== IMPLEMENTATION COMPLEXITY ===")
+            for complexity, count in storage_stats['complexity_distribution'].items():
+                print(f"{complexity}: {count} papers")
+            
+            # Show study type distribution
+            print(f"\n=== STUDY TYPES ===")
+            for study_type, count in storage_stats['study_type_distribution'].items():
+                print(f"{study_type}: {count} papers")
         
-        # Print summary
-        fetcher.print_paper_summary(enhanced_papers)
+        # Print paper summary
+        fetcher.print_paper_summary(papers)
         
-        # Save enhanced papers with metadata to output folder
+        # Save papers to output folder
         filename = "arxiv_genai_papers_enhanced_fulltext.json" if include_text else "arxiv_genai_papers_enhanced.json"
-        fetcher.save_papers_to_json(enhanced_papers, filename)
-        
-        # Enhanced statistics
-        categories = {}
-        total_text_length = 0
-        quality_scores = []
-        complexity_counts = {}
-        industry_counts = {}
-        
-        for paper in enhanced_papers:
-            # Original category stats
-            for cat in paper['categories']:
-                categories[cat] = categories.get(cat, 0) + 1
-            
-            # Text length
-            if 'text_length' in paper:
-                total_text_length += paper['text_length']
-            
-            # Quality and business tag stats
-            quality_scores.append(paper['quality_score'])
-            
-            complexity = paper['business_tags']['implementation_complexity']
-            complexity_counts[complexity] = complexity_counts.get(complexity, 0) + 1
-            
-            for industry in paper['business_tags']['industry']:
-                industry_counts[industry] = industry_counts.get(industry, 0) + 1
-        
-        print(f"\n=== ENHANCED STATISTICS ===")
-        print(f"Total papers: {len(enhanced_papers)}")
-        print(f"Average quality score: {sum(quality_scores)/len(quality_scores):.2f}")
-        print(f"Quality range: {min(quality_scores):.2f} - {max(quality_scores):.2f}")
-        
-        if include_text and total_text_length > 0:
-            print(f"Total text extracted: {total_text_length:,} characters")
-            print(f"Average text length: {total_text_length // len(enhanced_papers):,} characters per paper")
-        
-        print(f"\n=== IMPLEMENTATION COMPLEXITY ===")
-        for complexity, count in sorted(complexity_counts.items()):
-            print(f"{complexity}: {count} papers")
-        
-        print(f"\n=== INDUSTRIES IDENTIFIED ===")
-        for industry, count in sorted(industry_counts.items(), key=lambda x: x[1], reverse=True)[:5]:
-            print(f"{industry}: {count} papers")
-        
-        print(f"\n=== TOP ARXIV CATEGORIES ===")
-        for cat, count in sorted(categories.items(), key=lambda x: x[1], reverse=True)[:10]:
-            print(f"{cat}: {count} papers")
+        fetcher.save_papers_to_json(papers, filename)
     
     else:
         print("No papers found. Try adjusting search terms or date range.")

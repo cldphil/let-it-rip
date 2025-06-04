@@ -113,12 +113,14 @@ class InsightStorage:
                 paper_id TEXT PRIMARY KEY,
                 study_type TEXT,
                 complexity TEXT,
-                industries TEXT,
                 techniques TEXT,
                 quality_score REAL,
+                evidence_strength REAL,
+                practical_applicability REAL,
                 extraction_confidence REAL,
                 has_code BOOLEAN,
                 has_dataset BOOLEAN,
+                key_findings_count INTEGER,
                 extraction_timestamp TIMESTAMP,
                 FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
             );
@@ -136,8 +138,11 @@ class InsightStorage:
             );
             
             CREATE INDEX IF NOT EXISTS idx_insights_quality ON insights(quality_score DESC);
+            CREATE INDEX IF NOT EXISTS idx_insights_evidence ON insights(evidence_strength DESC);
+            CREATE INDEX IF NOT EXISTS idx_insights_applicability ON insights(practical_applicability DESC);
             CREATE INDEX IF NOT EXISTS idx_insights_complexity ON insights(complexity);
             CREATE INDEX IF NOT EXISTS idx_insights_study_type ON insights(study_type);
+            CREATE INDEX IF NOT EXISTS idx_papers_published ON papers(published_date DESC);
         """)
         conn.commit()
     
@@ -206,43 +211,59 @@ class InsightStorage:
         with open(insights_path, 'w', encoding='utf-8') as f:
             json.dump(insights.dict(), f, indent=2, default=str)
         
-        # Generate embedding
-        searchable_text = insights.to_searchable_text()
-        embedding = self.embedder.encode([searchable_text])[0]
+        # Generate embedding from abstract and key findings for enhanced RAG
+        paper_data = self.load_paper(paper_id)
+        abstract = paper_data.get('summary', '') if paper_data else ''
+        key_findings_text = " ".join(insights.key_findings)
         
-        # Store in vector DB
+        # Combine abstract and key findings for comprehensive searchable text
+        searchable_text = f"Abstract: {abstract} Key Findings: {key_findings_text}"
+        
+        # Also include the full searchable text from insights
+        full_searchable = insights.to_searchable_text()
+        combined_text = f"{searchable_text} {full_searchable}"
+        
+        embedding = self.embedder.encode([combined_text])[0]
+        
+        # Store in vector DB with enhanced metadata
         self.insights_collection.add(
             embeddings=[embedding.tolist()],
-            documents=[searchable_text],
+            documents=[combined_text],
             metadatas=[{
                 "paper_id": paper_id,
                 "study_type": insights.study_type.value,
                 "complexity": insights.implementation_complexity.value,
-                "industries": ", ".join(i.value for i in insights.industry_applications),
                 "techniques": ", ".join(t.value for t in insights.techniques_used),
                 "quality_score": insights.get_quality_score(),
+                "evidence_strength": insights.evidence_strength,
+                "practical_applicability": insights.practical_applicability,
+                "key_findings_count": len(insights.key_findings),
                 "has_code": insights.has_code_available,
-                "has_dataset": insights.has_dataset_available
+                "has_dataset": insights.has_dataset_available,
+                "published_year": self._extract_year(paper_data) if paper_data else 2020
             }],
             ids=[paper_id]
         )
         
-        # Store in SQLite
+        # Store in SQLite with enhanced fields
         self.metadata_conn.execute("""
             INSERT OR REPLACE INTO insights 
-            (paper_id, study_type, complexity, industries, techniques, 
-             quality_score, extraction_confidence, has_code, has_dataset, extraction_timestamp)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (paper_id, study_type, complexity, techniques, 
+             quality_score, evidence_strength, practical_applicability, extraction_confidence, 
+             has_code, has_dataset, key_findings_count, extraction_timestamp)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             paper_id,
             insights.study_type.value,
             insights.implementation_complexity.value,
-            json.dumps([i.value for i in insights.industry_applications]),
             json.dumps([t.value for t in insights.techniques_used]),
             insights.get_quality_score(),
+            insights.evidence_strength,
+            insights.practical_applicability,
             insights.extraction_confidence,
             insights.has_code_available,
             insights.has_dataset_available,
+            len(insights.key_findings),
             insights.extraction_timestamp.isoformat()
         ))
         
@@ -265,53 +286,57 @@ class InsightStorage:
             ))
         
         self.metadata_conn.commit()
-        logger.info(f"Stored insights for paper {paper_id}")
+        logger.info(f"Stored insights for paper {paper_id} with {len(insights.key_findings)} key findings")
+    
+    def _extract_year(self, paper_data: Dict) -> int:
+        """Extract publication year from paper data."""
+        if not paper_data or not paper_data.get('published'):
+            return 2020
+        try:
+            return int(paper_data['published'][:4])
+        except:
+            return 2020
     
     def find_similar_papers(self, user_context: UserContext, 
                            n_results: int = 20) -> List[Dict]:
         """
-        Find papers matching user context using vector similarity.
+        Find papers matching user context using enhanced vector similarity on abstracts and key findings.
         
         Args:
             user_context: User requirements and constraints
             n_results: Number of results to return
             
         Returns:
-            List of paper insights with similarity scores
+            List of paper insights with similarity scores, prioritized by recency, quality, evidence, and applicability
         """
-        # Generate query embedding
+        # Generate query embedding from user context
         query_text = user_context.to_search_query()
         query_embedding = self.embedder.encode([query_text])[0]
         
-        # Build where clause for filtering
+        # Build filters for vector search
         filters = []
 
-        # Complexity filter
+        # Complexity filter based on budget
         if user_context.budget_constraint == "low":
             filters.append({"complexity": {"$in": ["low", "medium"]}})
         elif user_context.budget_constraint == "medium":
             filters.append({"complexity": {"$in": ["low", "medium", "high"]}})
 
-        # Industry filter if specific
-        if user_context.industry != "general":
-            filters.append({"industries": {"$in": [user_context.industry.value]}})
-
-        # Combine filters with $and if more than one
+        # Combine filters
         where_filters = None
         if len(filters) == 1:
             where_filters = filters[0]
         elif len(filters) > 1:
             where_filters = {"$and": filters}
 
-        # Search with filters
+        # Search with enhanced retrieval (get more for re-ranking)
         results = self.insights_collection.query(
             query_embeddings=[query_embedding.tolist()],
-            n_results=n_results * 2,  # Get extra for filtering
+            n_results=n_results * 3,  # Get extra for sophisticated re-ranking
             where=where_filters
         )
 
-        
-        # Post-process results
+        # Post-process and re-rank results by multiple factors
         similar_papers = []
         for i, paper_id in enumerate(results['ids'][0]):
             # Load full insights
@@ -323,45 +348,97 @@ class InsightStorage:
             if not self._matches_user_constraints(insights, user_context):
                 continue
             
+            metadata = results['metadatas'][0][i]
+            similarity_score = 1 - results['distances'][0][i]  # Convert distance to similarity
+            
+            # Calculate enhanced ranking score prioritizing recency, quality, evidence, applicability
+            ranking_score = self._calculate_ranking_score(
+                similarity_score, 
+                insights, 
+                metadata, 
+                user_context
+            )
+            
             similar_papers.append({
                 'paper_id': paper_id,
                 'insights': insights,
-                'similarity_score': 1 - results['distances'][0][i],  # Convert distance to similarity
-                'metadata': results['metadatas'][0][i]
+                'similarity_score': similarity_score,
+                'ranking_score': ranking_score,
+                'metadata': metadata
             })
-            
-            if len(similar_papers) >= n_results:
-                break
         
-        # Sort by combined score (similarity + quality)
-        similar_papers.sort(
-            key=lambda x: (
-                x['similarity_score'] * 0.7 + 
-                x['insights'].get_quality_score() * 0.3
-            ),
-            reverse=True
+        # Sort by enhanced ranking score (combines multiple factors)
+        similar_papers.sort(key=lambda x: x['ranking_score'], reverse=True)
+        
+        # Return top N results
+        return similar_papers[:n_results]
+    
+    def _calculate_ranking_score(self, similarity_score: float, insights: PaperInsights, 
+                               metadata: Dict, user_context: UserContext) -> float:
+        """
+        Calculate enhanced ranking score prioritizing recency, quality, evidence strength, and practical applicability.
+        """
+        # Get publication year for recency scoring
+        pub_year = metadata.get('published_year', 2020)
+        current_year = datetime.now().year
+        
+        # Recency score (more recent = higher score)
+        recency_score = max(0, 1.0 - (current_year - pub_year) * 0.1)  # 10% decay per year
+        
+        # Quality components
+        quality_score = insights.get_quality_score()
+        evidence_score = insights.evidence_strength
+        applicability_score = insights.practical_applicability
+        
+        # Key findings richness (more detailed findings = higher score)
+        findings_score = min(1.0, len(insights.key_findings) / 8.0)  # Normalize to max 8 findings
+        
+        # Technique relevance (bonus for preferred techniques)
+        technique_bonus = 0.0
+        if user_context.preferred_techniques:
+            user_techniques = set(t.value for t in user_context.preferred_techniques)
+            paper_techniques = set(t.value for t in insights.techniques_used)
+            if user_techniques.intersection(paper_techniques):
+                technique_bonus = 0.1
+        
+        # Risk tolerance alignment
+        risk_bonus = 0.0
+        if user_context.risk_tolerance == "conservative" and evidence_score > 0.7:
+            risk_bonus = 0.1
+        elif user_context.risk_tolerance == "aggressive" and insights.implementation_complexity.value == "low":
+            risk_bonus = 0.1
+        
+        # Weighted combination emphasizing the key factors
+        final_score = (
+            similarity_score * 0.25 +        # Vector similarity
+            recency_score * 0.25 +           # Recency priority
+            quality_score * 0.20 +           # Overall quality
+            evidence_score * 0.15 +          # Evidence strength
+            applicability_score * 0.10 +     # Practical applicability
+            findings_score * 0.05 +          # Key findings richness
+            technique_bonus +                # Technique preference bonus
+            risk_bonus                       # Risk alignment bonus
         )
         
-        return similar_papers
+        return min(1.0, final_score)  # Cap at 1.0
     
     def _matches_user_constraints(self, insights: PaperInsights, 
                                  user_context: UserContext) -> bool:
         """Check if paper insights match user constraints."""
-        # Timeline constraint
-        if user_context.timeline_weeks:
-            paper_weeks = insights.resource_requirements.estimated_time_weeks
-            if paper_weeks and paper_weeks > user_context.timeline_weeks:
-                return False
-        
         # Avoided techniques
         if user_context.avoided_techniques:
             for tech in insights.techniques_used:
                 if tech in user_context.avoided_techniques:
                     return False
         
-        # Risk tolerance
+        # Risk tolerance constraints
         if user_context.risk_tolerance == "conservative":
-            if insights.evidence_strength < 0.7 or not insights.industry_validation:
+            if insights.evidence_strength < 0.6:  # Slightly relaxed for more results
+                return False
+        
+        # Budget constraint via complexity
+        if user_context.budget_constraint == "low":
+            if insights.implementation_complexity.value in ["high", "very_high"]:
                 return False
         
         return True
@@ -387,7 +464,7 @@ class InsightStorage:
             return json.load(f)
     
     def get_statistics(self) -> Dict:
-        """Get storage statistics."""
+        """Get enhanced storage statistics."""
         stats = {
             'total_papers': 0,
             'total_insights': 0,
@@ -395,14 +472,18 @@ class InsightStorage:
             'complexity_distribution': {},
             'study_type_distribution': {},
             'average_quality_score': 0.0,
-            'total_extraction_cost': 0.0
+            'average_evidence_strength': 0.0,
+            'average_practical_applicability': 0.0,
+            'average_key_findings_count': 0.0,
+            'total_extraction_cost': 0.0,
+            'recent_papers_count': 0  # Papers from last 2 years
         }
         
         # Count files
         stats['total_papers'] = len(list((self.storage_root / "papers").glob("*.json")))
         stats['total_insights'] = len(list((self.storage_root / "insights").glob("*.json")))
         
-        # Get distributions from SQLite
+        # Get distributions and enhanced metrics from SQLite
         cursor = self.metadata_conn.cursor()
         
         # Complexity distribution
@@ -421,17 +502,34 @@ class InsightStorage:
         """)
         stats['study_type_distribution'] = dict(cursor.fetchall())
         
-        # Quality metrics
+        # Enhanced quality metrics
         cursor.execute("""
             SELECT 
                 AVG(quality_score) as avg_quality,
+                AVG(evidence_strength) as avg_evidence,
+                AVG(practical_applicability) as avg_applicability,
+                AVG(key_findings_count) as avg_findings,
                 SUM(CASE WHEN has_code THEN 1 ELSE 0 END) as with_code
             FROM insights
         """)
         result = cursor.fetchone()
         if result:
             stats['average_quality_score'] = result['avg_quality'] or 0.0
+            stats['average_evidence_strength'] = result['avg_evidence'] or 0.0
+            stats['average_practical_applicability'] = result['avg_applicability'] or 0.0
+            stats['average_key_findings_count'] = result['avg_findings'] or 0.0
             stats['papers_with_code'] = result['with_code'] or 0
+        
+        # Recent papers count (last 2 years)
+        current_year = datetime.now().year
+        cursor.execute("""
+            SELECT COUNT(*) as recent_count
+            FROM papers 
+            WHERE published_date >= ?
+        """, (f"{current_year - 2}-01-01",))
+        result = cursor.fetchone()
+        if result:
+            stats['recent_papers_count'] = result['recent_count'] or 0
         
         # Total cost
         cursor.execute("""

@@ -15,7 +15,7 @@ from anthropic import AsyncAnthropic
 
 from .insight_schema import (
     PaperInsights, StudyType, TechniqueCategory, 
-    ComplexityLevel, Industry, ResourceRequirements,
+    ComplexityLevel, ResourceRequirements,
     SuccessMetric, ExtractionMetadata
 )
 from config import Config
@@ -229,26 +229,26 @@ Paper Type: {quick_insights.get('study_type', 'unknown')}
 Extract comprehensive insights in this JSON format:
 {{
     "key_findings": [
-        "Detailed finding 1 - be specific about methods, results, and implications",
-        "Detailed finding 2 - include quantitative results where mentioned",
-        "Detailed finding 3 - explain what makes this approach unique",
-        "Detailed finding 4 - describe practical applications or use cases",
-        "Detailed finding 5 - highlight any surprising or counterintuitive results"
-    ],  // IMPORTANT: Provide 5-8 detailed findings, each 1-3 sentences. Focus on WHAT was done, HOW it worked, and WHY it matters
-    
-    "main_contribution": "A comprehensive 2-3 sentence description of this paper's primary contribution to the field. Explain what problem it solves, how the solution works, and what makes it significant or novel compared to existing approaches.",
+        "Detailed finding 1 - include methods, results, and practical implications. Can be multiple sentences covering specific techniques used, quantitative results achieved, and why this approach is significant.",
+        "Detailed finding 2 - describe implementation details, performance metrics, and real-world applicability. Include any unique aspects or innovations.",
+        "Detailed finding 3 - explain experimental setup, validation methods, and comparative results. Discuss limitations and constraints discovered.",
+        "Finding 4 - cover deployment challenges, resource requirements, and lessons learned from implementation.",
+        "Finding 5 - discuss broader implications, potential applications, and connections to existing work.",
+        "Finding 6 - describe technical innovations, algorithmic contributions, or methodological advances.",
+        "Finding 7 - analyze failure modes, edge cases, or scenarios where the approach doesn't work well.",
+        "Finding 8 - summarize reproducibility aspects, code availability, and implementation guidelines.",
+        "Finding 9 - discuss scalability considerations, computational requirements, and optimization strategies.",
+        "Finding 10 - highlight unexpected results, serendipitous discoveries, or surprising conclusions."
+    ],  // IMPORTANT: Provide 5-10 detailed findings. Each can be 2-5 sentences. Focus on METHODS, RESULTS, IMPLICATIONS, UNIQUENESS, PRACTICAL APPLICATIONS, CONCLUSIONS, and LIMITATIONS
     
     "limitations": ["limitation 1", "limitation 2"],
     "future_work": ["future direction 1"],
     
     "study_type": "{quick_insights.get('study_type', 'unknown')}",
-    "industry_applications": ["healthcare", "finance"],  // Specific industries that could use this
     "techniques_used": ["fine_tuning", "rag", "prompt_engineering"],  // From our defined categories
     
     "implementation_complexity": "low|medium|high|very_high",
     "resource_requirements": {{
-        "team_size": "solo|small_team|medium_team|large_team",
-        "estimated_time_weeks": 4,  // Realistic estimate
         "compute_requirements": "4 GPUs",  // Specific if mentioned
         "data_requirements": "10k examples"  // Specific if mentioned
     }},
@@ -266,17 +266,17 @@ Extract comprehensive insights in this JSON format:
 }}
 
 IMPORTANT INSTRUCTIONS:
-1. KEY FINDINGS should be the most detailed section - extract specific insights about methods, results, performance improvements, and practical implications
-2. MAIN CONTRIBUTION must be a complete, descriptive summary (2-3 full sentences) that captures the essence of the paper
-3. Do NOT include a success_metrics field - we'll extract metrics separately
-4. Focus on PRACTICAL, IMPLEMENTABLE insights
-5. Be specific about numbers, methods, and results when mentioned"""
+1. KEY FINDINGS should be the most detailed section - extract comprehensive insights about methods, results, performance improvements, practical implementations, limitations, and broader implications
+2. Each finding can be 2-5 sentences long and should provide substantial detail
+3. Focus on PRACTICAL, IMPLEMENTABLE insights
+4. Be specific about numbers, methods, and results when mentioned
+5. Include both successes and limitations/challenges"""
         
         try:
             response = await self.client.messages.create(
                 model=Config.LLM_MODEL,
                 temperature=Config.LLM_TEMPERATURE,
-                max_tokens=1500,
+                max_tokens=2000,  # Increased for longer findings
                 messages=[{"role": "user", "content": prompt}]
             )
             
@@ -311,57 +311,45 @@ IMPORTANT INSTRUCTIONS:
             if any(kw in combined for kw in keywords):
                 techniques.append(technique.value)
         
-        # Detect industries
-        industries = []
-        industry_keywords = {
-            Industry.HEALTHCARE: ["medical", "clinical", "patient", "diagnosis"],
-            Industry.FINANCE: ["financial", "trading", "investment", "banking"],
-            Industry.EDUCATION: ["education", "learning", "student", "teaching"]
-        }
-        
-        for industry, keywords in industry_keywords.items():
-            if any(kw in combined for kw in keywords):
-                industries.append(industry.value)
-        
-        if not industries:
-            industries = ["general"]
-        
-        # Extract key findings from abstract
+        # Extract key findings from abstract - enhanced for longer findings
         abstract = paper.get('summary', '')
         sentences = abstract.split('. ')
         key_findings = []
         
         # Try to extract meaningful findings from abstract
+        current_finding = ""
         for sentence in sentences:
-            if any(keyword in sentence.lower() for keyword in ['achieve', 'improve', 'result', 'show', 'demonstrate', 'find']):
-                if len(sentence) > 20:  # Avoid very short sentences
-                    key_findings.append(sentence.strip() + ('.' if not sentence.endswith('.') else ''))
+            if len(sentence.strip()) > 15:  # Avoid very short sentences
+                if any(keyword in sentence.lower() for keyword in ['achieve', 'improve', 'result', 'show', 'demonstrate', 'find', 'present', 'propose', 'develop']):
+                    if current_finding:
+                        # Complete the current finding and start a new one
+                        key_findings.append(current_finding.strip() + ('.' if not current_finding.endswith('.') else ''))
+                        current_finding = sentence.strip()
+                    else:
+                        current_finding = sentence.strip()
+                elif current_finding:
+                    # Continue the current finding
+                    current_finding += ". " + sentence.strip()
+                else:
+                    # Start a new finding if we don't have one
+                    current_finding = sentence.strip()
         
-        # If no findings extracted, use the first few sentences
-        if not key_findings and sentences:
-            key_findings = [s.strip() + ('.' if not s.endswith('.') else '') for s in sentences[:3] if len(s) > 20]
+        # Add the last finding if it exists
+        if current_finding:
+            key_findings.append(current_finding.strip() + ('.' if not current_finding.endswith('.') else ''))
         
-        # Generate a more detailed main contribution
-        main_contribution = paper.get('title', '')
-        if abstract:
-            # Try to find the main claim in the abstract
-            contribution_sentences = []
-            for sentence in sentences:
-                if any(keyword in sentence.lower() for keyword in ['we propose', 'we present', 'we introduce', 'our method', 'our approach']):
-                    contribution_sentences.append(sentence)
-            
-            if contribution_sentences:
-                main_contribution = ' '.join(contribution_sentences[:2])
-            else:
-                # Use title + first substantial sentence from abstract
-                main_contribution = f"{paper.get('title', '')}. {sentences[0] if sentences else ''}"
+        # If no findings extracted, use the full abstract as one finding
+        if not key_findings and abstract:
+            key_findings = [abstract.strip()]
+        
+        # Ensure we have at least something
+        if not key_findings:
+            key_findings = [f"Analysis of {paper.get('title', 'this research paper')} focusing on generative AI applications."]
         
         return {
-            "key_findings": key_findings[:5] if key_findings else [f"Analysis of {paper.get('title', 'this paper')}"],
-            "main_contribution": main_contribution[:400],  # Longer contribution
+            "key_findings": key_findings[:10],  # Allow up to 10 findings
             "limitations": ["Full text not analyzed", "Detailed methodology not available"],
             "study_type": quick_insights.get('study_type', 'unknown'),
-            "industry_applications": industries,
             "techniques_used": techniques,
             "implementation_complexity": "unknown",
             "evidence_strength": 0.3,
@@ -376,8 +364,6 @@ IMPORTANT INSTRUCTIONS:
         # Parse resource requirements
         resource_data = raw_insights.get('resource_requirements', {})
         resources = ResourceRequirements(
-            team_size=resource_data.get('team_size', 'not_specified'),
-            estimated_time_weeks=resource_data.get('estimated_time_weeks'),
             compute_requirements=resource_data.get('compute_requirements'),
             data_requirements=resource_data.get('data_requirements')
         )
@@ -390,16 +376,11 @@ IMPORTANT INSTRUCTIONS:
         # Create insights object
         insights = PaperInsights(
             paper_id=paper_id,
-            key_findings=raw_insights.get('key_findings', [])[:8],  # Allow up to 8 findings
-            main_contribution=raw_insights.get('main_contribution', '')[:400],  # Longer contribution
+            key_findings=raw_insights.get('key_findings', [])[:10],  # Allow up to 10 findings
             limitations=raw_insights.get('limitations', []),
             future_work=raw_insights.get('future_work', []),
             
             study_type=StudyType(raw_insights.get('study_type', 'unknown')),
-            industry_applications=[
-                Industry(ind) for ind in raw_insights.get('industry_applications', ['general'])
-                if ind in [e.value for e in Industry]
-            ],
             techniques_used=[
                 TechniqueCategory(tech) for tech in raw_insights.get('techniques_used', [])
                 if tech in [e.value for e in TechniqueCategory]
@@ -431,7 +412,6 @@ IMPORTANT INSTRUCTIONS:
         """Create minimal insights when extraction fails."""
         return PaperInsights(
             paper_id=paper.get('id', 'unknown'),
-            main_contribution=paper.get('title', 'Unknown')[:500],
             key_findings=["Extraction failed - minimal insights only"],
             study_type=StudyType.UNKNOWN,
             implementation_complexity=ComplexityLevel.UNKNOWN,

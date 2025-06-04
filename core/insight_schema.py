@@ -45,37 +45,8 @@ class ComplexityLevel(str, Enum):
     UNKNOWN = "unknown"
 
 
-class TeamSize(str, Enum):
-    """Required team size categories."""
-    SOLO = "solo"
-    SMALL_TEAM = "small_team"  # 2-5 people
-    MEDIUM_TEAM = "medium_team"  # 6-15 people
-    LARGE_TEAM = "large_team"  # 16-50 people
-    ENTERPRISE = "enterprise"  # 50+ people
-    NOT_SPECIFIED = "not_specified"
-
-
-class Industry(str, Enum):
-    """Industry categories."""
-    HEALTHCARE = "healthcare"
-    FINANCE = "finance"
-    RETAIL = "retail"
-    MANUFACTURING = "manufacturing"
-    EDUCATION = "education"
-    GOVERNMENT = "government"
-    TECHNOLOGY = "technology"
-    ENTERTAINMENT = "entertainment"
-    TRANSPORTATION = "transportation"
-    ENERGY = "energy"
-    AGRICULTURE = "agriculture"
-    GENERAL = "general"
-    OTHER = "other"
-
-
 class ResourceRequirements(BaseModel):
     """Detailed resource requirements for implementation."""
-    team_size: TeamSize = TeamSize.NOT_SPECIFIED
-    estimated_time_weeks: Optional[int] = Field(None, ge=1, le=520)  # 1-520 weeks (10 years max)
     compute_requirements: Optional[str] = None  # e.g., "4 GPUs", "TPU cluster"
     data_requirements: Optional[str] = None  # e.g., "1M labeled examples"
     budget_tier: Optional[str] = None  # e.g., "low", "medium", "high", "enterprise"
@@ -100,14 +71,10 @@ class PaperInsights(BaseModel):
     extraction_timestamp: datetime = Field(default_factory=datetime.utcnow)
     extraction_version: str = "1.0"
     
-    # Core insights
+    # Core insights - Enhanced key findings
     key_findings: List[str] = Field(
         default_factory=list,
-        description="Key findings from the paper (max 10, 1-2 sentences each)"
-    )
-    main_contribution: str = Field(
-        default="",
-        description="Single sentence describing main contribution"
+        description="Detailed key findings from the paper (up to 10, can be multiple sentences each)"
     )
     limitations: List[str] = Field(
         default_factory=list,
@@ -120,7 +87,6 @@ class PaperInsights(BaseModel):
     
     # Categorization
     study_type: StudyType = StudyType.UNKNOWN
-    industry_applications: List[Industry] = Field(default_factory=list)
     techniques_used: List[TechniqueCategory] = Field(default_factory=list)
     
     # Implementation details
@@ -180,20 +146,11 @@ class PaperInsights(BaseModel):
         """Ensure we don't have too many key findings."""
         return v[:10] if len(v) > 10 else v
     
-    @validator('main_contribution')
-    def validate_main_contribution(cls, v):
-        """Ensure main contribution is not too long."""
-        if len(v) > 500:
-            return v[:497] + "..."
-        return v
-    
     def to_searchable_text(self) -> str:
         """Convert insights to searchable text for embeddings."""
         parts = [
-            self.main_contribution,
             f"Problem: {self.problem_addressed}",
             f"Study type: {self.study_type.value}",
-            f"Industries: {', '.join(i.value for i in self.industry_applications)}",
             f"Techniques: {', '.join(t.value for t in self.techniques_used)}",
             f"Complexity: {self.implementation_complexity.value}",
             "Key findings: " + " ".join(self.key_findings),
@@ -239,7 +196,6 @@ class UserContext(BaseModel):
     """User context for personalized recommendations."""
     
     # Organization profile
-    industry: Industry = Industry.GENERAL
     company_size: str = "medium"  # startup, small, medium, large, enterprise
     maturity_level: str = "pilot_ready"  # greenfield, pilot_ready, scaling, optimizing
     
@@ -249,7 +205,6 @@ class UserContext(BaseModel):
     preferred_cloud: Optional[str] = None
     
     # Constraints
-    timeline_weeks: Optional[int] = Field(None, ge=1, le=104)  # Up to 2 years
     budget_constraint: Optional[str] = None  # low, medium, high, unlimited
     risk_tolerance: str = "moderate"  # conservative, moderate, aggressive
     
@@ -266,11 +221,9 @@ class UserContext(BaseModel):
     def to_search_query(self) -> str:
         """Convert user context to search query."""
         parts = [
-            f"Industry: {self.industry.value}",
             f"Company size: {self.company_size}",
             f"Use case: {self.use_case_description}",
             f"Problems: {' '.join(self.specific_problems)}",
-            f"Timeline: {self.timeline_weeks} weeks" if self.timeline_weeks else "",
             f"Skills: {' '.join(self.team_skills)}"
         ]
         

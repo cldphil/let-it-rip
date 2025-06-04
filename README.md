@@ -210,5 +210,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Change Recommendation Engine from algorithmic approach to prompt-based approach using RAG implementation
 - Remove Main Contribution, Team Size, and Timeline from paper schemas
 - Beef up Key Findings
-- Set Recommendation Engine to prioritize Recency, sQuality Score, Evidence Strength, and Practical Applicability
+- Set Recommendation Engine to prioritize Recency, Quality Score, Evidence Strength, and Practical Applicability
 - Vectorize abstract and key findings for Recommendation Engine
