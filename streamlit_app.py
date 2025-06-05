@@ -1,5 +1,6 @@
 """
 Streamlit web interface for the GenAI Research Implementation Platform.
+Updated with improved Browse Insights filters to show all papers by default.
 """
 
 import streamlit as st
@@ -124,6 +125,18 @@ st.markdown("""
         margin: 1rem 0;
         border-radius: 0 8px 8px 0;
     }
+    
+    /* Case study badge */
+    .case-study-badge {
+        background-color: #28A745;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -139,7 +152,7 @@ st.markdown("""
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Select Page",
-    ["📊 Dashboard", "🔍 Fetch Papers", "📚 Browse Insights", "🎯 Get Recommendations", "⚙️ Settings"]
+    ["📊 Dashboard", "📚 Browse Insights", "🎯 Get Recommendations", "⚙️ Settings"]
 )
 
 # Get current statistics
@@ -203,131 +216,116 @@ if page == "📊 Dashboard":
             )
             st.plotly_chart(fig_study, use_container_width=True)
     
-    # Quality metrics
-    st.subheader("Quality Metrics")
-    
-    quality_data = {
-        'Metric': ['Quality Score', 'Evidence Strength', 'Practical Applicability', 'Key Findings/Paper'],
-        'Average': [
-            stats['average_quality_score'],
-            stats['average_evidence_strength'],
-            stats['average_practical_applicability'],
-            stats['average_key_findings_count']
-        ]
-    }
-    
-    fig_quality = go.Figure(data=[
-        go.Bar(
-            x=quality_data['Metric'],
-            y=quality_data['Average'],
-            marker_color=['#0066FF', '#00D4FF', '#28A745', '#FF6B6B']
-        )
-    ])
-    fig_quality.update_layout(title="Average Quality Metrics Across All Papers")
-    st.plotly_chart(fig_quality, use_container_width=True)
-
-# Fetch Papers Page
-elif page == "🔍 Fetch Papers":
-    st.header("Fetch New Research Papers")
+    # Add "Get Insights" section at the bottom of Dashboard
+    st.markdown("---")
+    st.subheader("Get New Insights")
     
     st.markdown("""
     <div class="info-box">
-        <p><strong>📌 Note:</strong> This will fetch the latest GenAI papers from arXiv and extract insights using AI.</p>
+        <p><strong>Fetch and analyze the latest GenAI papers from arXiv</strong></p>
+        <p>This will retrieve recent papers and extract actionable insights using AI analysis.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    num_papers = st.number_input(
-        "Number of papers to fetch",
-        min_value=1,
-        max_value=50,
-        value=10,
-        help="Start with fewer papers to test the system"
-    )
+    col1, col2 = st.columns([3, 1])
     
-    if st.button("🚀 Fetch New Papers", use_container_width=True):
-        with st.spinner("Fetching papers from arXiv..."):
+    with col1:
+        num_papers = st.number_input(
+            "Number of papers to analyze",
+            min_value=1,
+            max_value=50,
+            value=10,
+            help="Start with fewer papers to test the system. Each paper costs approximately $0.005 to analyze."
+        )
+    
+    with col2:
+        st.write("")  # Spacing
+        st.write("")  # Spacing
+        get_insights_button = st.button("Get Insights", use_container_width=True, type="primary")
+    
+    if get_insights_button:
+        # Combined fetch and extract process
+        with st.spinner(f"Fetching {num_papers} papers from arXiv..."):
             fetcher = ArxivGenAIFetcher()
             papers = fetcher.fetch_papers(
                 max_results=num_papers,
-                include_full_text=False  # Always False now
+                include_full_text=True
             )
             
-            if papers:
-                st.session_state.fetched_papers = papers  # Store in session state
-                st.success(f"✅ Fetched {len(papers)} papers successfully!")
-            else:
+            if not papers:
                 st.error("❌ No papers fetched. Please try again.")
-    
-    # Show fetched papers if they exist in session state
-    if 'fetched_papers' in st.session_state and st.session_state.fetched_papers:
-        papers = st.session_state.fetched_papers
-        
-        # Show preview
-        with st.expander("Preview fetched papers"):
-            for i, paper in enumerate(papers[:5]):
-                st.write(f"**{i+1}. {paper['title']}**")
-                st.write(f"Authors: {', '.join(paper['authors'][:3])}")
-                st.write(f"Published: {paper['published'][:10]}")
-                st.write("---")
-        
-        # Process papers
-        if st.button("💡 Extract Insights", use_container_width=True):
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            checkpoint_name = f"streamlit_batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            
-            # Process in batches with progress updates
-            total_papers = len(papers)
-            batch_stats = {'successful': 0, 'failed': 0, 'total_cost': 0.0, 'total_time': 0.0}
-            
-            for i in range(0, total_papers, 5):
-                batch = papers[i:i+5]
-                status_text.text(f"Processing papers {i+1} to {min(i+5, total_papers)}...")
+            else:
+                st.success(f"✅ Fetched {len(papers)} papers successfully!")
                 
-                stats = st.session_state.processor.process_papers(
-                    batch,
-                    checkpoint_name=checkpoint_name,
-                    force_reprocess=False
-                )
+                # Immediately process the papers
+                progress_bar = st.progress(0)
+                status_text = st.empty()
                 
-                # Accumulate stats
-                batch_stats['successful'] += stats.get('successful', 0)
-                batch_stats['failed'] += stats.get('failed', 0)
-                batch_stats['total_cost'] += stats.get('total_cost', 0.0)
-                batch_stats['total_time'] += stats.get('total_time', 0.0)
+                checkpoint_name = f"dashboard_batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                 
-                progress_bar.progress((i + len(batch)) / total_papers)
-            
-            progress_bar.progress(1.0)
-            status_text.text("Processing complete!")
-            
-            st.success(f"""
-            ✅ Processing Complete!
-            - Successfully processed: {batch_stats['successful']} papers
-            - Failed: {batch_stats['failed']} papers
-            - Total cost: ${batch_stats['total_cost']:.2f}
-            - Time taken: {batch_stats['total_time']:.1f} seconds
-            """)
-            
-            # Clear fetched papers from session state after processing
-            del st.session_state.fetched_papers
-            
-            # Refresh the page to show new data
-            st.rerun()
+                # Process in batches with progress updates
+                total_papers = len(papers)
+                batch_stats = {'successful': 0, 'failed': 0, 'total_cost': 0.0, 'total_time': 0.0}
+                
+                status_text.text("Extracting insights from papers...")
+                
+                for i in range(0, total_papers, 5):
+                    batch = papers[i:i+5]
+                    status_text.text(f"Processing papers {i+1} to {min(i+5, total_papers)}...")
+                    
+                    stats = st.session_state.processor.process_papers(
+                        batch,
+                        checkpoint_name=checkpoint_name,
+                        force_reprocess=False
+                    )
+                    
+                    # Accumulate stats
+                    batch_stats['successful'] += stats.get('successful', 0)
+                    batch_stats['failed'] += stats.get('failed', 0)
+                    batch_stats['total_cost'] += stats.get('total_cost', 0.0)
+                    batch_stats['total_time'] += stats.get('total_time', 0.0)
+                    
+                    progress_bar.progress((i + len(batch)) / total_papers)
+                
+                progress_bar.progress(1.0)
+                status_text.text("Processing complete!")
+                
+                # Show results
+                st.markdown("---")
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("Papers Processed", batch_stats['successful'], delta=f"+{batch_stats['successful']}")
+                
+                with col2:
+                    st.metric("Failed", batch_stats['failed'])
+                
+                with col3:
+                    st.metric("Processing Cost", f"${batch_stats['total_cost']:.2f}")
+                
+                with col4:
+                    st.metric("Time Taken", f"{batch_stats['total_time']:.1f}s")
+                
+                st.success("""
+                ✅ **Analysis Complete!**  
+                Navigate to 'Browse Insights' to explore the extracted insights or 'Get Recommendations' for personalized guidance.
+                """)
+                
+                # Refresh the page to show updated statistics
+                st.rerun()
 
 # Browse Insights Page
 elif page == "📚 Browse Insights":
     st.header("Browse Research Insights")
     
     # Filters
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         complexity_filter = st.multiselect(
             "Complexity Level",
             options=['low', 'medium', 'high', 'very_high', 'unknown'],
-            default=['low', 'medium']
+            default=['low', 'medium', 'high', 'very_high', 'unknown']  # All selected by default
         )
     
     with col2:
@@ -340,11 +338,21 @@ elif page == "📚 Browse Insights":
         )
     
     with col3:
+        study_type_filter = st.multiselect(
+            "Study Type",
+            options=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown'],
+            default=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown']  # All selected
+        )
+    
+    with col4:
         sort_by = st.selectbox(
             "Sort By",
             options=['quality_score', 'evidence_strength', 'practical_applicability', 'recency'],
             index=0
         )
+    
+    # Additional filter for case studies only
+    show_case_studies_only = st.checkbox("Show only case studies", value=False)
     
     # Get all papers using the storage API
     all_papers = []
@@ -369,7 +377,12 @@ elif page == "📚 Browse Insights":
                             if insights and paper_data:
                                 # Apply filters
                                 if (insights.implementation_complexity.value in complexity_filter and
-                                    insights.get_quality_score() >= min_quality):
+                                    insights.get_quality_score() >= min_quality and
+                                    insights.study_type.value in study_type_filter):
+                                    
+                                    # Apply case study filter if checked
+                                    if show_case_studies_only and insights.study_type.value != 'case_study':
+                                        continue
                                     
                                     all_papers.append({
                                         'paper_id': paper_id,
@@ -403,6 +416,12 @@ elif page == "📚 Browse Insights":
             # Display papers
             for paper in all_papers[:20]:  # Show top 20
                 with st.expander(f"📄 {paper['title'][:100]}..."):
+                    # Add case study badge if applicable
+                    if paper['insights'].study_type.value == 'case_study':
+                        st.markdown('<span class="case-study-badge">CASE STUDY</span>', unsafe_allow_html=True)
+                        if paper['insights'].industry_validation:
+                            st.success("✅ Industry Validated")
+                    
                     col1, col2 = st.columns([3, 1])
                     
                     with col1:
@@ -415,11 +434,21 @@ elif page == "📚 Browse Insights":
                         if techniques:
                             st.write(f"**Techniques:** {', '.join(techniques)}")
                         
+                        # Problem addressed
+                        if paper['insights'].problem_addressed:
+                            st.write(f"**Problem Addressed:** {paper['insights'].problem_addressed}")
+                        
                         # Key findings
                         if paper['insights'].key_findings:
                             st.write("**Key Findings:**")
                             for i, finding in enumerate(paper['insights'].key_findings[:5], 1):
                                 st.write(f"{i}. {finding}")
+                        
+                        # Real-world applications
+                        if paper['insights'].real_world_applications:
+                            st.write("**Real-World Applications:**")
+                            for app in paper['insights'].real_world_applications[:3]:
+                                st.write(f"- {app}")
                         
                         # Show limitations if any
                         if paper['insights'].limitations:
@@ -442,8 +471,6 @@ elif page == "📚 Browse Insights":
                             st.success("✅ Code Available")
                         if paper['insights'].has_dataset_available:
                             st.success("✅ Dataset Available")
-                        if paper['insights'].industry_validation:
-                            st.success("✅ Industry Validated")
                             
     except Exception as e:
         st.error(f"Error loading papers: {str(e)}")
@@ -463,36 +490,8 @@ elif page == "🎯 Get Recommendations":
     with st.form("user_context_form"):
         st.subheader("Your Context")
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            company_size = st.selectbox(
-                "Company Size (Optional)",
-                options=["", "startup", "small", "medium", "large", "enterprise"],
-                index=0
-            )
-            
-            maturity_level = st.selectbox(
-                "AI Maturity Level (Optional)",
-                options=["", "greenfield", "pilot_ready", "scaling", "optimizing"],
-                index=0
-            )
-            
-        with col2:
-            budget = st.selectbox(
-                "Budget (Optional)",
-                options=["", "low", "medium", "high", "unlimited"],
-                index=0
-            )
-            
-            risk_tolerance = st.selectbox(
-                "Risk Tolerance (Optional)",
-                options=["", "conservative", "moderate", "aggressive"],
-                index=0
-            )
-        
         business_context = st.text_area(
-            "Describe your business context (Optional)",
+            "Describe your business context, such as comapny size, industry, team size, budget constraints, and AI maturity level (Optional)",
             placeholder="e.g., We are a mid-size healthcare company looking to improve patient engagement...",
             height=100
         )
@@ -513,10 +512,10 @@ elif page == "🎯 Get Recommendations":
     if submit_button:
         # Create user context with optional fields
         context = UserContext(
-            company_size=company_size if company_size else "medium",
-            maturity_level=maturity_level if maturity_level else "pilot_ready",
-            budget_constraint=budget if budget else None,
-            risk_tolerance=risk_tolerance if risk_tolerance else "moderate",
+            # company_size=company_size if company_size else "medium",
+            # maturity_level=maturity_level if maturity_level else "pilot_ready",
+            # budget_constraint=budget if budget else None,
+            # risk_tolerance=risk_tolerance if risk_tolerance else "moderate",
             preferred_techniques=[],  # Removed from UI
             use_case_description=business_context if business_context else "General exploration of GenAI applications",
             specific_problems=[p.strip() for p in specific_problems.split('\n') if p.strip()] if specific_problems else []
@@ -555,13 +554,15 @@ elif page == "🎯 Get Recommendations":
                 
                 with col1:
                     st.metric("Papers Analyzed", metadata.get('papers_analyzed', 0))
-                    st.metric("Analysis Date", datetime.now().strftime("%Y-%m-%d"))
+                    st.metric("Case Studies Included", metadata.get('case_studies_included', 0))
                 
                 with col2:
+                    st.metric("Analysis Date", datetime.now().strftime("%Y-%m-%d"))
                     if 'top_paper_scores' in metadata:
                         st.write("**Top Research Sources:**")
                         for paper in metadata['top_paper_scores'][:3]:
-                            st.write(f"- {paper['title']}")
+                            case_tag = " [CASE STUDY]" if paper.get('is_case_study') else ""
+                            st.write(f"- {paper['title']}{case_tag}")
                             st.write(f"  Score: {paper['score']:.2f}")
             
             # Interactive options
@@ -801,6 +802,6 @@ elif page == "⚙️ Settings":
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>© 2025</p>
+    <p>© 2025 GenAI Research Platform</p>
 </div>
 """, unsafe_allow_html=True)

@@ -1,6 +1,7 @@
 """
 Synthesis engine for creating personalized recommendations from paper insights.
 Uses a consultant-style LLM approach to match user contexts to relevant research.
+Updated to leverage enhanced extraction with case study awareness.
 """
 
 import json
@@ -26,7 +27,7 @@ class SynthesisEngine:
     
     Emulates McKinsey/Deloitte-style consulting to:
     - Understand client business context
-    - Analyze research corpus
+    - Analyze research corpus with special attention to case studies
     - Recommend best-fit solutions
     - Provide strategic implementation guidance
     """
@@ -66,11 +67,15 @@ class SynthesisEngine:
         
         logger.info(f"Retrieved {len(relevant_papers)} relevant papers for analysis")
         
-        # Step 2: Rerank papers using quality metrics
+        # Step 2: Rerank papers using enhanced quality metrics
         reranked_papers = self._rerank_papers(relevant_papers)
         
         # Step 3: Select top papers for synthesis (cap at 25 for context window)
         top_papers = reranked_papers[:25]
+        
+        # Log case study distribution
+        case_studies = [p for p in top_papers if p['insights'].study_type == StudyType.CASE_STUDY]
+        logger.info(f"Including {len(case_studies)} case studies in synthesis")
         
         # Step 4: Generate consultant-style synthesis
         synthesis_result = self._generate_consultant_synthesis(
@@ -83,8 +88,8 @@ class SynthesisEngine:
     
     def _rerank_papers(self, papers: List[Dict]) -> List[Dict]:
         """
-        Rerank papers using the consultant-specified formula:
-        final_score = 0.4 * quality + 0.3 * evidence + 0.2 * applicability + 0.1 * recency
+        Rerank papers using enhanced formula that prioritizes case studies:
+        final_score = 0.35 * quality + 0.25 * evidence + 0.15 * applicability + 0.1 * recency + 0.15 * case_study_bonus
         """
         current_year = datetime.now().year
         
@@ -104,12 +109,20 @@ class SynthesisEngine:
             years_old = current_year - pub_year
             recency_score = max(0, 1 - (years_old * 0.1))  # 10% decay per year
             
-            # Calculate final reranking score
+            # Case study bonus - significant weight for real-world implementations
+            case_study_score = 0.0
+            if insights.study_type == StudyType.CASE_STUDY:
+                case_study_score = 0.7  # Base score for case studies
+                if insights.industry_validation:
+                    case_study_score = 1.0  # Full score for validated case studies
+            
+            # Calculate final reranking score with case study awareness
             paper_data['rerank_score'] = (
-                0.4 * insights.get_quality_score() +
-                0.3 * insights.evidence_strength +
-                0.2 * insights.practical_applicability +
-                0.1 * recency_score
+                0.35 * insights.get_quality_score() +
+                0.25 * insights.evidence_strength +
+                0.15 * insights.practical_applicability +
+                0.10 * recency_score +
+                0.15 * case_study_score  # Significant weight for case studies
             )
             
             # Store components for transparency
@@ -117,7 +130,8 @@ class SynthesisEngine:
                 'quality': insights.get_quality_score(),
                 'evidence': insights.evidence_strength,
                 'applicability': insights.practical_applicability,
-                'recency': recency_score
+                'recency': recency_score,
+                'case_study': case_study_score
             }
         
         # Sort by rerank score
@@ -129,13 +143,22 @@ class SynthesisEngine:
                                      user_context: UserContext,
                                      interactive: bool = False) -> Dict:
         """
-        Generate McKinsey-style synthesis using LLM.
+        Generate McKinsey-style synthesis using LLM with case study awareness.
         """
-        # Prepare research summaries
+        # Prepare research summaries with case study highlighting
         research_summaries = self._prepare_research_summaries(papers)
         
+        # Separate case studies for special attention
+        case_studies = [s for s in research_summaries if s.get('is_case_study')]
+        other_studies = [s for s in research_summaries if not s.get('is_case_study')]
+        
         # Create consultant prompt
-        prompt = self._create_consultant_prompt(user_context, research_summaries, interactive)
+        prompt = self._create_consultant_prompt(
+            user_context, 
+            case_studies, 
+            other_studies, 
+            interactive
+        )
         
         try:
             response = self.llm.messages.create(
@@ -148,15 +171,17 @@ class SynthesisEngine:
             # Parse the structured response
             synthesis = self._parse_consultant_response(response.content[0].text)
             
-            # Add metadata
+            # Add enhanced metadata
             synthesis['metadata'] = {
                 'papers_analyzed': len(papers),
+                'case_studies_included': len(case_studies),
                 'synthesis_timestamp': datetime.utcnow().isoformat(),
                 'top_paper_scores': [
                     {
                         'title': self.storage.load_paper(p['paper_id']).get('title', 'Unknown')[:100],
                         'score': p['rerank_score'],
-                        'components': p['score_components']
+                        'components': p['score_components'],
+                        'is_case_study': p['insights'].study_type == StudyType.CASE_STUDY
                     }
                     for p in papers[:5]
                 ]
@@ -170,7 +195,7 @@ class SynthesisEngine:
     
     def _prepare_research_summaries(self, papers: List[Dict]) -> List[Dict]:
         """
-        Prepare research summaries in consultant-friendly format.
+        Prepare research summaries with enhanced handling of rich key findings.
         """
         summaries = []
         
@@ -181,8 +206,8 @@ class SynthesisEngine:
             if not paper_info:
                 continue
             
-            # Create 200-word key findings summary
-            key_findings_text = self._create_findings_summary(insights)
+            # Create enhanced findings summary
+            key_findings_text = self._create_enhanced_findings_summary(insights)
             
             # Identify primary approach/technique
             primary_approach = "General AI approach"
@@ -199,32 +224,68 @@ class SynthesisEngine:
                 'evidence_strength': insights.evidence_strength,
                 'practical_applicability': insights.practical_applicability,
                 'complexity': insights.implementation_complexity.value,
-                'published_year': self._extract_year(paper_info)
+                'published_year': self._extract_year(paper_info),
+                'is_case_study': insights.study_type == StudyType.CASE_STUDY,
+                'industry_validated': insights.industry_validation,
+                'has_code': insights.has_code_available
             }
             
             summaries.append(summary)
         
         return summaries
     
-    def _create_findings_summary(self, insights: PaperInsights) -> str:
+    def _create_enhanced_findings_summary(self, insights: PaperInsights) -> str:
         """
-        Create a concise 200-word summary of key findings and conclusions.
+        Create a concise summary leveraging richer key findings from enhanced extraction.
         """
-        # Combine key findings
-        findings_text = " ".join(insights.key_findings[:3])  # Top 3 findings
+        findings_text = ""
         
-        # Add problem addressed if available
-        if insights.problem_addressed:
+        # Since findings are now 1-3 sentences each, prioritize by content
+        quantitative_findings = []
+        implementation_findings = []
+        outcome_findings = []
+        other_findings = []
+        
+        for finding in insights.key_findings:
+            finding_lower = finding.lower()
+            # Categorize findings
+            if any(char.isdigit() for char in finding) and '%' in finding:
+                quantitative_findings.append(finding)
+            elif any(term in finding_lower for term in ['implement', 'deploy', 'system', 'architecture']):
+                implementation_findings.append(finding)
+            elif any(term in finding_lower for term in ['result', 'outcome', 'improve', 'reduce']):
+                outcome_findings.append(finding)
+            else:
+                other_findings.append(finding)
+        
+        # Build summary with best findings from each category
+        selected_findings = []
+        if quantitative_findings:
+            selected_findings.append(quantitative_findings[0])
+        if outcome_findings:
+            selected_findings.append(outcome_findings[0])
+        if implementation_findings:
+            selected_findings.append(implementation_findings[0])
+        
+        # Fill remaining space with other findings
+        remaining_slots = 3 - len(selected_findings)
+        if remaining_slots > 0 and other_findings:
+            selected_findings.extend(other_findings[:remaining_slots])
+        
+        findings_text = " ".join(selected_findings)
+        
+        # Add context tags
+        prefix = ""
+        if insights.study_type == StudyType.CASE_STUDY:
+            prefix = "[CASE STUDY] "
+            if insights.industry_validation:
+                prefix = "[INDUSTRY VALIDATED CASE STUDY] "
+        
+        findings_text = prefix + findings_text
+        
+        # Add problem context if short
+        if len(findings_text) < 500 and insights.problem_addressed:
             findings_text = f"Addresses: {insights.problem_addressed}. {findings_text}"
-        
-        # Add success metrics if available
-        if insights.success_metrics:
-            metrics_text = ", ".join([
-                f"{m.metric_name}: {m.improvement_value}{m.improvement_unit or ''}"
-                for m in insights.success_metrics[:2]
-            ])
-            if metrics_text:
-                findings_text += f" Achieved: {metrics_text}."
         
         # Truncate to ~200 words (roughly 1000 characters)
         if len(findings_text) > 1000:
@@ -234,10 +295,11 @@ class SynthesisEngine:
     
     def _create_consultant_prompt(self, 
                                 user_context: UserContext, 
-                                research_summaries: List[Dict],
+                                case_studies: List[Dict],
+                                other_studies: List[Dict],
                                 interactive: bool) -> str:
         """
-        Create McKinsey-style consultant prompt.
+        Create McKinsey-style consultant prompt with case study prioritization.
         """
         # Format user context
         context_details = []
@@ -254,15 +316,32 @@ class SynthesisEngine:
         
         context_text = "\n".join(context_details) if context_details else "General exploration of GenAI applications"
         
-        # Format research summaries
-        summaries_text = ""
-        for summary in research_summaries:
-            summaries_text += f"""
-{summary['rank']}. Title: {summary['title']}
+        # Format case studies separately
+        case_studies_text = ""
+        if case_studies:
+            case_studies_text = "\n### Real-World Case Studies (Highest Priority)\n"
+            for summary in case_studies[:5]:  # Top 5 case studies
+                validation_tag = "✓ Industry Validated" if summary['industry_validated'] else "Case Study"
+                case_studies_text += f"""
+{summary['rank']}. [{validation_tag}] {summary['title']}
    Approach: {summary['approach']}
    Key Findings: {summary['findings']}
    Limitations: {summary['limitations']}
    Scores: Quality={summary['quality_score']:.2f}, Evidence={summary['evidence_strength']:.2f}, Applicability={summary['practical_applicability']:.2f}
+   Complexity: {summary['complexity']} | Year: {summary['published_year']}
+"""
+
+        # Format other research
+        other_studies_text = ""
+        if other_studies:
+            other_studies_text = "\n### Additional Research Studies\n"
+            for summary in other_studies[:10]:  # Top 10 other studies
+                code_tag = "[Code Available] " if summary.get('has_code') else ""
+                other_studies_text += f"""
+{summary['rank']}. {code_tag}{summary['title']}
+   Approach: {summary['approach']}
+   Key Findings: {summary['findings']}
+   Scores: Quality={summary['quality_score']:.2f}, Evidence={summary['evidence_strength']:.2f}
    Complexity: {summary['complexity']} | Year: {summary['published_year']}
 """
 
@@ -273,9 +352,10 @@ class SynthesisEngine:
 {context_text}
 
 ## Research Analysis
-I've analyzed {len(research_summaries)} relevant research papers and implementations. Here are the top findings:
+I've analyzed {len(case_studies) + len(other_studies)} relevant research papers, including {len(case_studies)} real-world case studies.
 
-{summaries_text}
+{case_studies_text}
+{other_studies_text}
 
 ## Your Consulting Tasks
 
@@ -284,33 +364,43 @@ Please provide a strategic recommendation following this structure:
 1. **Executive Summary** (2-3 sentences)
    - What is your primary recommendation?
    - Why is this the best fit for the client?
+   - Highlight if recommendation is based on proven case studies
 
 2. **Recommended Approach**
    - Primary technique/methodology recommended
    - Why this approach aligns with client constraints
    - Expected complexity and resource requirements
+   - Reference specific case studies if applicable
 
-3. **Strategic Advantages**
+3. **Evidence from Case Studies** (if applicable)
+   - What real-world implementations support this recommendation?
+   - What were their outcomes?
+   - How do they relate to the client's context?
+
+4. **Strategic Advantages**
    - 3-4 key benefits specific to the client's context
    - Competitive advantages this approach provides
-   - ROI indicators based on research evidence
+   - ROI indicators based on case study evidence
 
-4. **Risk Assessment**
+5. **Risk Assessment**
    - 2-3 primary risks or challenges
    - Mitigation strategies for each risk
-   - Critical success factors
+   - Lessons learned from case studies
 
-5. **Implementation Considerations**
+6. **Implementation Considerations**
    - High-level phases (do not detail full roadmap yet)
    - Key prerequisites or dependencies
    - Recommended team composition
+   - Timeline expectations based on similar implementations
 
-{"6. **Next Steps**" if interactive else "6. **Getting Started**"}
+{"7. **Next Steps**" if interactive else "7. **Getting Started**"}
 {" - Would you like me to develop a detailed implementation roadmap?" if interactive else " - Key actions for the first 30 days"}
 {" - Are there alternative approaches you'd like to explore?" if interactive else " - Quick wins to build momentum"}
 {" - Do you have specific concerns about this recommendation?" if interactive else " - Success metrics to track"}
 
-Please structure your response in a clear, professional format using markdown. Be specific and actionable, referencing the research evidence where appropriate. Maintain a consultative tone that builds confidence while being transparent about challenges."""
+IMPORTANT: Give strong preference to recommendations backed by real-world case studies, especially industry-validated ones. If no relevant case studies exist, note this as a consideration.
+
+Please structure your response in a clear, professional format using markdown. Be specific and actionable, referencing the research evidence where appropriate."""
 
         return prompt
     
@@ -327,7 +417,7 @@ Please structure your response in a clear, professional format using markdown. B
                 'interactive_options': [
                     "Generate detailed implementation roadmap",
                     "Explore alternative approaches",
-                    "Deep dive on specific risks",
+                    "Deep dive on specific case studies",
                     "Analyze cost-benefit in detail"
                 ]
             }
@@ -403,15 +493,18 @@ Format as a professional consulting deliverable with clear sections and actionab
                                      user_context: UserContext,
                                      num_alternatives: int = 3) -> Dict:
         """
-        Explore alternative approaches based on different criteria.
+        Explore alternative approaches with case study awareness.
         """
+        # Categorize papers by approach and case study status
+        approaches_data = self._categorize_approaches(papers)
+        
         prompt = f"""As the McKinsey consultant, the client has asked to explore alternative approaches beyond the primary recommendation.
 
 ## Client Context
 {self._format_user_context(user_context)}
 
 ## Available Approaches from Research
-{self._format_approaches_summary(papers)}
+{self._format_categorized_approaches(approaches_data)}
 
 Please provide {num_alternatives} alternative approaches, each optimized for different priorities:
 
@@ -419,18 +512,24 @@ For each alternative, provide:
 1. **Approach Name & Rationale**
    - What priority does this optimize for? (e.g., speed, cost, risk, innovation)
    - Key differentiator from primary recommendation
+   - Case study evidence (if available)
 
 2. **Pros and Cons**
    - Specific advantages for this client
    - Trade-offs compared to primary recommendation
+   - Real-world validation status
 
 3. **Best Fit Scenario**
    - When to choose this approach
    - Conditions for success
+   - Similar implementations
 
 4. **Implementation Complexity**
    - Relative to primary recommendation
    - Key challenges to expect
+   - Resource requirements
+
+Prioritize alternatives that have case study support where possible.
 
 Format as a comparison matrix that helps the client make an informed decision."""
 
@@ -451,6 +550,69 @@ Format as a comparison matrix that helps the client make an informed decision.""
             logger.error(f"Alternative exploration failed: {e}")
             return {'error': 'Failed to generate alternatives', 'details': str(e)}
     
+    def _categorize_approaches(self, papers: List[Dict]) -> Dict:
+        """Categorize approaches with case study information."""
+        approaches = {}
+        
+        for paper in papers[:20]:  # Top 20 papers
+            insights = paper['insights']
+            for technique in insights.techniques_used:
+                if technique.value not in approaches:
+                    approaches[technique.value] = {
+                        'count': 0,
+                        'case_studies': 0,
+                        'avg_quality': 0,
+                        'complexities': [],
+                        'validated_cases': []
+                    }
+                
+                approaches[technique.value]['count'] += 1
+                approaches[technique.value]['avg_quality'] += insights.get_quality_score()
+                approaches[technique.value]['complexities'].append(
+                    insights.implementation_complexity.value
+                )
+                
+                if insights.study_type == StudyType.CASE_STUDY:
+                    approaches[technique.value]['case_studies'] += 1
+                    if insights.industry_validation:
+                        paper_info = self.storage.load_paper(paper['paper_id'])
+                        approaches[technique.value]['validated_cases'].append(
+                            paper_info.get('title', 'Unknown')[:80]
+                        )
+        
+        # Calculate averages
+        for approach_data in approaches.values():
+            if approach_data['count'] > 0:
+                approach_data['avg_quality'] /= approach_data['count']
+        
+        return approaches
+    
+    def _format_categorized_approaches(self, approaches_data: Dict) -> str:
+        """Format categorized approaches with case study information."""
+        summary = "Approaches identified with case study evidence:\n\n"
+        
+        # Sort by number of case studies, then by count
+        sorted_approaches = sorted(
+            approaches_data.items(),
+            key=lambda x: (x[1]['case_studies'], x[1]['count']),
+            reverse=True
+        )
+        
+        for approach, data in sorted_approaches:
+            approach_name = approach.replace('_', ' ').title()
+            summary += f"**{approach_name}**\n"
+            summary += f"- Papers: {data['count']} (including {data['case_studies']} case studies)\n"
+            summary += f"- Avg Quality Score: {data['avg_quality']:.2f}\n"
+            
+            if data['validated_cases']:
+                summary += f"- Industry Validated Cases:\n"
+                for case in data['validated_cases'][:2]:  # Show top 2
+                    summary += f"  • {case}\n"
+            
+            summary += "\n"
+        
+        return summary
+    
     def _format_user_context(self, user_context: UserContext) -> str:
         """Format user context for prompts."""
         parts = []
@@ -462,31 +624,6 @@ Format as a comparison matrix that helps the client make an informed decision.""
             parts.append(f"Budget: {user_context.budget_constraint}")
         return "\n".join(parts)
     
-    def _format_approaches_summary(self, papers: List[Dict]) -> str:
-        """Summarize different approaches found in papers."""
-        approaches = {}
-        for paper in papers[:15]:  # Top 15 papers
-            for technique in paper['insights'].techniques_used:
-                if technique.value not in approaches:
-                    approaches[technique.value] = {
-                        'count': 0,
-                        'avg_quality': 0,
-                        'complexities': []
-                    }
-                approaches[technique.value]['count'] += 1
-                approaches[technique.value]['avg_quality'] += paper['insights'].get_quality_score()
-                approaches[technique.value]['complexities'].append(
-                    paper['insights'].implementation_complexity.value
-                )
-        
-        # Format summary
-        summary = "Approaches identified:\n"
-        for approach, data in approaches.items():
-            avg_quality = data['avg_quality'] / data['count'] if data['count'] > 0 else 0
-            summary += f"- {approach}: {data['count']} papers, avg quality {avg_quality:.2f}\n"
-        
-        return summary
-    
     def _extract_year(self, paper_data: Dict) -> int:
         """Extract publication year from paper data."""
         if not paper_data or not paper_data.get('published'):
@@ -497,17 +634,24 @@ Format as a comparison matrix that helps the client make an informed decision.""
             return 2020
     
     def _create_fallback_synthesis(self, papers: List[Dict], user_context: UserContext) -> Dict:
-        """Create basic synthesis if LLM fails."""
+        """Create enhanced fallback synthesis with case study awareness."""
+        # Separate case studies
+        case_studies = [p for p in papers if p['insights'].study_type == StudyType.CASE_STUDY]
+        other_papers = [p for p in papers if p['insights'].study_type != StudyType.CASE_STUDY]
+        
         top_approaches = {}
         for paper in papers[:10]:
             for technique in paper['insights'].techniques_used:
                 if technique.value not in top_approaches:
                     top_approaches[technique.value] = {
                         'count': 0,
-                        'total_score': 0
+                        'total_score': 0,
+                        'case_study_count': 0
                     }
                 top_approaches[technique.value]['count'] += 1
                 top_approaches[technique.value]['total_score'] += paper.get('rerank_score', 0)
+                if paper['insights'].study_type == StudyType.CASE_STUDY:
+                    top_approaches[technique.value]['case_study_count'] += 1
         
         # Sort by score
         sorted_approaches = sorted(
@@ -518,16 +662,30 @@ Format as a comparison matrix that helps the client make an informed decision.""
         
         fallback_text = f"""## Executive Summary
 
-Based on analysis of {len(papers)} research papers, I recommend exploring the following approaches:
+Based on analysis of {len(papers)} research papers (including {len(case_studies)} real-world case studies), I recommend exploring the following approaches:
 
 ## Top Approaches
 
 """
         for approach, data in sorted_approaches[:3]:
             avg_score = data['total_score'] / data['count'] if data['count'] > 0 else 0
-            fallback_text += f"**{approach.replace('_', ' ').title()}**\n"
-            fallback_text += f"- Found in {data['count']} high-quality papers\n"
-            fallback_text += f"- Average quality score: {avg_score:.2f}\n\n"
+            approach_name = approach.replace('_', ' ').title()
+            fallback_text += f"**{approach_name}**\n"
+            fallback_text += f"- Found in {data['count']} high-quality papers"
+            if data['case_study_count'] > 0:
+                fallback_text += f" (including {data['case_study_count']} case studies)"
+            fallback_text += f"\n- Average quality score: {avg_score:.2f}\n\n"
+        
+        if case_studies:
+            fallback_text += f"""## Notable Case Studies
+
+The following real-world implementations provide valuable insights:
+
+"""
+            for cs in case_studies[:3]:
+                paper_info = self.storage.load_paper(cs['paper_id'])
+                if paper_info:
+                    fallback_text += f"- {paper_info.get('title', 'Unknown')[:100]}\n"
         
         fallback_text += """## Next Steps
 
@@ -541,6 +699,7 @@ To proceed with a more detailed analysis, please ensure the LLM service is avail
             },
             'metadata': {
                 'papers_analyzed': len(papers),
+                'case_studies_included': len(case_studies),
                 'synthesis_timestamp': datetime.utcnow().isoformat(),
                 'fallback_mode': True
             }
@@ -574,6 +733,7 @@ Would you like to adjust your search criteria or explore adjacent research areas
             },
             'metadata': {
                 'papers_analyzed': 0,
+                'case_studies_included': 0,
                 'synthesis_timestamp': datetime.utcnow().isoformat()
             }
         }

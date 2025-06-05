@@ -1,0 +1,34 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04209v1",
+  "extraction_timestamp": "2025-06-05 03:30:19.711912",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Extraction failed."
+  ],
+  "limitations": [
+    "Could not process paper."
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.5,
+  "practical_applicability": 0.5,
+  "extraction_confidence": 0.1,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

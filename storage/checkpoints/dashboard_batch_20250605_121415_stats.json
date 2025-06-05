@@ -1,0 +1,52 @@
+{
+  "checkpoint_name": "dashboard_batch_20250605_121415",
+  "timestamp": "2025-06-05T17:30:14.077814",
+  "statistics": {
+    "total_processed": 5,
+    "successful": 0,
+    "failed": 25,
+    "skipped": 0,
+    "total_time": 207.64603,
+    "total_cost": 0.0,
+    "errors": [
+      {
+        "paper_id": "2506.04220v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-05T17:16:23.366638"
+      },
+      {
+        "paper_id": "2506.04207v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-05T17:19:44.605030"
+      },
+      {
+        "paper_id": "2506.04180v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-05T17:23:01.065803"
+      },
+      {
+        "paper_id": "2506.04166v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-05T17:26:14.555423"
+      },
+      {
+        "paper_id": "2506.04141v1",
+        "error": "Timeout",
+        "timestamp": "2025-06-05T17:29:46.734012"
+      }
+    ]
+  },
+  "storage_stats": {
+    "total_papers": 25,
+    "total_insights": 8,
+    "papers_with_code": 0,
+    "complexity_distribution": {},
+    "study_type_distribution": {},
+    "average_quality_score": 0.0,
+    "average_evidence_strength": 0.0,
+    "average_practical_applicability": 0.0,
+    "average_key_findings_count": 0.0,
+    "total_extraction_cost": 0.0,
+    "recent_papers_count": 89
+  }
+}

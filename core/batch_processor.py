@@ -13,12 +13,11 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 
-from .hierarchical_extractor import HierarchicalInsightExtractor
+from .insight_extractor import InsightExtractor
 from .insight_storage import InsightStorage
 from .insight_schema import PaperInsights, ExtractionMetadata
 
 logger = logging.getLogger(__name__)
-
 
 class BatchProcessor:
     """
@@ -32,7 +31,7 @@ class BatchProcessor:
     """
     
     def __init__(self, 
-                 extractor: Optional[HierarchicalInsightExtractor] = None,
+                 extractor: Optional[InsightExtractor] = None,
                  storage: Optional[InsightStorage] = None,
                  batch_size: int = 10,
                  max_workers: int = 3):
@@ -45,7 +44,7 @@ class BatchProcessor:
             batch_size: Number of papers per batch
             max_workers: Maximum concurrent extractions
         """
-        self.extractor = extractor or HierarchicalInsightExtractor()
+        self.extractor = extractor or InsightExtractor()
         self.storage = storage or InsightStorage()
         self.batch_size = batch_size
         self.max_workers = max_workers

@@ -13,10 +13,7 @@ from .insight_schema import (
     ExtractionMetadata
 )
 
-from .hierarchical_extractor import (
-    HierarchicalInsightExtractor,
-    SyncHierarchicalExtractor
-)
+from .insight_extractor import InsightExtractor
 
 from .insight_storage import InsightStorage
 
@@ -39,8 +36,7 @@ __all__ = [
     'ExtractionMetadata',
     
     # Extractors
-    'HierarchicalInsightExtractor',
-    'SyncHierarchicalExtractor',
+    'InsightExtractor',
     
     # Storage
     'InsightStorage',

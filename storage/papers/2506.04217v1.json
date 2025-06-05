@@ -1,0 +1,26 @@
+{
+  "id": "http://arxiv.org/abs/2506.04217v1",
+  "title": "OWMM-Agent: Open World Mobile Manipulation With Multi-modal Agentic Data\n  Synthesis",
+  "summary": "The rapid progress of navigation, manipulation, and vision models has made\nmobile manipulators capable in many specialized tasks. However, the open-world\nmobile manipulation (OWMM) task remains a challenge due to the need for\ngeneralization to open-ended instructions and environments, as well as the\nsystematic complexity to integrate high-level decision making with low-level\nrobot control based on both global scene understanding and current agent state.\nTo address this complexity, we propose a novel multi-modal agent architecture\nthat maintains multi-view scene frames and agent states for decision-making and\ncontrols the robot by function calling. A second challenge is the hallucination\nfrom domain shift. To enhance the agent performance, we further introduce an\nagentic data synthesis pipeline for the OWMM task to adapt the VLM model to our\ntask domain with instruction fine-tuning. We highlight our fine-tuned OWMM-VLM\nas the first dedicated foundation model for mobile manipulators with global\nscene understanding, robot state tracking, and multi-modal action generation in\na unified model. Through experiments, we demonstrate that our model achieves\nSOTA performance compared to other foundation models including GPT-4o and\nstrong zero-shot generalization in real world. The project page is at\nhttps://github.com/HHYHRHY/OWMM-Agent",
+  "authors": [
+    "Junting Chen",
+    "Haotian Liang",
+    "Lingxiao Du",
+    "Weiyun Wang",
+    "Mengkang Hu",
+    "Yao Mu",
+    "Wenhai Wang",
+    "Jifeng Dai",
+    "Ping Luo",
+    "Wenqi Shao",
+    "Lin Shao"
+  ],
+  "published": "2025-06-04T17:57:44Z",
+  "updated": "2025-06-04T17:57:44Z",
+  "categories": [
+    "cs.RO",
+    "cs.AI",
+    "I.2.4; I.2.9; I.2.10"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.04217v1",
+  "full_text": 
