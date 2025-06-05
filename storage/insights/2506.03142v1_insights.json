@@ -1,0 +1,38 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.03142v1",
+  "extraction_timestamp": "2025-06-04 19:11:27.216749",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Large Language Models (LLMs), pre-trained on massive text corpora, exhibit\nremarkable human-level language understanding, reasoning, and decision-making\nabilities. However, they tend to memorize unwanted information, such as private\nor copyrighted content, raising significant privacy and legal concerns.\nUnlearning has emerged as a promising solution, but existing methods face a\nsignificant challenge of over-forgetting. This issue arises because they\nindiscriminately suppress the generation of all the tokens in forget samples,\nleading to a substantial loss of model utility. To overcome this challenge, we\nintroduce the Targeted Information Forgetting (TIF) framework, which consists\nof (1) a flexible targeted information identifier designed to differentiate\nbetween unwanted words (UW) and general words (GW) in the forget samples, and\n(2) a novel Targeted Preference Optimization approach that leverages Logit\nPreference Loss to unlearn unwanted information associated with UW and\nPreservation Loss to retain general information in GW, effectively improving\nthe unlearning process while mitigating utility degradation.",
+    "Extensive\nexperiments on the TOFU and MUSE benchmarks demonstrate that the proposed TIF\nframework enhances unlearning effectiveness while preserving model utility and\nachieving state-of-the-art results."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "retrieval_augmented_generation"
+  ],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

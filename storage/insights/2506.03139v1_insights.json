@@ -1,0 +1,38 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.03139v1",
+  "extraction_timestamp": "2025-06-04 19:11:28.491580",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Large Language Models (LLMs) and Multimodal LLMs have shown promising\ncapabilities for SVG processing, yet existing benchmarks suffer from limited\nreal-world coverage, lack of complexity stratification, and fragmented\nevaluation paradigms. We introduce SVGenius, a comprehensive benchmark\ncomprising 2,377 queries across three progressive dimensions: understanding,\nediting, and generation. Built on real-world data from 24 application domains\nwith systematic complexity stratification, SVGenius evaluates models through 8\ntask categories and 18 metrics. We assess 22 mainstream models spanning\ndifferent scales, architectures, training paradigms, and accessibility levels.\nOur analysis reveals that while proprietary models significantly outperform\nopen-source counterparts, all models exhibit systematic performance degradation\nwith increasing complexity, indicating fundamental limitations in current\napproaches; however, reasoning-enhanced training proves more effective than\npure scaling for overcoming these limitations, though style transfer remains\nthe most challenging capability across all model types.",
+    "SVGenius establishes\nthe first systematic evaluation framework for SVG processing, providing crucial\ninsights for developing more capable vector graphics models and advancing\nautomated graphic design applications. Appendix and supplementary materials\n(including all data and code) are available at\nhttps://zju-real.github.io/SVGenius."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "retrieval_augmented_generation"
+  ],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

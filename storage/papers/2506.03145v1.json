@@ -1,0 +1,18 @@
+{
+  "id": "http://arxiv.org/abs/2506.03145v1",
+  "title": "Entity-Augmented Neuroscience Knowledge Retrieval Using Ontology and\n  Semantic Understanding Capability of LLM",
+  "summary": "Neuroscience research publications encompass a vast wealth of knowledge.\nAccurately retrieving existing information and discovering new insights from\nthis extensive literature is essential for advancing the field. However, when\nknowledge is dispersed across multiple sources, current state-of-the-art\nretrieval methods often struggle to extract the necessary information. A\nknowledge graph (KG) can integrate and link knowledge from multiple sources,\nbut existing methods for constructing KGs in neuroscience often rely on labeled\ndata and require domain expertise. Acquiring large-scale, labeled data for a\nspecialized area like neuroscience presents significant challenges. This work\nproposes novel methods for constructing KG from unlabeled large-scale\nneuroscience research corpus utilizing large language models (LLM),\nneuroscience ontology, and text embeddings. We analyze the semantic relevance\nof neuroscience text segments identified by LLM for building the knowledge\ngraph. We also introduce an entity-augmented information retrieval algorithm to\nextract knowledge from the KG. Several experiments were conducted to evaluate\nthe proposed approaches, and the results demonstrate that our methods\nsignificantly enhance knowledge discovery from the unlabeled neuroscience\nresearch corpus. It achieves an F1 score of 0.84 for entity extraction, and the\nknowledge obtained from the KG improves answers to over 54% of the questions.",
+  "authors": [
+    "Pralaypati Ta",
+    "Sriram Venkatesaperumal",
+    "Keerthi Ram",
+    "Mohanasankar Sivaprakasam"
+  ],
+  "published": "2025-06-03T17:59:18Z",
+  "updated": "2025-06-03T17:59:18Z",
+  "categories": [
+    "cs.CL",
+    "cs.AI"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.03145v1"
+}

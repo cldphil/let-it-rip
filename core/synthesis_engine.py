@@ -1,11 +1,11 @@
 """
 Synthesis engine for creating personalized recommendations from paper insights.
-Matches user contexts to relevant research and generates implementation roadmaps.
+Uses a consultant-style LLM approach to match user contexts to relevant research.
 """
 
 import json
 from typing import Dict, List, Optional, Tuple
-from collections import defaultdict
+from datetime import datetime
 import logging
 
 from anthropic import Anthropic
@@ -22,13 +22,13 @@ logger = logging.getLogger(__name__)
 
 class SynthesisEngine:
     """
-    Creates personalized recommendations by synthesizing insights from multiple papers.
+    Creates personalized recommendations using a consultant-style LLM approach.
     
-    Key features:
-    - Pattern identification across similar implementations
-    - Success factor extraction
-    - Risk assessment and mitigation strategies
-    - Implementation roadmap generation
+    Emulates McKinsey/Deloitte-style consulting to:
+    - Understand client business context
+    - Analyze research corpus
+    - Recommend best-fit solutions
+    - Provide strategic implementation guidance
     """
     
     def __init__(self, 
@@ -41,517 +41,539 @@ class SynthesisEngine:
         if self.api_key:
             self.llm = Anthropic(api_key=self.api_key)
         else:
-            self.llm = None
-            logger.warning("No API key for LLM synthesis. Using pattern-based recommendations only.")
+            raise ValueError("LLM API key required for synthesis engine")
     
     def synthesize_recommendations(self, 
                                  user_context: UserContext,
-                                 max_papers: int = 50) -> Dict:
+                                 max_papers: int = 50,
+                                 interactive: bool = False) -> Dict:
         """
-        Create comprehensive recommendations based on user context.
+        Create consultant-grade recommendations based on user context.
         
         Args:
             user_context: User requirements and constraints
-            max_papers: Maximum papers to analyze
+            max_papers: Maximum papers to retrieve initially
+            interactive: Whether to enable interactive follow-up
             
         Returns:
-            Dict with recommendations, success factors, risks, and roadmap
+            Dict with recommendations and strategic insights
         """
-        # Find relevant papers using enhanced vector search
+        # Step 1: Retrieve relevant papers using vector search
         relevant_papers = self.storage.find_similar_papers(user_context, n_results=max_papers)
         
         if not relevant_papers:
             return self._create_empty_recommendations()
         
-        logger.info(f"Found {len(relevant_papers)} relevant papers for synthesis")
+        logger.info(f"Retrieved {len(relevant_papers)} relevant papers for analysis")
         
-        # Prioritize papers by recency, quality, evidence, and applicability
-        prioritized_papers = self._prioritize_papers(relevant_papers)
+        # Step 2: Rerank papers using quality metrics
+        reranked_papers = self._rerank_papers(relevant_papers)
         
-        # Group insights by approach
-        grouped_insights = self._group_by_approach(prioritized_papers)
+        # Step 3: Select top papers for synthesis (cap at 25 for context window)
+        top_papers = reranked_papers[:25]
         
-        # Generate RAG-based recommendations using LLM
-        if self.llm:
-            recommendations = self._generate_llm_recommendations(grouped_insights, user_context)
-        else:
-            # Fallback to algorithmic approach
-            recommendations = self._generate_algorithmic_recommendations(grouped_insights, user_context)
+        # Step 4: Generate consultant-style synthesis
+        synthesis_result = self._generate_consultant_synthesis(
+            top_papers, 
+            user_context,
+            interactive
+        )
         
-        # Create implementation roadmap for top approach
-        if recommendations['top_approaches']:
-            roadmap = self._create_roadmap(
-                recommendations['top_approaches'][0], 
-                user_context,
-                grouped_insights
-            )
-        else:
-            roadmap = None
-        
-        return {
-            'user_context': user_context.dict(),
-            'papers_analyzed': len(relevant_papers),
-            'recommendations': recommendations,
-            'implementation_roadmap': roadmap,
-            'confidence_score': self._calculate_confidence(prioritized_papers)
-        }
+        return synthesis_result
     
-    def _prioritize_papers(self, papers: List[Dict]) -> List[Dict]:
+    def _rerank_papers(self, papers: List[Dict]) -> List[Dict]:
         """
-        Prioritize papers by recency, quality score, evidence strength, and practical applicability.
+        Rerank papers using the consultant-specified formula:
+        final_score = 0.4 * quality + 0.3 * evidence + 0.2 * applicability + 0.1 * recency
         """
-        def priority_score(paper_data):
-            insights = paper_data['insights']
-            
-            # Parse publication year for recency
-            paper_data_full = self.storage.load_paper(paper_data['paper_id'])
-            pub_year = 2020  # Default
-            if paper_data_full and paper_data_full.get('published'):
-                try:
-                    pub_year = int(paper_data_full['published'][:4])
-                except:
-                    pass
-            
-            # Recency score (2024 = 1.0, earlier years decay)
-            recency_score = max(0, 1.0 - (2024 - pub_year) * 0.1)
-            
-            # Combined score
-            score = (
-                recency_score * 0.25 +
-                insights.get_quality_score() * 0.25 +
-                insights.evidence_strength * 0.25 +
-                insights.practical_applicability * 0.25
-            )
-            
-            return score
-        
-        # Sort by priority score
-        papers.sort(key=priority_score, reverse=True)
-        return papers
-    
-    def _group_by_approach(self, papers: List[Dict]) -> Dict[str, List[Dict]]:
-        """
-        Group papers by their primary approach/technique.
-        
-        Returns:
-            Dict mapping approach names to lists of papers using that approach
-        """
-        grouped = defaultdict(list)
+        current_year = datetime.now().year
         
         for paper_data in papers:
             insights = paper_data['insights']
             
-            # Group by primary technique
-            if insights.techniques_used:
-                primary_technique = insights.techniques_used[0].value
-                grouped[primary_technique].append(paper_data)
+            # Get publication year for recency calculation
+            paper_info = self.storage.load_paper(paper_data['paper_id'])
+            pub_year = 2020  # Default
+            if paper_info and paper_info.get('published'):
+                try:
+                    pub_year = int(paper_info['published'][:4])
+                except:
+                    pass
             
-            # Also group by study type for empirical validation
-            study_key = f"{insights.study_type.value}_studies"
-            grouped[study_key].append(paper_data)
+            # Calculate recency score (normalize to 0-1)
+            years_old = current_year - pub_year
+            recency_score = max(0, 1 - (years_old * 0.1))  # 10% decay per year
+            
+            # Calculate final reranking score
+            paper_data['rerank_score'] = (
+                0.4 * insights.get_quality_score() +
+                0.3 * insights.evidence_strength +
+                0.2 * insights.practical_applicability +
+                0.1 * recency_score
+            )
+            
+            # Store components for transparency
+            paper_data['score_components'] = {
+                'quality': insights.get_quality_score(),
+                'evidence': insights.evidence_strength,
+                'applicability': insights.practical_applicability,
+                'recency': recency_score
+            }
         
-        # Filter out small groups
-        filtered = {k: v for k, v in grouped.items() if len(v) >= 2}
-        
-        logger.info(f"Grouped papers into {len(filtered)} approaches")
-        return filtered
+        # Sort by rerank score
+        papers.sort(key=lambda x: x['rerank_score'], reverse=True)
+        return papers
     
-    def _generate_llm_recommendations(self, grouped_insights: Dict[str, List[Dict]], 
-                                    user_context: UserContext) -> Dict:
+    def _generate_consultant_synthesis(self, 
+                                     papers: List[Dict], 
+                                     user_context: UserContext,
+                                     interactive: bool = False) -> Dict:
         """
-        Generate recommendations using LLM with RAG approach.
+        Generate McKinsey-style synthesis using LLM.
         """
-        # Prepare context from top papers
-        context_papers = []
-        for approach_name, papers in grouped_insights.items():
-            for paper_data in papers[:3]:  # Top 3 papers per approach
-                insights = paper_data['insights']
-                paper_info = self.storage.load_paper(paper_data['paper_id'])
-                
-                # Create rich context from key findings
-                key_findings_text = " ".join(insights.key_findings[:5])
-                
-                context_papers.append({
-                    'approach': approach_name,
-                    'title': paper_info.get('title', 'Unknown') if paper_info else 'Unknown',
-                    'key_findings': key_findings_text,
-                    'complexity': insights.implementation_complexity.value,
-                    'evidence_strength': insights.evidence_strength,
-                    'practical_applicability': insights.practical_applicability,
-                    'techniques': [t.value for t in insights.techniques_used]
-                })
+        # Prepare research summaries
+        research_summaries = self._prepare_research_summaries(papers)
         
-        # Generate recommendations using LLM
-        prompt = f"""Based on the following research papers about GenAI implementations, provide personalized recommendations for the user.
+        # Create consultant prompt
+        prompt = self._create_consultant_prompt(user_context, research_summaries, interactive)
+        
+        try:
+            response = self.llm.messages.create(
+                model=Config.LLM_MODEL,
+                temperature=0.3,  # Lower temperature for professional consistency
+                max_tokens=3000,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            
+            # Parse the structured response
+            synthesis = self._parse_consultant_response(response.content[0].text)
+            
+            # Add metadata
+            synthesis['metadata'] = {
+                'papers_analyzed': len(papers),
+                'synthesis_timestamp': datetime.utcnow().isoformat(),
+                'top_paper_scores': [
+                    {
+                        'title': self.storage.load_paper(p['paper_id']).get('title', 'Unknown')[:100],
+                        'score': p['rerank_score'],
+                        'components': p['score_components']
+                    }
+                    for p in papers[:5]
+                ]
+            }
+            
+            return synthesis
+            
+        except Exception as e:
+            logger.error(f"Consultant synthesis generation failed: {e}")
+            return self._create_fallback_synthesis(papers, user_context)
+    
+    def _prepare_research_summaries(self, papers: List[Dict]) -> List[Dict]:
+        """
+        Prepare research summaries in consultant-friendly format.
+        """
+        summaries = []
+        
+        for i, paper_data in enumerate(papers):
+            insights = paper_data['insights']
+            paper_info = self.storage.load_paper(paper_data['paper_id'])
+            
+            if not paper_info:
+                continue
+            
+            # Create 200-word key findings summary
+            key_findings_text = self._create_findings_summary(insights)
+            
+            # Identify primary approach/technique
+            primary_approach = "General AI approach"
+            if insights.techniques_used:
+                primary_approach = insights.techniques_used[0].value.replace('_', ' ').title()
+            
+            summary = {
+                'rank': i + 1,
+                'title': paper_info.get('title', 'Unknown'),
+                'approach': primary_approach,
+                'findings': key_findings_text,
+                'limitations': '; '.join(insights.limitations[:2]) if insights.limitations else "Not specified",
+                'quality_score': insights.get_quality_score(),
+                'evidence_strength': insights.evidence_strength,
+                'practical_applicability': insights.practical_applicability,
+                'complexity': insights.implementation_complexity.value,
+                'published_year': self._extract_year(paper_info)
+            }
+            
+            summaries.append(summary)
+        
+        return summaries
+    
+    def _create_findings_summary(self, insights: PaperInsights) -> str:
+        """
+        Create a concise 200-word summary of key findings and conclusions.
+        """
+        # Combine key findings
+        findings_text = " ".join(insights.key_findings[:3])  # Top 3 findings
+        
+        # Add problem addressed if available
+        if insights.problem_addressed:
+            findings_text = f"Addresses: {insights.problem_addressed}. {findings_text}"
+        
+        # Add success metrics if available
+        if insights.success_metrics:
+            metrics_text = ", ".join([
+                f"{m.metric_name}: {m.improvement_value}{m.improvement_unit or ''}"
+                for m in insights.success_metrics[:2]
+            ])
+            if metrics_text:
+                findings_text += f" Achieved: {metrics_text}."
+        
+        # Truncate to ~200 words (roughly 1000 characters)
+        if len(findings_text) > 1000:
+            findings_text = findings_text[:997] + "..."
+        
+        return findings_text
+    
+    def _create_consultant_prompt(self, 
+                                user_context: UserContext, 
+                                research_summaries: List[Dict],
+                                interactive: bool) -> str:
+        """
+        Create McKinsey-style consultant prompt.
+        """
+        # Format user context
+        context_details = []
+        if user_context.company_size:
+            context_details.append(f"Company Size: {user_context.company_size}")
+        if user_context.maturity_level:
+            context_details.append(f"AI Maturity: {user_context.maturity_level}")
+        if user_context.budget_constraint:
+            context_details.append(f"Budget Level: {user_context.budget_constraint}")
+        if user_context.use_case_description:
+            context_details.append(f"Business Context: {user_context.use_case_description}")
+        if user_context.specific_problems:
+            context_details.append(f"Specific Challenges: {', '.join(user_context.specific_problems)}")
+        
+        context_text = "\n".join(context_details) if context_details else "General exploration of GenAI applications"
+        
+        # Format research summaries
+        summaries_text = ""
+        for summary in research_summaries:
+            summaries_text += f"""
+{summary['rank']}. Title: {summary['title']}
+   Approach: {summary['approach']}
+   Key Findings: {summary['findings']}
+   Limitations: {summary['limitations']}
+   Scores: Quality={summary['quality_score']:.2f}, Evidence={summary['evidence_strength']:.2f}, Applicability={summary['practical_applicability']:.2f}
+   Complexity: {summary['complexity']} | Year: {summary['published_year']}
+"""
 
-USER CONTEXT:
-- Company Size: {user_context.company_size}
-- Maturity Level: {user_context.maturity_level}  
-- Budget Constraint: {user_context.budget_constraint}
-- Risk Tolerance: {user_context.risk_tolerance}
-- Use Case: {user_context.use_case_description}
-- Preferred Techniques: {[t.value for t in user_context.preferred_techniques]}
+        # Create consultant prompt
+        prompt = f"""You are a senior consultant at McKinsey & Company specializing in AI strategy and implementation. Your client has approached you for guidance on implementing generative AI solutions.
 
-RELEVANT RESEARCH PAPERS:
-{json.dumps(context_papers[:15], indent=2)}
+## Client Context
+{context_text}
 
-Generate recommendations in this JSON format:
-{{
-    "top_approaches": [
-        {{
-            "approach_name": "technique_name",
-            "confidence_score": 0.85,
-            "complexity": "medium",
-            "why_recommended": "Specific reason based on user context and paper evidence",
-            "example_implementations": [
-                {{
-                    "title": "Paper title",
-                    "key_insight": "Most relevant finding from this paper"
-                }}
-            ]
-        }}
-    ],
-    "success_factors": [
-        "Factor 1 based on successful implementations in the papers",
-        "Factor 2 from high-evidence research"
-    ],
-    "common_pitfalls": [
-        "Pitfall 1 identified across multiple papers",
-        "Pitfall 2 from limitation analysis"
-    ],
-    "expected_outcomes": [
-        "Outcome 1 with quantitative backing from research",
-        "Outcome 2 based on similar implementations"
-    ]
-}}
+## Research Analysis
+I've analyzed {len(research_summaries)} relevant research papers and implementations. Here are the top findings:
 
-Focus on:
-1. Matching approaches to user constraints (budget, risk, complexity)
-2. Prioritizing recent, high-evidence research
-3. Extracting actionable insights from key findings
-4. Providing specific, evidence-based recommendations"""
+{summaries_text}
+
+## Your Consulting Tasks
+
+Please provide a strategic recommendation following this structure:
+
+1. **Executive Summary** (2-3 sentences)
+   - What is your primary recommendation?
+   - Why is this the best fit for the client?
+
+2. **Recommended Approach**
+   - Primary technique/methodology recommended
+   - Why this approach aligns with client constraints
+   - Expected complexity and resource requirements
+
+3. **Strategic Advantages**
+   - 3-4 key benefits specific to the client's context
+   - Competitive advantages this approach provides
+   - ROI indicators based on research evidence
+
+4. **Risk Assessment**
+   - 2-3 primary risks or challenges
+   - Mitigation strategies for each risk
+   - Critical success factors
+
+5. **Implementation Considerations**
+   - High-level phases (do not detail full roadmap yet)
+   - Key prerequisites or dependencies
+   - Recommended team composition
+
+{"6. **Next Steps**" if interactive else "6. **Getting Started**"}
+{" - Would you like me to develop a detailed implementation roadmap?" if interactive else " - Key actions for the first 30 days"}
+{" - Are there alternative approaches you'd like to explore?" if interactive else " - Quick wins to build momentum"}
+{" - Do you have specific concerns about this recommendation?" if interactive else " - Success metrics to track"}
+
+Please structure your response in a clear, professional format using markdown. Be specific and actionable, referencing the research evidence where appropriate. Maintain a consultative tone that builds confidence while being transparent about challenges."""
+
+        return prompt
+    
+    def _parse_consultant_response(self, response_text: str) -> Dict:
+        """
+        Parse the consultant response into structured format.
+        """
+        # For now, return the response as-is with basic structure
+        # In production, this could parse specific sections
+        return {
+            'consultant_analysis': response_text,
+            'recommendations': {
+                'full_text': response_text,
+                'interactive_options': [
+                    "Generate detailed implementation roadmap",
+                    "Explore alternative approaches",
+                    "Deep dive on specific risks",
+                    "Analyze cost-benefit in detail"
+                ]
+            }
+        }
+    
+    def generate_implementation_roadmap(self, 
+                                      previous_synthesis: Dict,
+                                      user_context: UserContext) -> Dict:
+        """
+        Generate detailed implementation roadmap based on previous synthesis.
+        """
+        prompt = f"""As the McKinsey consultant who provided the previous recommendation, the client has now asked for a detailed implementation roadmap.
+
+## Previous Recommendation Summary
+{previous_synthesis.get('consultant_analysis', 'Previous recommendation not found')}
+
+## Client Context (Reminder)
+Company Size: {user_context.company_size}
+Budget: {user_context.budget_constraint}
+
+Please provide a detailed implementation roadmap with:
+
+1. **Phase-by-Phase Plan** (align with client's timeline)
+   - Phase name and duration
+   - Key activities and deliverables
+   - Success criteria
+   - Dependencies and prerequisites
+
+2. **Resource Plan**
+   - Team structure and roles needed
+   - Estimated effort by role
+   - External resources or vendors required
+   - Budget allocation guidance
+
+3. **Risk Management Plan**
+   - Risk register with probability and impact
+   - Mitigation strategies by phase
+   - Decision gates and checkpoints
+
+4. **Success Metrics & KPIs**
+   - Leading indicators by phase
+   - Lagging indicators for overall success
+   - Measurement methodology
+   - Reporting cadence
+
+5. **Change Management**
+   - Stakeholder engagement plan
+   - Communication strategy
+   - Training requirements
+   - Adoption strategies
+
+Format as a professional consulting deliverable with clear sections and actionable details."""
 
         try:
             response = self.llm.messages.create(
                 model=Config.LLM_MODEL,
                 temperature=0.3,
-                max_tokens=2000,
+                max_tokens=3000,
                 messages=[{"role": "user", "content": prompt}]
             )
             
-            result = json.loads(response.content[0].text)
-            return result
+            return {
+                'implementation_roadmap': response.content[0].text,
+                'roadmap_generated': datetime.utcnow().isoformat()
+            }
             
         except Exception as e:
-            logger.error(f"LLM recommendation generation failed: {e}")
-            # Fallback to algorithmic approach
-            return self._generate_algorithmic_recommendations(grouped_insights, user_context)
+            logger.error(f"Roadmap generation failed: {e}")
+            return {'error': 'Failed to generate roadmap', 'details': str(e)}
     
-    def _generate_algorithmic_recommendations(self, grouped_insights: Dict[str, List[Dict]], 
-                                           user_context: UserContext) -> Dict:
+    def explore_alternative_approaches(self,
+                                     papers: List[Dict],
+                                     user_context: UserContext,
+                                     num_alternatives: int = 3) -> Dict:
         """
-        Fallback algorithmic recommendation generation.
+        Explore alternative approaches based on different criteria.
         """
-        recommendations = {
-            'top_approaches': [],
-            'success_factors': [],
-            'common_pitfalls': [],
-            'expected_outcomes': []
-        }
-        
-        # Analyze each approach
-        approach_scores = []
-        for approach_name, papers in grouped_insights.items():
-            if approach_name.endswith('_studies'):
-                continue  # Skip study type groupings
+        prompt = f"""As the McKinsey consultant, the client has asked to explore alternative approaches beyond the primary recommendation.
+
+## Client Context
+{self._format_user_context(user_context)}
+
+## Available Approaches from Research
+{self._format_approaches_summary(papers)}
+
+Please provide {num_alternatives} alternative approaches, each optimized for different priorities:
+
+For each alternative, provide:
+1. **Approach Name & Rationale**
+   - What priority does this optimize for? (e.g., speed, cost, risk, innovation)
+   - Key differentiator from primary recommendation
+
+2. **Pros and Cons**
+   - Specific advantages for this client
+   - Trade-offs compared to primary recommendation
+
+3. **Best Fit Scenario**
+   - When to choose this approach
+   - Conditions for success
+
+4. **Implementation Complexity**
+   - Relative to primary recommendation
+   - Key challenges to expect
+
+Format as a comparison matrix that helps the client make an informed decision."""
+
+        try:
+            response = self.llm.messages.create(
+                model=Config.LLM_MODEL,
+                temperature=0.4,  # Slightly higher for creative alternatives
+                max_tokens=2500,
+                messages=[{"role": "user", "content": prompt}]
+            )
             
-            # Calculate approach score
-            avg_quality = sum(p['insights'].get_quality_score() for p in papers) / len(papers)
-            avg_evidence = sum(p['insights'].evidence_strength for p in papers) / len(papers)
-            avg_applicability = sum(p['insights'].practical_applicability for p in papers) / len(papers)
-            
-            # Complexity penalty based on user constraints
-            complexity_penalty = self._calculate_complexity_penalty(papers, user_context)
-            
-            overall_score = (avg_quality + avg_evidence + avg_applicability) / 3 - complexity_penalty
-            
-            approach_scores.append({
-                'approach_name': approach_name,
-                'score': overall_score,
-                'confidence_score': avg_evidence,
-                'complexity': self._get_average_complexity(papers),
-                'paper_count': len(papers),
-                'papers': papers[:3]  # Top 3 examples
-            })
-        
-        # Sort by score and take top approaches
-        approach_scores.sort(key=lambda x: x['score'], reverse=True)
-        
-        for approach in approach_scores[:3]:
-            recommendations['top_approaches'].append({
-                'approach_name': approach['approach_name'],
-                'confidence_score': approach['confidence_score'],
-                'complexity': approach['complexity'],
-                'why_recommended': self._generate_recommendation_reason(approach, user_context),
-                'example_implementations': [
-                    {
-                        'title': self.storage.load_paper(p['paper_id']).get('title', 'Unknown'),
-                        'key_insight': p['insights'].key_findings[0] if p['insights'].key_findings else 'No key insight available'
-                    }
-                    for p in approach['papers']
-                ]
-            })
-        
-        # Extract success factors and pitfalls
-        all_findings = []
-        all_limitations = []
-        
-        for papers in grouped_insights.values():
-            for paper_data in papers:
-                insights = paper_data['insights']
-                all_findings.extend(insights.key_findings)
-                all_limitations.extend(insights.limitations)
-        
-        # Simple frequency-based extraction
-        recommendations['success_factors'] = self._extract_common_themes(all_findings)[:5]
-        recommendations['common_pitfalls'] = self._extract_common_themes(all_limitations)[:5]
-        recommendations['expected_outcomes'] = ["Improved efficiency", "Reduced manual effort", "Enhanced accuracy"]
-        
-        return recommendations
-    
-    def _calculate_complexity_penalty(self, papers: List[Dict], user_context: UserContext) -> float:
-        """Calculate penalty based on complexity vs user capabilities."""
-        avg_complexity = sum(self._complexity_to_number(p['insights'].implementation_complexity) 
-                           for p in papers) / len(papers)
-        
-        if user_context.budget_constraint == "low":
-            return avg_complexity * 0.3
-        elif user_context.budget_constraint == "medium":
-            return avg_complexity * 0.2
-        else:
-            return 0.0
-    
-    def _complexity_to_number(self, complexity: ComplexityLevel) -> float:
-        """Convert complexity level to numeric value."""
-        mapping = {
-            ComplexityLevel.LOW: 1.0,
-            ComplexityLevel.MEDIUM: 2.0,
-            ComplexityLevel.HIGH: 3.0,
-            ComplexityLevel.VERY_HIGH: 4.0,
-            ComplexityLevel.UNKNOWN: 2.5
-        }
-        return mapping.get(complexity, 2.5)
-    
-    def _get_average_complexity(self, papers: List[Dict]) -> str:
-        """Get average complexity level for a group of papers."""
-        avg_num = sum(self._complexity_to_number(p['insights'].implementation_complexity) 
-                     for p in papers) / len(papers)
-        
-        if avg_num <= 1.5:
-            return "low"
-        elif avg_num <= 2.5:
-            return "medium"
-        elif avg_num <= 3.5:
-            return "high"
-        else:
-            return "very_high"
-    
-    def _generate_recommendation_reason(self, approach: Dict, user_context: UserContext) -> str:
-        """Generate explanation for why approach is recommended."""
-        reasons = []
-        
-        # Complexity fit
-        if approach['score'] > 0.7:
-            reasons.append("High success rate in similar implementations")
-        
-        # Evidence backing
-        if approach['confidence_score'] > 0.7:
-            reasons.append("Strong empirical evidence")
-        
-        # Budget fit
-        if approach['complexity'] in ['low', 'medium'] and user_context.budget_constraint in ['low', 'medium']:
-            reasons.append("Matches your budget constraints")
-        
-        # Risk fit
-        if user_context.risk_tolerance == "conservative" and approach['confidence_score'] > 0.6:
-            reasons.append("Low-risk approach with proven results")
-        
-        return ". ".join(reasons[:3]) if reasons else "Good fit for your requirements based on research analysis"
-    
-    def _extract_common_themes(self, text_list: List[str]) -> List[str]:
-        """Extract common themes from a list of text strings."""
-        # Simple keyword-based theme extraction
-        common_words = {}
-        
-        for text in text_list:
-            words = text.lower().split()
-            for word in words:
-                if len(word) > 4:  # Skip short words
-                    common_words[word] = common_words.get(word, 0) + 1
-        
-        # Return most common meaningful phrases
-        sorted_words = sorted(common_words.items(), key=lambda x: x[1], reverse=True)
-        return [word for word, count in sorted_words[:10] if count > 1]
-    
-    def _create_roadmap(self, top_approach: Dict, user_context: UserContext, 
-                       grouped_insights: Dict[str, List[Dict]]) -> Dict:
-        """Create detailed implementation roadmap."""
-        approach_papers = grouped_insights.get(top_approach['approach_name'], [])
-        
-        # Aggregate prerequisites
-        all_prerequisites = []
-        for paper_data in approach_papers[:5]:
-            all_prerequisites.extend(paper_data['insights'].prerequisites)
-        
-        # Common prerequisites
-        common_prerequisites = list(set(all_prerequisites))[:5]
-        
-        roadmap = {
-            'approach': top_approach['approach_name'],
-            'total_duration_weeks': 12,  # Default timeline
-            'phases': [
-                {
-                    'phase_number': 1,
-                    'name': 'Research & Planning',
-                    'duration_weeks': 2,
-                    'activities': [
-                        'Review relevant research papers and implementations',
-                        'Assess current infrastructure and team capabilities',
-                        'Identify specific requirements and constraints',
-                        'Create detailed project plan and timeline'
-                    ],
-                    'deliverables': [
-                        'Research analysis report',
-                        'Technical requirements document',
-                        'Project roadmap and timeline'
-                    ],
-                    'prerequisites': common_prerequisites[:2] if common_prerequisites else []
-                },
-                {
-                    'phase_number': 2,
-                    'name': 'Prototype Development',
-                    'duration_weeks': 4,
-                    'activities': [
-                        f'Implement basic {top_approach["approach_name"]} prototype',
-                        'Set up evaluation framework and metrics',
-                        'Create initial test datasets',
-                        'Develop baseline performance measurements'
-                    ],
-                    'deliverables': [
-                        'Working prototype',
-                        'Evaluation framework',
-                        'Baseline performance metrics'
-                    ],
-                    'prerequisites': common_prerequisites[2:4] if len(common_prerequisites) > 2 else []
-                },
-                {
-                    'phase_number': 3,
-                    'name': 'Optimization & Testing',
-                    'duration_weeks': 4,
-                    'activities': [
-                        'Refine implementation based on initial results',
-                        'Conduct comprehensive testing and validation',
-                        'Optimize performance and resource usage',
-                        'Document lessons learned and best practices'
-                    ],
-                    'deliverables': [
-                        'Optimized implementation',
-                        'Test results and validation report',
-                        'Performance optimization guide'
-                    ]
-                },
-                {
-                    'phase_number': 4,
-                    'name': 'Deployment & Monitoring',
-                    'duration_weeks': 2,
-                    'activities': [
-                        'Prepare production deployment pipeline',
-                        'Implement monitoring and alerting systems',
-                        'Create operational procedures and documentation',
-                        'Train team on maintenance and troubleshooting'
-                    ],
-                    'deliverables': [
-                        'Production-ready system',
-                        'Monitoring dashboard',
-                        'Operations manual and training materials'
-                    ]
-                }
-            ],
-            'key_milestones': [
-                {'week': 2, 'milestone': 'Research complete, plan approved'},
-                {'week': 6, 'milestone': 'Working prototype demonstrated'},
-                {'week': 10, 'milestone': 'Optimized version ready for deployment'},
-                {'week': 12, 'milestone': 'System deployed and operational'}
-            ],
-            'risk_mitigation': self._generate_risk_mitigation(top_approach, user_context)
-        }
-        
-        return roadmap
-    
-    def _generate_risk_mitigation(self, approach: Dict, user_context: UserContext) -> List[Dict]:
-        """Generate risk mitigation strategies."""
-        strategies = []
-        
-        # Complexity risks
-        if approach.get('complexity') in ['high', 'very_high']:
-            strategies.append({
-                'risk': 'Implementation complexity',
-                'mitigation': 'Break down into smaller, manageable phases with regular checkpoints'
-            })
-        
-        # Budget risks
-        if user_context.budget_constraint in ['low', 'medium']:
-            strategies.append({
-                'risk': 'Budget constraints',
-                'mitigation': 'Focus on core functionality first, consider open-source alternatives'
-            })
-        
-        # Team capability risks
-        if user_context.company_size in ['startup', 'small']:
-            strategies.append({
-                'risk': 'Limited team expertise',
-                'mitigation': 'Invest in training early, consider external consulting for critical phases'
-            })
-        
-        # Generic risks
-        strategies.extend([
-            {
-                'risk': 'Technology maturity',
-                'mitigation': 'Stay updated with latest research, have fallback approaches ready'
-            },
-            {
-                'risk': 'Stakeholder alignment',
-                'mitigation': 'Regular demos and progress reviews, clear success metrics'
+            return {
+                'alternative_approaches': response.content[0].text,
+                'alternatives_generated': datetime.utcnow().isoformat()
             }
-        ])
-        
-        return strategies[:5]
+            
+        except Exception as e:
+            logger.error(f"Alternative exploration failed: {e}")
+            return {'error': 'Failed to generate alternatives', 'details': str(e)}
     
-    def _calculate_confidence(self, papers: List[Dict]) -> float:
-        """Calculate overall confidence in recommendations."""
-        if not papers:
-            return 0.0
+    def _format_user_context(self, user_context: UserContext) -> str:
+        """Format user context for prompts."""
+        parts = []
+        if user_context.company_size:
+            parts.append(f"Company Size: {user_context.company_size}")
+        if user_context.use_case_description:
+            parts.append(f"Use Case: {user_context.use_case_description}")
+        if user_context.budget_constraint:
+            parts.append(f"Budget: {user_context.budget_constraint}")
+        return "\n".join(parts)
+    
+    def _format_approaches_summary(self, papers: List[Dict]) -> str:
+        """Summarize different approaches found in papers."""
+        approaches = {}
+        for paper in papers[:15]:  # Top 15 papers
+            for technique in paper['insights'].techniques_used:
+                if technique.value not in approaches:
+                    approaches[technique.value] = {
+                        'count': 0,
+                        'avg_quality': 0,
+                        'complexities': []
+                    }
+                approaches[technique.value]['count'] += 1
+                approaches[technique.value]['avg_quality'] += paper['insights'].get_quality_score()
+                approaches[technique.value]['complexities'].append(
+                    paper['insights'].implementation_complexity.value
+                )
         
-        # Average quality and evidence strength
-        avg_quality = sum(p['insights'].get_quality_score() for p in papers) / len(papers)
-        avg_evidence = sum(p['insights'].evidence_strength for p in papers) / len(papers)
+        # Format summary
+        summary = "Approaches identified:\n"
+        for approach, data in approaches.items():
+            avg_quality = data['avg_quality'] / data['count'] if data['count'] > 0 else 0
+            summary += f"- {approach}: {data['count']} papers, avg quality {avg_quality:.2f}\n"
         
-        # Paper count factor
-        count_factor = min(1.0, len(papers) / 20.0)  # Full confidence at 20+ papers
+        return summary
+    
+    def _extract_year(self, paper_data: Dict) -> int:
+        """Extract publication year from paper data."""
+        if not paper_data or not paper_data.get('published'):
+            return 2020
+        try:
+            return int(paper_data['published'][:4])
+        except:
+            return 2020
+    
+    def _create_fallback_synthesis(self, papers: List[Dict], user_context: UserContext) -> Dict:
+        """Create basic synthesis if LLM fails."""
+        top_approaches = {}
+        for paper in papers[:10]:
+            for technique in paper['insights'].techniques_used:
+                if technique.value not in top_approaches:
+                    top_approaches[technique.value] = {
+                        'count': 0,
+                        'total_score': 0
+                    }
+                top_approaches[technique.value]['count'] += 1
+                top_approaches[technique.value]['total_score'] += paper.get('rerank_score', 0)
         
-        return (avg_quality * 0.4 + avg_evidence * 0.4 + count_factor * 0.2)
+        # Sort by score
+        sorted_approaches = sorted(
+            top_approaches.items(),
+            key=lambda x: x[1]['total_score'],
+            reverse=True
+        )
+        
+        fallback_text = f"""## Executive Summary
+
+Based on analysis of {len(papers)} research papers, I recommend exploring the following approaches:
+
+## Top Approaches
+
+"""
+        for approach, data in sorted_approaches[:3]:
+            avg_score = data['total_score'] / data['count'] if data['count'] > 0 else 0
+            fallback_text += f"**{approach.replace('_', ' ').title()}**\n"
+            fallback_text += f"- Found in {data['count']} high-quality papers\n"
+            fallback_text += f"- Average quality score: {avg_score:.2f}\n\n"
+        
+        fallback_text += """## Next Steps
+
+To proceed with a more detailed analysis, please ensure the LLM service is available. In the meantime, review the research papers directly for specific implementation details."""
+        
+        return {
+            'consultant_analysis': fallback_text,
+            'recommendations': {
+                'full_text': fallback_text,
+                'interactive_options': []
+            },
+            'metadata': {
+                'papers_analyzed': len(papers),
+                'synthesis_timestamp': datetime.utcnow().isoformat(),
+                'fallback_mode': True
+            }
+        }
     
     def _create_empty_recommendations(self) -> Dict:
         """Create empty recommendations when no relevant papers found."""
         return {
-            'user_context': {},
-            'papers_analyzed': 0,
+            'consultant_analysis': """## No Relevant Research Found
+
+Unfortunately, I couldn't find research papers that match your specific context and requirements. This could be because:
+
+1. Your use case is highly specialized or novel
+2. The search criteria may be too restrictive
+3. This particular application area hasn't been well-researched yet
+
+## Recommendations
+
+1. **Broaden Search Criteria**: Try relaxing some constraints or using more general terms
+2. **Consult Industry Experts**: For novel applications, direct consultation may be more valuable
+3. **Pilot Approach**: Consider starting with a small proof-of-concept using general best practices
+
+Would you like to adjust your search criteria or explore adjacent research areas?""",
             'recommendations': {
-                'top_approaches': [],
-                'success_factors': ['No relevant papers found for your criteria'],
-                'common_pitfalls': [],
-                'expected_outcomes': []
+                'full_text': "No relevant papers found for synthesis",
+                'interactive_options': [
+                    "Broaden search criteria",
+                    "Explore adjacent research areas",
+                    "Get general GenAI implementation guidance"
+                ]
             },
-            'implementation_roadmap': None,
-            'confidence_score': 0.0
+            'metadata': {
+                'papers_analyzed': 0,
+                'synthesis_timestamp': datetime.utcnow().isoformat()
+            }
         }

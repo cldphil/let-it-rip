@@ -1,0 +1,40 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.03126v1",
+  "extraction_timestamp": "2025-06-04 19:11:32.912197",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Recent advances in AI-generated content (AIGC) have significantly accelerated\nanimation production. To produce engaging animations, it is essential to\ngenerate coherent multi-shot video clips with narrative scripts and character\nreferences. However, existing public datasets primarily focus on real-world\nscenarios with global descriptions, and lack reference images for consistent\ncharacter guidance.",
+    "To bridge this gap, we present AnimeShooter, a\nreference-guided multi-shot animation dataset. AnimeShooter features\ncomprehensive hierarchical annotations and strong visual consistency across\nshots through an automated pipeline. Story-level annotations provide an\noverview of the narrative, including the storyline, key scenes, and main\ncharacter profiles with reference images, while shot-level annotations\ndecompose the story into consecutive shots, each annotated with scene,\ncharacters, and both narrative and descriptive visual captions. Additionally, a\ndedicated subset, AnimeShooter-audio, offers synchronized audio tracks for each\nshot, along with audio descriptions and sound sources.",
+    "To demonstrate the\neffectiveness of AnimeShooter and establish a baseline for the reference-guided\nmulti-shot video generation task, we introduce AnimeShooterGen, which leverages\nMultimodal Large Language Models (MLLMs) and video diffusion models.",
+    "The\nreference image and previously generated shots are first processed by MLLM to\nproduce representations aware of both reference and context, which are then\nused as the condition for the diffusion model to decode the subsequent shot.\nExperimental results show that the model trained on AnimeShooter achieves\nsuperior cross-shot visual consistency and adherence to reference visual\nguidance, which highlight the value of our dataset for coherent animated video\ngeneration."
+  ],
+  "limitations": [
+    "Full text not analyzed",
+    "Detailed methodology not available"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "retrieval_augmented_generation"
+  ],
+  "implementation_complexity": "unknown",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "evidence_strength": 0.3,
+  "practical_applicability": 0.3,
+  "extraction_confidence": 0.4,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

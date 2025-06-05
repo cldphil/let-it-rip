@@ -1,0 +1,16 @@
+{
+  "id": "http://arxiv.org/abs/2506.03111v1",
+  "title": "Rectified Flows for Fast Multiscale Fluid Flow Modeling",
+  "summary": "The statistical modeling of fluid flows is very challenging due to their\nmultiscale dynamics and extreme sensitivity to initial conditions. While\nrecently proposed conditional diffusion models achieve high fidelity, they\ntypically require hundreds of stochastic sampling steps at inference. We\nintroduce a rectified flow framework that learns a time-dependent velocity\nfield, transporting input to output distributions along nearly straight\ntrajectories. By casting sampling as solving an ordinary differential equation\n(ODE) along this straighter flow field, our method makes each integration step\nmuch more effective, using as few as eight steps versus (more than) 128 steps\nin standard score-based diffusion, without sacrificing predictive fidelity.\nExperiments on challenging multiscale flow benchmarks show that rectified flows\nrecover the same posterior distributions as diffusion models, preserve\nfine-scale features that MSE-trained baselines miss, and deliver\nhigh-resolution samples in a fraction of inference time.",
+  "authors": [
+    "Victor Armegioiu",
+    "Yannick Ramic",
+    "Siddhartha Mishra"
+  ],
+  "published": "2025-06-03T17:40:39Z",
+  "updated": "2025-06-03T17:40:39Z",
+  "categories": [
+    "cs.LG"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.03111v1"
+}

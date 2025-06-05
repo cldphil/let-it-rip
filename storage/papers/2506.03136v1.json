@@ -1,0 +1,18 @@
+{
+  "id": "http://arxiv.org/abs/2506.03136v1",
+  "title": "Co-Evolving LLM Coder and Unit Tester via Reinforcement Learning",
+  "summary": "We propose CURE, a novel reinforcement learning framework with a dedicated\nreward design that co-evolves coding and unit test generation capabilities\nbased on their interaction outcomes, without any ground-truth code as\nsupervision. This approach enables flexible and scalable training and allows\nthe unit tester to learn directly from the coder's mistakes. Our derived\nReasonFlux-Coder-7B and 14B models improve code generation accuracy by 5.3% and\nBest-of-N accuracy by 9.0% after optimization on Qwen2.5-Instruct models,\noutperforming similarly sized Qwen-Coder, DeepSeek-Coder, and Seed-Coder. They\nnaturally extend to downstream tasks such as test-time scaling and agentic\ncoding-achieving a 8.1% improvement over the base model. For the long-CoT\nmodel, our ReasonFlux-Coder-4B consistently outperforms Qwen3-4B while\nachieving 64.8% inference efficiency in unit test generation. Notably, we also\nfind that our model can serve as an effective reward model for reinforcement\nlearning on base models. Project: https://github.com/Gen-Verse/CURE",
+  "authors": [
+    "Yinjie Wang",
+    "Ling Yang",
+    "Ye Tian",
+    "Ke Shen",
+    "Mengdi Wang"
+  ],
+  "published": "2025-06-03T17:58:42Z",
+  "updated": "2025-06-03T17:58:42Z",
+  "categories": [
+    "cs.CL"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.03136v1"
+}

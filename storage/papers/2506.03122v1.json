@@ -1,0 +1,18 @@
+{
+  "id": "http://arxiv.org/abs/2506.03122v1",
+  "title": "AUTOCIRCUIT-RL: Reinforcement Learning-Driven LLM for Automated Circuit\n  Topology Generation",
+  "summary": "Analog circuit topology synthesis is integral to Electronic Design Automation\n(EDA), enabling the automated creation of circuit structures tailored to\nspecific design requirements. However, the vast design search space and strict\nconstraint adherence make efficient synthesis challenging. Leveraging the\nversatility of Large Language Models (LLMs), we propose AUTOCIRCUIT-RL,a novel\nreinforcement learning (RL)-based framework for automated analog circuit\nsynthesis. The framework operates in two phases: instruction tuning, where an\nLLM learns to generate circuit topologies from structured prompts encoding\ndesign constraints, and RL refinement, which further improves the\ninstruction-tuned model using reward models that evaluate validity, efficiency,\nand output voltage. The refined model is then used directly to generate\ntopologies that satisfy the design constraints. Empirical results show that\nAUTOCIRCUIT-RL generates ~12% more valid circuits and improves efficiency by\n~14% compared to the best baselines, while reducing duplicate generation rates\nby ~38%. It achieves over 60% success in synthesizing valid circuits with\nlimited training data, demonstrating strong generalization. These findings\nhighlight the framework's effectiveness in scaling to complex circuits while\nmaintaining efficiency and constraint adherence, marking a significant\nadvancement in AI-driven circuit design.",
+  "authors": [
+    "Prashanth Vijayaraghavan",
+    "Luyao Shi",
+    "Ehsan Degan",
+    "Vandana Mukherjee",
+    "Xin Zhang"
+  ],
+  "published": "2025-06-03T17:54:30Z",
+  "updated": "2025-06-03T17:54:30Z",
+  "categories": [
+    "cs.CL"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.03122v1"
+}

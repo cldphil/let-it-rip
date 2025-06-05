@@ -1,0 +1,19 @@
+{
+  "id": "http://arxiv.org/abs/2506.03131v1",
+  "title": "Native-Resolution Image Synthesis",
+  "summary": "We introduce native-resolution image synthesis, a novel generative modeling\nparadigm that enables the synthesis of images at arbitrary resolutions and\naspect ratios. This approach overcomes the limitations of conventional\nfixed-resolution, square-image methods by natively handling variable-length\nvisual tokens, a core challenge for traditional techniques. To this end, we\nintroduce the Native-resolution diffusion Transformer (NiT), an architecture\ndesigned to explicitly model varying resolutions and aspect ratios within its\ndenoising process. Free from the constraints of fixed formats, NiT learns\nintrinsic visual distributions from images spanning a broad range of\nresolutions and aspect ratios. Notably, a single NiT model simultaneously\nachieves the state-of-the-art performance on both ImageNet-256x256 and 512x512\nbenchmarks. Surprisingly, akin to the robust zero-shot capabilities seen in\nadvanced large language models, NiT, trained solely on ImageNet, demonstrates\nexcellent zero-shot generalization performance. It successfully generates\nhigh-fidelity images at previously unseen high resolutions (e.g., 1536 x 1536)\nand diverse aspect ratios (e.g., 16:9, 3:1, 4:3), as shown in Figure 1. These\nfindings indicate the significant potential of native-resolution modeling as a\nbridge between visual generative modeling and advanced LLM methodologies.",
+  "authors": [
+    "Zidong Wang",
+    "Lei Bai",
+    "Xiangyu Yue",
+    "Wanli Ouyang",
+    "Yiyuan Zhang"
+  ],
+  "published": "2025-06-03T17:57:33Z",
+  "updated": "2025-06-03T17:57:33Z",
+  "categories": [
+    "cs.CV",
+    "cs.LG"
+  ],
+  "pdf_url": "http://arxiv.org/pdf/2506.03131v1"
+}
