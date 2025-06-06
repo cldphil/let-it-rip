@@ -155,14 +155,11 @@ page = st.sidebar.radio(
     ["📊 Dashboard", "📚 Browse Insights", "🎯 Get Recommendations", "⚙️ Settings"]
 )
 
-# Get current statistics
-stats = st.session_state.storage.get_statistics()
-
 # Dashboard Page
 if page == "📊 Dashboard":
     st.header("Platform Overview")
     
-    # Get fresh statistics each time the dashboard loads
+    # Always get fresh statistics when dashboard loads
     current_stats = st.session_state.storage.get_statistics()
     
     # Key metrics
@@ -171,26 +168,51 @@ if page == "📊 Dashboard":
     with col1:
         st.metric(
             "Total Papers",
-            current_stats['total_papers']
+            current_stats['total_papers'],
+            delta=f"{current_stats.get('total_insights', 0)} with insights" if current_stats.get('total_insights', 0) > 0 else None
         )
     
     with col2:
-        st.metric(
-            "Avg Quality Score",
-            f"{current_stats['average_quality_score']:.2f}"
-        )
+        # Only show quality score if we have insights
+        if current_stats.get('total_insights', 0) > 0:
+            st.metric(
+                "Avg Quality Score",
+                f"{current_stats['average_quality_score']:.2f}"
+            )
+        else:
+            st.metric(
+                "Avg Quality Score",
+                "N/A",
+                help="Process papers to see quality scores"
+            )
 
     with col3:
-        st.metric(
-            "Avg Evidence Strength",
-            f"{current_stats['average_evidence_strength']:.2f}"
-        )
+        # Only show evidence strength if we have insights
+        if current_stats.get('total_insights', 0) > 0:
+            st.metric(
+                "Avg Evidence Strength",
+                f"{current_stats['average_evidence_strength']:.2f}"
+            )
+        else:
+            st.metric(
+                "Avg Evidence Strength",
+                "N/A",
+                help="Process papers to see evidence scores"
+            )
     
     with col4:
-        st.metric(
-            "Avg Applicability",
-            f"{current_stats['average_practical_applicability']:.2f}"
-        )
+        # Only show applicability if we have insights
+        if current_stats.get('total_insights', 0) > 0:
+            st.metric(
+                "Avg Applicability",
+                f"{current_stats['average_practical_applicability']:.2f}"
+            )
+        else:
+            st.metric(
+                "Avg Applicability",
+                "N/A",
+                help="Process papers to see applicability scores"
+            )
     
     # Charts
     st.subheader("Research Distribution")
@@ -320,37 +342,33 @@ if page == "📊 Dashboard":
 elif page == "📚 Browse Insights":
     st.header("Browse Research Insights")
     
-    # Filters
-    col1, col2, col3, col4 = st.columns(4)
+    # Enhanced filters with better styling
+    st.markdown("#### Filter Research Papers")
+    
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         complexity_filter = st.multiselect(
-            "Complexity Level",
+            "Implementation Complexity",
             options=['low', 'medium', 'high', 'very_high', 'unknown'],
-            default=['low', 'medium', 'high', 'very_high', 'unknown']  # All selected by default
+            default=['low', 'medium', 'high', 'very_high', 'unknown'],
+            help="Filter by how complex the implementation would be"
         )
     
     with col2:
-        min_quality = st.slider(
-            "Minimum Quality Score",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.0,  # Set to 0 to show all papers by default
-            step=0.1
+        study_type_filter = st.multiselect(
+            "Research Type",
+            options=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown'],
+            default=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown'],
+            help="Filter by type of research study"
         )
     
     with col3:
-        study_type_filter = st.multiselect(
-            "Study Type",
-            options=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown'],
-            default=['empirical', 'case_study', 'theoretical', 'pilot', 'survey', 'meta_analysis', 'review', 'unknown']  # All selected
-        )
-    
-    with col4:
         sort_by = st.selectbox(
-            "Sort By",
+            "Sort Results By",
             options=['quality_score', 'evidence_strength', 'practical_applicability', 'recency'],
-            index=0
+            index=0,
+            help="Choose how to order the results"
         )
     
     # Additional filter for case studies only
@@ -378,7 +396,6 @@ elif page == "📚 Browse Insights":
                         if insights and paper_data:
                             # Apply filters
                             if (insights.implementation_complexity.value in complexity_filter and
-                                insights.get_quality_score() >= min_quality and
                                 insights.study_type.value in study_type_filter):
                                 
                                 # Apply case study filter if checked
@@ -415,7 +432,7 @@ elif page == "📚 Browse Insights":
             st.info("No papers found. Try fetching some papers first or adjusting your filters.")
         else:
             # Display papers
-            for paper in all_papers[:20]:  # Show top 20
+            for paper in all_papers[:50]:  # Show top 50
                 with st.expander(f"📄 {paper['title'][:100]}..."):
                     # Add case study badge if applicable
                     if paper['insights'].study_type.value == 'case_study':

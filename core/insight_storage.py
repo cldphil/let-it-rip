@@ -530,6 +530,7 @@ class InsightStorage:
         """Get enhanced storage statistics."""
         stats = {
             'total_papers': 0,
+            'total_insights': 0,
             'papers_with_code': 0,
             'complexity_distribution': {},
             'study_type_distribution': {},
@@ -569,16 +570,21 @@ class InsightStorage:
                 AVG(evidence_strength) as avg_evidence,
                 AVG(practical_applicability) as avg_applicability,
                 AVG(key_findings_count) as avg_findings,
-                SUM(CASE WHEN has_code THEN 1 ELSE 0 END) as with_code
+                SUM(CASE WHEN has_code THEN 1 ELSE 0 END) as with_code,
+                COUNT(*) as total_insights
             FROM insights
         """)
         result = cursor.fetchone()
-        if result:
-            stats['average_quality_score'] = result['avg_quality'] or 0.0
-            stats['average_evidence_strength'] = result['avg_evidence'] or 0.0
-            stats['average_practical_applicability'] = result['avg_applicability'] or 0.0
-            stats['average_key_findings_count'] = result['avg_findings'] or 0.0
+        if result and result['total_insights'] > 0:
+            stats['average_quality_score'] = round(result['avg_quality'] or 0.0, 2)
+            stats['average_evidence_strength'] = round(result['avg_evidence'] or 0.0, 2)
+            stats['average_practical_applicability'] = round(result['avg_applicability'] or 0.0, 2)
+            stats['average_key_findings_count'] = round(result['avg_findings'] or 0.0, 1)
             stats['papers_with_code'] = result['with_code'] or 0
+            stats['total_insights'] = result['total_insights']
+        else:
+            # No insights yet - keep defaults at 0.0
+            stats['total_insights'] = 0
         
         # Recent papers count (last 2 years)
         current_year = datetime.now().year
