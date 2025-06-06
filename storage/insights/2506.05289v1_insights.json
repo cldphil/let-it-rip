@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05289v1",
+  "extraction_timestamp": "2025-06-06 13:58:00.581232",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "AliTok introduces a novel aligned tokenizer that uses causal decoders to establish unidirectional dependencies among encoded tokens, directly addressing the mismatch between bidirectional tokenizer encoding and autoregressive model requirements in image generation.",
+    "The method achieves state-of-the-art performance on ImageNet-256 with gFID score of 1.50 using only 177M parameters and 1.35 with 662M parameters, while providing 10x faster sampling speed compared to diffusion methods.",
+    "Two-stage tokenizer training combined with prefix tokens significantly enhances reconstruction consistency while maintaining generation-friendly properties, solving the traditional trade-off between reconstruction quality and autoregressive modeling effectiveness.",
+    "The approach uses standard decoder-only autoregressive models as generators, making it compatible with existing transformer architectures and requiring no specialized model designs or complex training procedures.",
+    "AliTok demonstrates that alignment between tokenizer and generator modeling approaches is crucial for autoregressive image generation, opening new research directions for improving sequence modeling consistency across the generation pipeline."
+  ],
+  "limitations": [
+    "Limited evaluation to ImageNet-256 benchmark only, lacking broader dataset validation",
+    "Incomplete methodology details provided in the abstract, making full implementation challenging"
+  ],
+  "future_work": [
+    "Extension to higher resolution image generation and other visual domains"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "177M to 662M parameter models for competitive results",
+    "data_requirements": "ImageNet dataset for training and evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Misalignment between bidirectional tokenizer encoding and unidirectional autoregressive model requirements in image generation, which hinders effective token modeling",
+  "prerequisites": [
+    "Understanding of autoregressive models",
+    "Knowledge of image tokenization techniques",
+    "Experience with transformer architectures"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "High-quality image generation with faster sampling",
+    "Class-conditional image synthesis",
+    "Efficient autoregressive visual content creation"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05305v1",
+  "extraction_timestamp": "2025-06-06 13:57:47.289870",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "ProRefine achieves 3-37 percentage point improvements over zero-shot Chain-of-Thought baselines on five mathematical reasoning datasets through inference-time prompt optimization using textual feedback from LLMs",
+    "The method operates without requiring additional training or ground truth labels, making it highly practical for deployment as it dynamically refines prompts during inference using LLM-generated feedback",
+    "ProRefine enables smaller models to match the performance of larger ones, providing significant cost savings and democratizing access to high-performing AI by reducing computational requirements",
+    "The approach addresses critical error propagation issues in agentic workflows where multiple AI agents collaborate, improving reliability and scalability of multi-agent systems through better prompt design",
+    "Developed through collaboration between Rochester Institute of Technology and Accenture's Center for Advanced AI, demonstrating industry-academic partnership in solving real-world AI deployment challenges"
+  ],
+  "limitations": [
+    "Limited evaluation scope focusing only on mathematical reasoning datasets, unclear generalization to other domains",
+    "Dependency on LLM quality for generating effective textual feedback, which may introduce variability in performance"
+  ],
+  "future_work": [
+    "Extension to broader task domains beyond mathematical reasoning to validate generalizability"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "multi_agent",
+    "other",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "low",
+  "resource_requirements": {
+    "compute_requirements": "Not specified, but enables smaller model usage",
+    "data_requirements": "No additional training data or ground truth labels required",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Error propagation and sub-optimal performance in agentic workflows due to poorly designed prompts that fail to effectively guide individual AI agents",
+  "prerequisites": [
+    "Access to large language models for generating textual feedback",
+    "Multi-step reasoning task framework"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Multi-agent AI systems",
+    "Mathematical reasoning tasks",
+    "Complex planning and reasoning workflows",
+    "Enterprise AI deployment with cost constraints"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

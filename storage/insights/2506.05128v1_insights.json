@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05128v1",
+  "extraction_timestamp": "2025-06-06 13:59:58.572073",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "DiCoRe framework achieves 4-7% average F1 score improvements over existing zero-shot event detection baselines by decoupling the task into two specialized components: Dreamer for divergent reasoning and open-ended event discovery, and Grounder for convergent reasoning with finite-state machine guided constrained decoding.",
+    "The divergent-convergent reasoning approach effectively addresses the limitation of LLMs being overloaded by complex event ontologies, domain-specific trigger extraction, and structured output requirements in zero-shot scenarios, making it practical for specialized domains without training data.",
+    "Extensive validation across six datasets spanning five domains and nine different LLMs demonstrates consistent performance improvements, indicating the framework's robustness and generalizability across different model architectures and domain contexts.",
+    "The integration of an LLM-Judge component for output verification ensures high precision in final predictions, providing a quality control mechanism that balances the increased coverage from divergent reasoning with accuracy requirements.",
+    "The framework specifically targets document understanding in specialized domains where training data is scarce, offering a practical solution for industries requiring event detection in domain-specific contexts without the need for extensive labeled datasets."
+  ],
+  "limitations": [
+    "Framework complexity may require careful tuning of the divergent-convergent balance",
+    "Performance gains may vary significantly across different domains and LLM architectures"
+  ],
+  "future_work": [
+    "Extension to other structured prediction tasks beyond event detection"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Multiple LLM inference calls for Dreamer, Grounder, and Judge components",
+    "data_requirements": "Zero-shot approach requires no training data, only event ontology definitions",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Zero-shot event detection in specialized domains where LLMs struggle with complex event ontologies and structured output requirements without training data",
+  "prerequisites": [
+    "Access to large language models",
+    "Understanding of event ontologies",
+    "Finite-state machine implementation capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Document understanding in specialized domains",
+    "Domain-specific event extraction without training data",
+    "Information extraction from technical documents"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

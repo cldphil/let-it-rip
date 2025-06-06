@@ -221,6 +221,13 @@ class BatchProcessor:
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to process paper {paper_id} after {max_retries} attempts: {str(e)}")
                     logger.error(f"Traceback: {traceback.format_exc()}")
+                    # Store error details but continue processing other papers
+                    self.stats['errors'].append({
+                        'paper_id': paper_id,
+                        'error': str(e),
+                        'traceback': traceback.format_exc(),
+                        'timestamp': datetime.utcnow().isoformat()
+                    })
                     return False
                 else:
                     logger.warning(f"Attempt {attempt + 1} failed for paper {paper_id}, retrying...")

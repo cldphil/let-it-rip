@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05260v1",
+  "extraction_timestamp": "2025-06-06 13:58:30.383221",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "DPO (Direct Preference Optimization) suffers from likelihood displacement where both winning and losing response probabilities decrease during training, inadvertently boosting non-target responses - this problem intensifies with video content complexity.",
+    "LeanPO introduces a reference-free approach that reformulates implicit reward as average likelihood of responses with respect to the policy model, eliminating the need for reference models used in traditional DPO.",
+    "The method includes a reward-trustworthiness correlated self-generated preference data pipeline that creates high-quality paired training data through self-reflection and continuous refinement.",
+    "LeanPO specifically addresses the redundant complexity of video content that exacerbates likelihood displacement issues in Video-LLMs compared to text-only LLMs.",
+    "The approach enables policy models to obtain better preference data estimation and mitigates the likelihood displacement problem through a novel reward formulation strategy."
+  ],
+  "limitations": [
+    "Only abstract and partial methodology provided - full experimental results and quantitative performance metrics not available",
+    "Implementation details and computational requirements not specified in the provided excerpt"
+  ],
+  "future_work": [
+    "Systematic investigation of likelihood displacement across different video content types and complexities"
+  ],
+  "study_type": "unknown",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "Video-text paired datasets for preference learning",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Likelihood displacement in Video-LLM preference alignment where both winning and losing response probabilities decrease during DPO training, leading to unintended boosting of non-target responses",
+  "prerequisites": [
+    "Video-LLM architecture",
+    "Understanding of preference optimization techniques",
+    "Video-text paired datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Video question answering systems",
+    "Video content analysis and description",
+    "Multimodal AI assistants processing video content"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

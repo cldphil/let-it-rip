@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05204v1",
+  "extraction_timestamp": "2025-06-06 13:59:14.057504",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "OGGSplat introduces an open Gaussian growing method that enables 3D scene reconstruction from sparse views by expanding the field-of-view beyond the input view cone, addressing a critical limitation of existing generalizable approaches that struggle with regions outside input views.",
+    "The method leverages semantic attributes of open Gaussians as strong priors for image extrapolation, enabling both semantic consistency and visual plausibility in reconstructed scenes through a novel RGB-semantic consistent inpainting module.",
+    "The approach uses bidirectional control between an image diffusion model and a semantic diffusion model to inpaint selected rendered views, which are then lifted back into 3D space for efficient and progressive Gaussian parameter optimization.",
+    "A new Gaussian Outpainting (GO) benchmark was established to evaluate methods that reconstruct regions outside the input view cone, providing a standardized evaluation framework for this specific problem domain.",
+    "The method addresses computational efficiency concerns of per-scene optimization methods while overcoming the field-of-view limitations of generalizable approaches, making it suitable for applications requiring sparse input views like virtual reality and embodied AI."
+  ],
+  "limitations": [
+    "Limited information provided about computational requirements and scalability",
+    "Evaluation limited to the newly proposed GO benchmark without extensive comparison on established datasets"
+  ],
+  "future_work": [
+    "Further evaluation on diverse scene types and comparison with existing reconstruction methods"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "Sparse view inputs, semantic annotations",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Reconstructing semantic-aware 3D scenes from sparse views with expanded field-of-view beyond input view cone",
+  "prerequisites": [
+    "Understanding of Gaussian splatting",
+    "Diffusion models",
+    "3D computer vision",
+    "Semantic segmentation"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Virtual reality scene reconstruction",
+    "Embodied AI navigation",
+    "3D scene understanding from limited viewpoints"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

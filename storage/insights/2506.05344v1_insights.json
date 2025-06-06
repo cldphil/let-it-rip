@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05344v1",
+  "extraction_timestamp": "2025-06-06 13:56:48.066513",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Only approximately 5% of attention heads in MLLMs actively contribute to visual understanding, termed 'visual heads', revealing extreme sparsity in visual processing that can be exploited for optimization.",
+    "SparseMM introduces a training-free framework that quantifies head-level visual relevance through targeted response analysis, enabling efficient identification of visual heads without requiring model retraining.",
+    "The KV-Cache optimization strategy achieves 1.38x real-time acceleration and 52% memory reduction during generation while maintaining performance by allocating asymmetric computation budgets based on visual scores.",
+    "Unlike prior KV-Cache acceleration methods that ignore visual particularities, SparseMM prioritizes retaining visual semantics during decoding by focusing computational resources on visually-relevant attention heads.",
+    "Extensive evaluations across mainstream multimodal benchmarks demonstrate superior accuracy-efficiency trade-offs, suggesting this approach can be broadly applied to existing MLLM deployments for immediate performance gains."
+  ],
+  "limitations": [
+    "Limited to the provided abstract and first page content",
+    "Full experimental details and failure cases not available in the excerpt"
+  ],
+  "future_work": [
+    "Further investigation of attention mechanisms in multimodal models"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in available content",
+    "data_requirements": "Mainstream multimodal benchmarks for evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Inefficient inference in Multimodal Large Language Models due to uniform computational allocation across all attention heads regardless of their visual relevance",
+  "prerequisites": [
+    "Understanding of transformer attention mechanisms",
+    "Access to MLLM architectures",
+    "Knowledge of KV-Cache optimization"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "MLLM inference acceleration in production systems",
+    "Memory-constrained multimodal AI deployments",
+    "Real-time visual question answering systems"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

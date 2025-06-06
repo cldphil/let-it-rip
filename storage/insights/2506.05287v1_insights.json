@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05287v1",
+  "extraction_timestamp": "2025-06-06 13:57:59.095894",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "EOC-Bench introduces a novel benchmark with 3,277 meticulously annotated QA pairs categorized into Past, Present, and Future temporal categories, enabling systematic evaluation of object-centric embodied cognition in dynamic egocentric scenarios.",
+    "The benchmark covers 11 fine-grained evaluation dimensions and 3 visual object referencing types, providing comprehensive assessment of multimodal large language models (MLLMs) in real-world interactive environments.",
+    "A mixed-format human-in-the-loop annotation framework with four types of questions was developed to ensure thorough assessment of dynamic object understanding capabilities.",
+    "A novel multi-scale temporal accuracy metric was designed specifically for open-ended temporal evaluation, addressing the gap in existing static scene exploration benchmarks.",
+    "The research addresses a critical limitation in existing embodied benchmarks that focus primarily on static scenes while neglecting dynamic changes from user interactions in cluttered environments."
+  ],
+  "limitations": [
+    "Limited to egocentric vision scenarios which may not generalize to other viewpoints",
+    "Benchmark size of 3,277 QA pairs may be insufficient for training large-scale models"
+  ],
+  "future_work": [
+    "Expanding the benchmark to include more diverse interaction scenarios and temporal dynamics"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "3,277 annotated QA pairs with egocentric video data",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating multimodal large language models' ability to understand dynamic object changes in egocentric vision scenarios across past, present, and future temporal contexts",
+  "prerequisites": [
+    "Access to egocentric video datasets",
+    "Multimodal large language models for evaluation",
+    "Human annotation capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Egocentric vision applications",
+    "Dynamic environment understanding",
+    "Interactive tool usage assessment",
+    "Embodied AI systems evaluation"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

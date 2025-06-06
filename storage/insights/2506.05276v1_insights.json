@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05276v1",
+  "extraction_timestamp": "2025-06-06 13:58:01.435721",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The COCKTAIL EDIT framework introduces multi-grained control for time series editing, combining confidence-weighted control for point-wise constraints with classifier-based control for segment-level statistical properties like sums and averages, enabling simultaneous flexible control across different constraint types.",
+    "The approach achieves precise local control during the denoising inference stage of diffusion models while maintaining temporal coherence, making it compatible with any conditionally trained diffusion-based time series models without requiring model retraining.",
+    "The framework addresses a critical gap in time series generation by enabling both point-level modifications and segment-level statistical control, which current methods struggle to handle simultaneously while preserving the overall temporal structure.",
+    "The solution integrates seamlessly with existing diffusion-based time series models, suggesting low implementation barriers for organizations already using diffusion models for time series generation, with control mechanisms applied during inference rather than training.",
+    "Extensive experiments across diverse datasets demonstrate the framework's versatility and robustness, indicating potential for broad application across different time series domains including financial data, sensor readings, and other temporal sequences."
+  ],
+  "limitations": [
+    "Limited to diffusion-based time series models, requiring organizations to have existing diffusion model infrastructure",
+    "Performance may depend on the quality of the underlying pre-trained diffusion model and may not work well with poorly trained base models"
+  ],
+  "future_work": [
+    "Extension to other generative model architectures beyond diffusion models",
+    "Development of more sophisticated constraint types and control mechanisms"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified - depends on underlying diffusion model requirements",
+    "data_requirements": "Diverse time series datasets for validation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Enabling precise, multi-grained control over time series editing while preserving temporal coherence, addressing the challenge of simultaneous point-level and segment-level modifications in generated time series",
+  "prerequisites": [
+    "Pre-trained diffusion-based time series models",
+    "Understanding of diffusion model inference processes",
+    "Time series data with known constraints and properties"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Financial time series modification with specific statistical constraints",
+    "Sensor data editing while maintaining physical property constraints",
+    "Synthetic time series generation with controlled characteristics"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

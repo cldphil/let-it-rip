@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05350v1",
+  "extraction_timestamp": "2025-06-06 13:56:47.815742",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Contrastive Flow Matching (\u2206FM) addresses flow overlap in conditional diffusion models by adding a contrastive objective that maximizes dissimilarities between predicted flows from different sample pairs, ensuring unique flows across conditions.",
+    "The method significantly improves image coherence and global structure consistency in class-conditioned image generation, as demonstrated on ImageNet-1k at 512\u00d7512 resolution with visually superior results compared to baseline flow matching.",
+    "\u2206FM extends standard flow matching by explicitly enforcing uniqueness across all conditional flows, solving the fundamental problem where flows from different conditions may overlap in conditional settings leading to ambiguous generations.",
+    "The approach can be integrated as an additional objective to existing flow matching training pipelines without requiring architectural changes to the underlying diffusion model, making it practically implementable.",
+    "The method addresses a core theoretical limitation in conditional flow matching where the uniqueness guarantee from unconditional settings breaks down, providing a principled solution for better condition separation in generative models."
+  ],
+  "limitations": [
+    "Limited evaluation details provided in the excerpt",
+    "No quantitative metrics or comprehensive comparison results shown"
+  ],
+  "future_work": [
+    "Validation through comprehensive experiments as mentioned in the abstract"
+  ],
+  "study_type": "theoretical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "GPU resources for ImageNet-1k training at 512\u00d7512 resolution",
+    "data_requirements": "ImageNet-1k dataset for validation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Flow overlap and ambiguous generation in conditional diffusion models where flows from different conditions are not unique",
+  "prerequisites": [
+    "Understanding of flow matching",
+    "Diffusion model training experience",
+    "Contrastive learning concepts"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Class-conditioned image generation",
+    "Conditional diffusion model training",
+    "Improving coherence in generated images"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05331v1",
+  "extraction_timestamp": "2025-06-06 13:57:16.726795",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "MINT-CoT introduces Mathematical INterleaved Tokens that adaptively integrate visual tokens into textual reasoning steps via an Interleave Token mechanism, enabling dynamic selection of visual regions of any shapes within mathematical figures rather than being limited to coarse-grained box-shaped regions.",
+    "The approach constructs a specialized MINT-CoT dataset containing 54K mathematical problems that align each reasoning step with visual regions at the token level, providing fine-grained correspondence between visual and textual mathematical reasoning components.",
+    "MINT-CoT implements a three-stage training strategy that addresses key limitations of existing multimodal mathematical reasoning systems: reliance on coarse-grained image regions, limited perception of vision encoders on mathematical content, and dependence on external capabilities for visual modification.",
+    "The system enables flexible visual region selection of arbitrary shapes rather than fixed rectangular bounding boxes, allowing for more precise identification and reasoning about specific mathematical elements within complex diagrams and figures.",
+    "MINT-CoT represents a significant advancement in multimodal Chain-of-Thought reasoning by creating token-level alignment between visual mathematical content and reasoning steps, potentially improving accuracy and interpretability in visual mathematical problem-solving tasks."
+  ],
+  "limitations": [
+    "Reliance on coarse-grained box-shaped image regions in existing approaches",
+    "Limited perception capabilities of vision encoders on mathematical content"
+  ],
+  "future_work": [
+    "Extension to broader multimodal reasoning domains beyond mathematics"
+  ],
+  "study_type": "unknown",
+  "techniques_used": [
+    "fine_tuning",
+    "other",
+    "chain_of_thought"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "54K mathematical problems with token-level visual-textual alignment",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Extending Chain-of-Thought reasoning to multimodal mathematical problem-solving with precise visual-textual integration",
+  "prerequisites": [
+    "Large Language Model infrastructure",
+    "Vision encoder capabilities",
+    "Mathematical reasoning datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Educational technology for mathematical tutoring",
+    "Automated mathematical problem solving",
+    "Visual mathematical content analysis"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

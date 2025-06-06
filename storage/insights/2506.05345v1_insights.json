@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05345v1",
+  "extraction_timestamp": "2025-06-06 13:56:47.968424",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Dynamic Memory Sparsification (DMS) achieves 8x KV cache compression with only 1,000 training steps while maintaining better accuracy than training-free sparse attention methods, making it highly practical for deployment.",
+    "Inference-time hyper-scaling through KV cache compression enables generating more tokens within the same compute budget, addressing the bottleneck where generation cost is limited by cache size rather than token count.",
+    "DMS delays token eviction instead of prematurely discarding cached tokens, implicitly merging representations to preserve critical information during compression.",
+    "The method demonstrates significant performance improvements on Qwen-R1 32B: 9.1 points on AIME 24, 7.6 points on GPQA, and 9.6 points on other benchmarks for comparable inference runtime and memory load.",
+    "The approach enables practical inference-time scaling by trading KV cache efficiency for increased reasoning accuracy through longer sequence generation within fixed compute budgets."
+  ],
+  "limitations": [
+    "Requires 1,000 training steps which adds implementation overhead compared to training-free methods",
+    "Success heavily depends on compression method's ability to preserve accuracy at high compression ratios"
+  ],
+  "future_work": [
+    "Further optimization of compression ratios beyond 8x while maintaining accuracy"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "1,000 training steps for DMS setup",
+    "data_requirements": "Training data for 1K steps sparsification learning",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "KV cache size bottleneck in Transformer LLM inference that limits generation capacity and reasoning accuracy within fixed compute budgets",
+  "prerequisites": [
+    "Transformer-based LLM architecture",
+    "Access to model training pipeline",
+    "Understanding of attention mechanisms"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Large language model inference optimization",
+    "Resource-constrained AI deployment",
+    "Reasoning task performance enhancement"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

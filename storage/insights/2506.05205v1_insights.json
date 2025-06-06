@@ -1,0 +1,50 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05205v1",
+  "extraction_timestamp": "2025-06-06 13:59:14.897751",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "RELIC framework introduces a novel evaluation method for LLM instruction following using formal language recognition tasks that require composing multiple grammar production rules from context, providing a more rigorous test of compositional reasoning than standard benchmarks.",
+    "State-of-the-art LLMs show predictable performance degradation based on grammar complexity and string complexity, with even advanced models achieving near-chance performance on complex grammars, revealing fundamental limitations in compositional instruction following.",
+    "The synthetic nature of RELIC tasks enables automatic generation of new test instances and scalable complexity adjustment, effectively mitigating data contamination issues that plague many existing LLM evaluation benchmarks.",
+    "LLM accuracy can be reliably predicted from measurable complexity metrics of both the grammar structure and individual example strings, providing a systematic framework for understanding model capabilities and limitations.",
+    "The framework enables diagnostic analysis of how LLMs attempt to solve increasingly complex compositional tasks, offering insights into failure modes and reasoning strategies that can inform model development and deployment decisions."
+  ],
+  "limitations": [
+    "Evaluation limited to synthetic formal language tasks which may not fully capture real-world instruction following complexity",
+    "Current analysis appears incomplete as the abstract cuts off mid-sentence, potentially limiting comprehensive understanding of results"
+  ],
+  "future_work": [
+    "Scaling complexity of grammar structures to match improving LLM capabilities and conducting more comprehensive diagnostic analysis of LLM reasoning strategies"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "low",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "Automatically generated synthetic grammar instances",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating and measuring LLM compositional instruction following capabilities through systematic formal language recognition tasks",
+  "prerequisites": [
+    "Access to state-of-the-art LLMs for evaluation",
+    "Understanding of formal grammar theory and language recognition"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "LLM capability assessment for deployment decisions",
+    "Benchmark development for AI safety and reliability testing",
+    "Model selection for complex instruction-following applications"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

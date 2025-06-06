@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05191v1",
+  "extraction_timestamp": "2025-06-06 13:59:29.149798",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "MokA achieves significant performance improvements over standard LoRA across multiple multimodal scenarios, with SEED-Bench scores improving from 73.41 to 75.71 (3.1% improvement) by separating unimodal and cross-modal adaptation components.",
+    "Current efficient fine-tuning methods for multimodal large language models are suboptimal because they directly borrow techniques from text-only LLMs without considering multimodal characteristics, leading to underutilization of all modalities.",
+    "The proposed method decomposes multimodal adaptation into two essential components: unimodal adaptation using modality-specific parameters for information compression, and cross-modal adaptation for explicit enhancement of inter-modal interactions.",
+    "Cross-attention visualization demonstrates that MokA enables text tokens to receive higher attention weights from related modalities (e.g., 'sound' token receives greater attention from audio modality), facilitating better cross-modal alignment.",
+    "MokA shows consistent improvements across three representative multimodal scenarios (audio-visual-text, visual-text, and speech-text) and multiple LLM backbones, demonstrating broad applicability for multimodal AI systems."
+  ],
+  "limitations": [
+    "The paper only provides partial results and visualization from limited test scenarios",
+    "Implementation details and computational overhead compared to standard LoRA are not fully specified"
+  ],
+  "future_work": [
+    "Further exploration of cross-modal interaction mechanisms in different multimodal scenarios"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "fine_tuning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Multiple GPU setup for multimodal model training",
+    "data_requirements": "Multimodal datasets covering audio-visual-text, visual-text, and speech-text scenarios",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Inefficient fine-tuning of multimodal large language models due to methods borrowed from text-only LLMs that neglect multimodal characteristics and cross-modal interactions",
+  "prerequisites": [
+    "Understanding of LoRA adaptation techniques",
+    "Multimodal model architectures",
+    "Cross-attention mechanisms"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Multimodal AI assistants",
+    "Audio-visual content analysis",
+    "Speech-to-text with visual context",
+    "Cross-modal information retrieval"
+  ],
+  "evidence_strength": 0.7,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

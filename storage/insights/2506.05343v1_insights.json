@@ -1,0 +1,54 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05343v1",
+  "extraction_timestamp": "2025-06-06 13:56:48.943726",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "ContentV achieves state-of-the-art video generation performance (85.14 on VBench) with only 8B parameters, demonstrating that efficient architectures can compete with larger models while requiring significantly less computational resources.",
+    "The model was successfully trained in just 4 weeks using 256\u00d764 GB NPUs, proving that high-quality video generation models can be developed with limited compute budgets through strategic architectural and training optimizations.",
+    "Three key innovations enable efficiency: (1) minimalist architecture maximizing reuse of pre-trained image generation models, (2) systematic multi-stage training with flow matching, and (3) cost-effective reinforcement learning with human feedback without additional human annotations.",
+    "The model generates diverse, high-quality videos across multiple resolutions and durations from text prompts, making it practical for real-world content creation applications where flexibility in output format is crucial.",
+    "All code and models are made publicly available at https://contentv.github.io, enabling practitioners to implement and build upon these efficient training techniques for their own video generation projects."
+  ],
+  "limitations": [
+    "Limited information provided about specific failure cases or quality boundaries of the generated videos",
+    "No detailed comparison of computational costs versus other state-of-the-art models beyond training time"
+  ],
+  "future_work": [
+    "Further optimization of the multi-stage training strategy and flow matching techniques for even greater efficiency"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "reinforcement_learning",
+    "transfer_learning",
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "256\u00d764 GB NPUs for 4 weeks training",
+    "data_requirements": "Not specified in provided excerpt",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Reducing computational costs and training time for high-quality text-to-video generation models while maintaining state-of-the-art performance",
+  "prerequisites": [
+    "Access to NPUs or equivalent high-performance computing infrastructure",
+    "Pre-trained image generation models",
+    "Video training datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Content creation for social media platforms",
+    "Video advertising and marketing",
+    "Educational content generation",
+    "Entertainment industry video production"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

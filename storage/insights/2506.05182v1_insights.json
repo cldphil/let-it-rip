@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05182v1",
+  "extraction_timestamp": "2025-06-06 13:59:29.265228",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "GPT-4o achieves only 56% accuracy on multi-structured financial documents when processing PDFs directly, indicating significant challenges with complex document structures like nested tables and multi-dimensional plots.",
+    "Pre-processing tools significantly improve LLM performance, raising GPT-4o accuracy from 56% to 61.3% and GPT-4 accuracy to 76%, while also reducing overall processing costs.",
+    "Multi-modal Large Language Models (MLLMs) frequently produce hallucinations and erroneous outputs when interpreting intricately structured information in financial documents, highlighting the need for specialized preprocessing approaches.",
+    "Industrial and open-source preprocessing tools can be effectively integrated into a pipeline to enhance LLM comprehension of hybrid data sources including PDF documents and web pages with complex structures.",
+    "The research demonstrates that traditional text-based LLMs like GPT-4 can outperform newer multi-modal models like GPT-4o on structured financial document tasks when proper preprocessing is applied, suggesting preprocessing may be more critical than multi-modal capabilities for this domain."
+  ],
+  "limitations": [
+    "Limited evaluation scope focusing primarily on financial documents may not generalize to other complex document types",
+    "Incomplete paper content provided limits understanding of specific preprocessing techniques and evaluation methodology"
+  ],
+  "future_work": [
+    "Further exploration of preprocessing pipeline optimization for different document types and structures"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Access to GPT-4 and GPT-4o APIs",
+    "data_requirements": "Multi-structured financial PDF documents",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving LLM accuracy on complex structured financial documents containing nested tables, plots, and multi-dimensional data that cause hallucinations and errors",
+  "prerequisites": [
+    "Access to LLM APIs",
+    "Document preprocessing tools",
+    "Financial document datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Financial document analysis",
+    "Automated financial reporting",
+    "Investment research automation",
+    "Regulatory compliance document processing"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

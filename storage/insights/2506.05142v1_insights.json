@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05142v1",
+  "extraction_timestamp": "2025-06-06 13:59:59.753475",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Humans and LLMs show significant misalignment in judging error severity across different semantic error types (age, gender, clothing type, clothing color), with LLMs assigning disproportionately high scores to color errors while undervaluing gender errors compared to human judgments.",
+    "Visual context significantly amplifies human perception of error severity for color and clothing type errors when comparing unimodal (text-only) versus multimodal (text + image) evaluation settings, suggesting context-dependent evaluation frameworks are needed.",
+    "LLMs appear to have internalized social norms that influence their gender-related error judgments, assigning systematically lower severity scores to gender errors, which creates bias in automated evaluation systems for natural language generation tasks.",
+    "The experimental framework successfully extends van Miltenburg et al. (2020) methodology to both unimodal and multimodal settings, providing a replicable approach for evaluating LLM-human alignment in error severity assessment across different modalities.",
+    "The study reveals fundamental differences in how humans and LLMs process and weight different types of semantic errors, indicating that current LLM-based evaluation systems may not be suitable replacements for human evaluation without significant calibration adjustments."
+  ],
+  "limitations": [
+    "Study only examines four specific error types (age, gender, clothing type, clothing color) which may not generalize to other semantic error categories",
+    "Limited scope of evaluation focused on image description tasks, potentially not applicable to other natural language generation domains"
+  ],
+  "future_work": [
+    "Developing calibration methods to align LLM error severity judgments with human assessments across different error types and modalities"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "Image-description pairs with controlled semantic errors across four error categories",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Determining whether Large Language Models can accurately replicate human judgments of error severity in natural language generation evaluation, particularly for image description tasks",
+  "prerequisites": [
+    "Access to LLMs for evaluation",
+    "Human annotation capabilities",
+    "Image-text datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Automated evaluation systems for image captioning",
+    "Quality assessment tools for natural language generation",
+    "Bias detection in AI evaluation systems"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

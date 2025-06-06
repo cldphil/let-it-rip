@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05218v1",
+  "extraction_timestamp": "2025-06-06 13:58:44.628484",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "MonkeyOCR introduces a Structure-Recognition-Relation (SRR) triplet paradigm that decomposes document parsing into three fundamental questions: 'Where is it?' (structure/layout analysis), 'What is it?' (recognition/content identification), and 'How is it organized?' (relation/logical ordering), providing a more systematic approach than existing multi-tool pipelines.",
+    "The SRR approach achieves superior performance compared to state-of-the-art models on OmniDocBench across nine different document types, demonstrating the effectiveness of the focused decomposition strategy over both modular approaches like MinerU and large end-to-end multimodal LLMs like Qwen-VL.",
+    "The research introduces MonkeyDoc, the most comprehensive document parsing dataset to date with 3.9 million instances spanning over ten document types, providing a substantial training resource that enables better generalization across diverse document formats and structures.",
+    "The SRR paradigm balances accuracy and speed by avoiding the inefficiencies of processing full pages with giant end-to-end models while maintaining precision through focused task decomposition, making it more scalable for practical deployment scenarios.",
+    "The vision-language model architecture simplifies what would otherwise require complex multi-tool pipelines, reducing system complexity and potential failure points while maintaining high performance across diverse document parsing tasks."
+  ],
+  "limitations": [
+    "Limited information provided about computational requirements and training costs",
+    "No detailed comparison of processing speed metrics against baseline methods"
+  ],
+  "future_work": [
+    "Further evaluation across additional document types and languages"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "3.9 million training instances across 10+ document types",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Document parsing inefficiencies caused by complex multi-tool pipelines and computationally expensive end-to-end models that process full pages",
+  "prerequisites": [
+    "Vision-language model infrastructure",
+    "Large-scale document datasets",
+    "Multi-task training capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Document digitization",
+    "Content management systems",
+    "Automated document processing",
+    "OCR pipeline optimization"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

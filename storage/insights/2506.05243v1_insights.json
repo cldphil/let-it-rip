@@ -1,0 +1,54 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05243v1",
+  "extraction_timestamp": "2025-06-06 13:58:31.663019",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "CLATTER introduces a systematic 3-step reasoning process for hallucination detection: (i) claim decomposition breaking text into smaller facts, (ii) sub-claim attribution and entailment classification finding evidence for each fact, and (iii) aggregated classification combining results for final decision.",
+    "The approach treats hallucination detection as a natural language inference (NLI) task, using LLMs to classify whether generated text is entailed by reference texts through explicit reasoning processes similar to Chain-of-Thought reasoning.",
+    "Guided systematic reasoning that decomposes text into granular facts and finds supporting evidence enables much finer-grained and accurate entailment decisions compared to direct classification approaches.",
+    "The framework includes analysis metrics to measure the quality of intermediate reasoning steps, allowing for better understanding and optimization of the hallucination detection process.",
+    "The comprehensive entailment reasoning approach can be applied to improve reliability of LLM outputs across various text generation tasks by providing structured verification against source materials."
+  ],
+  "limitations": [
+    "Limited information available from partial paper content",
+    "Full experimental results and performance metrics not provided in excerpt"
+  ],
+  "future_work": [
+    "Development of improved analysis metrics for reasoning step quality assessment"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other",
+    "chain_of_thought",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "LLM inference capabilities required",
+    "data_requirements": "Reference texts and generated content pairs for evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Detecting hallucinations in LLM-generated text by systematically verifying claims against reference sources",
+  "prerequisites": [
+    "Access to LLMs capable of multi-step reasoning",
+    "Reference text corpus for fact verification",
+    "Understanding of natural language inference tasks"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Content verification systems",
+    "Automated fact-checking tools",
+    "LLM output validation pipelines",
+    "Quality assurance for AI-generated content"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05309v1",
+  "extraction_timestamp": "2025-06-06 13:57:46.948346",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Developed an adaptive asynchronous LLM agent that makes dual decisions of 'what to say' and 'when to say it' in group communication settings, addressing a critical gap in current synchronous LLM applications.",
+    "Agent achieved human-level performance in Mafia games both in gameplay effectiveness and ability to blend in with human players, demonstrating successful integration in complex social gaming environments.",
+    "Agent's timing behavior closely mirrors human communication patterns in asynchronous settings, showing successful modeling of natural conversation flow and social dynamics.",
+    "Created and released a unique dataset of online Mafia games with mixed human-AI participants, providing valuable benchmark data for future asynchronous communication research.",
+    "Identified key differences between AI and human message content while maintaining similar timing patterns, revealing important insights about the dual nature of communication timing versus content generation."
+  ],
+  "limitations": [
+    "Limited evaluation scope focused primarily on Mafia games, which may not generalize to all asynchronous communication contexts",
+    "Differences in message content compared to humans suggest room for improvement in natural language generation quality"
+  ],
+  "future_work": [
+    "Extending asynchronous communication capabilities to broader real-world applications like team meetings and group chats"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "other",
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "Online Mafia game dataset with human-AI mixed participants",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Enabling LLM agents to participate naturally in asynchronous group communication by deciding both content and timing of responses",
+  "prerequisites": [
+    "LLM integration capabilities",
+    "Real-time communication infrastructure",
+    "Game environment setup"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Group chats",
+    "Online team meetings",
+    "Social games",
+    "Collaborative platforms"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}
