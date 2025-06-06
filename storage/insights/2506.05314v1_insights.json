@@ -16,7 +16,7 @@
   "future_work": [
     "Scaling to larger model architectures and more diverse unlearning scenarios"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "preference_optimization",
     "inference_optimization"
@@ -48,5 +48,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

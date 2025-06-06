@@ -482,29 +482,83 @@ class InsightExtractor:
     
     def _detect_case_study(self, paper: Dict, sections: Dict) -> bool:
         """
-        Detect if this paper contains a case study.
+        Detect if this paper contains a case study with more stringent criteria.
+        A paper is only marked as a case study if it describes an actual implementation
+        at a specific organization with concrete results.
         """
         # Check title and abstract
-        text_to_check = f"{paper.get('title', '')} {paper.get('summary', '')}".lower()
+        title_abstract = f"{paper.get('title', '')} {paper.get('summary', '')}".lower()
         
-        case_study_indicators = [
-            'case study', 'case-study', 'field study', 'pilot study',
-            'deployment', 'production', 'real-world', 'industrial application',
-            'company', 'organization', 'enterprise'
+        # Strong case study indicators - must have explicit case study mention
+        strong_indicators = [
+            'case study', 'case-study', 'field study', 'industrial case study',
+            'case study at', 'deployment case study', 'real-world case study'
         ]
         
-        # Check for indicators in title/abstract
-        if any(indicator in text_to_check for indicator in case_study_indicators):
-            return True
+        # Weak indicators that need additional evidence
+        weak_indicators = [
+            'deployment', 'production', 'real-world', 'industrial application',
+            'company', 'organization', 'enterprise', 'pilot study'
+        ]
         
-        # Check if we found a case study section
-        if sections.get('case_study'):
-            return True
+        # Implementation evidence - needed to confirm it's an actual case study
+        implementation_evidence = [
+            'deployed at', 'implemented at', 'used by', 'adopted by',
+            'operational at', 'in production at', 'live system',
+            'fortune 500', 'fortune 1000', 'employees use',
+            'customers use', 'users daily', 'requests per day',
+            'deployed system', 'production deployment'
+        ]
         
-        # Check other sections for case study content
+        # Check for strong indicators in title
+        title = paper.get('title', '').lower()
+        has_strong_in_title = any(indicator in title for indicator in strong_indicators)
+        
+        # Check for case study section
+        has_case_study_section = bool(sections.get('case_study'))
+        
+        # Count evidence across all text
+        all_text = title_abstract
         for section_content in sections.values():
-            if any(indicator in section_content.lower() for indicator in case_study_indicators[:4]):
-                return True
+            all_text += " " + section_content.lower()
+        
+        # Count weak indicators
+        weak_indicator_count = sum(1 for indicator in weak_indicators if indicator in all_text)
+        
+        # Count implementation evidence
+        implementation_count = sum(1 for evidence in implementation_evidence if evidence in all_text)
+        
+        # Decision logic - much more stringent
+        if has_strong_in_title:
+            # If "case study" is in the title, likely a real case study
+            return True
+        
+        if has_case_study_section and implementation_count >= 2:
+            # Has dedicated case study section with implementation evidence
+            return True
+        
+        # Need strong evidence of actual deployment
+        if weak_indicator_count >= 3 and implementation_count >= 3:
+            # Multiple weak indicators AND strong implementation evidence
+            return True
+        
+        # Check for specific patterns that indicate real deployment
+        deployment_patterns = [
+            r'deployed (?:at|in|to) \w+ (?:company|organization|corporation)',
+            r'implemented at \w+',
+            r'case study (?:at|of|from) \w+',
+            r'\d+[,\d]* (?:users|employees|customers)',
+            r'\d+[,\d]* (?:requests|queries|transactions) per',
+            r'fortune \d+',
+            r'production (?:system|deployment|environment) at'
+        ]
+        
+        import re
+        pattern_matches = sum(1 for pattern in deployment_patterns 
+                            if re.search(pattern, all_text, re.IGNORECASE))
+        
+        if pattern_matches >= 2:
+            return True
         
         return False
     
@@ -601,29 +655,72 @@ IMPORTANT:
     def _get_case_study_instructions(self) -> str:
         """Additional instructions for case study papers."""
         return """
-CASE STUDY SPECIFIC: Please pay special attention to:
-- Organization/company involved (if mentioned)
-- Scale of deployment (users, requests, data volume)
-- Specific business outcomes achieved
-- Implementation timeline and phases
-- Challenges faced during deployment
-- Lessons learned from real-world usage"""
+            CASE STUDY SPECIFIC: Please pay special attention to:
+            - Organization/company involved (if mentioned)
+            - Scale of deployment (users, requests, data volume)
+            - Specific business outcomes achieved
+            - Implementation timeline and phases
+            - Challenges faced during deployment
+            - Lessons learned from real-world usage"""
     
     def _infer_study_type(self, is_case_study: bool, sections: Dict) -> str:
-        """Infer study type based on content."""
+        """Infer study type based on content with stricter case study criteria."""
         if is_case_study:
             return "case_study"
         
         # Check for other study types based on section content
         all_text = ' '.join(sections.values()).lower()
         
-        if any(term in all_text for term in ['experiment', 'benchmark', 'evaluation', 'measured']):
+        # Strong empirical indicators
+        empirical_indicators = [
+            'experiment', 'benchmark', 'evaluation', 'measured', 'tested',
+            'results show', 'performance evaluation', 'empirical study',
+            'quantitative results', 'statistical analysis', 'hypothesis test'
+        ]
+        empirical_count = sum(1 for indicator in empirical_indicators if indicator in all_text)
+        
+        # Pilot study indicators (not a full case study)
+        pilot_indicators = [
+            'pilot', 'trial', 'prototype', 'proof of concept', 'poc',
+            'preliminary implementation', 'initial deployment', 'early results'
+        ]
+        pilot_count = sum(1 for indicator in pilot_indicators if indicator in all_text)
+        
+        # Survey/review indicators
+        survey_indicators = [
+            'survey', 'review', 'analysis of', 'systematic review',
+            'literature review', 'meta-analysis', 'comparison of approaches',
+            'overview of methods', 'state of the art'
+        ]
+        survey_count = sum(1 for indicator in survey_indicators if indicator in all_text)
+        
+        # Theoretical indicators
+        theoretical_indicators = [
+            'framework', 'theoretical', 'model', 'formalization',
+            'mathematical proof', 'theorem', 'conceptual', 'abstract model',
+            'formal analysis', 'theoretical contribution'
+        ]
+        theoretical_count = sum(1 for indicator in theoretical_indicators if indicator in all_text)
+        
+        # Determine study type based on strongest evidence
+        max_count = max(empirical_count, pilot_count, survey_count, theoretical_count)
+        
+        if max_count == 0:
+            return "unknown"
+        
+        if empirical_count == max_count:
             return "empirical"
-        elif any(term in all_text for term in ['pilot', 'trial', 'prototype']):
+        elif pilot_count == max_count:
             return "pilot"
-        elif any(term in all_text for term in ['survey', 'review', 'analysis of']):
-            return "survey"
-        elif any(term in all_text for term in ['framework', 'theoretical', 'model']):
+        elif survey_count == max_count:
+            # Distinguish between survey and review
+            if 'meta-analysis' in all_text or 'meta analysis' in all_text:
+                return "meta_analysis"
+            elif 'survey' in all_text and 'participants' in all_text:
+                return "survey"
+            else:
+                return "review"
+        elif theoretical_count == max_count:
             return "theoretical"
         
         return "unknown"

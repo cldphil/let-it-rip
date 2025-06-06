@@ -16,7 +16,7 @@
   "future_work": [
     "Extending evaluation to more diverse model architectures and task types"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "fine_tuning",
     "reinforcement_learning",

@@ -16,7 +16,7 @@
   "future_work": [
     "Not explicitly mentioned in the provided excerpt"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "reinforcement_learning",
     "self_reasoning",
@@ -50,5 +50,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

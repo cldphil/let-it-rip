@@ -16,7 +16,7 @@
   "future_work": [
     "Exploring grafting techniques for other transformer architectures beyond diffusion models"
   ],
-  "study_type": "case_study",
+  "study_type": "review",
   "techniques_used": [
     "transformer_architecture",
     "transfer_learning",
@@ -49,5 +49,5 @@
   "has_code_available": true,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

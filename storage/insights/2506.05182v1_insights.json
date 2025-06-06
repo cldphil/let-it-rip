@@ -16,7 +16,7 @@
   "future_work": [
     "Further exploration of preprocessing pipeline optimization for different document types and structures"
   ],
-  "study_type": "empirical",
+  "study_type": "pilot",
   "techniques_used": [
     "other"
   ],
@@ -48,5 +48,5 @@
   "has_code_available": true,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

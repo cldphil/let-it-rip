@@ -16,7 +16,7 @@
   "future_work": [
     "Developing calibration methods to align LLM error severity judgments with human assessments across different error types and modalities"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "multimodal_learning",
     "other"

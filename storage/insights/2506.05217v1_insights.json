@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to multi-state observations beyond dual states for even more comprehensive scene coverage"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "semantic_segmentation",
     "gaussian_splatting"

@@ -16,7 +16,7 @@
   "future_work": [
     "Further optimization of compression ratios beyond 8x while maintaining accuracy"
   ],
-  "study_type": "empirical",
+  "study_type": "unknown",
   "techniques_used": [
     "kv_cache_optimization",
     "other",
@@ -49,5 +49,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

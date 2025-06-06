@@ -16,7 +16,7 @@
   "future_work": [
     "Extending the approach to more complex mathematical domains and visual reasoning tasks"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "chain_of_thought",
     "fine_tuning",

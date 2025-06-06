@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to more complex temporal dependencies and longer sequence generation"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "preference_optimization",
     "diffusion_models"
@@ -48,5 +48,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

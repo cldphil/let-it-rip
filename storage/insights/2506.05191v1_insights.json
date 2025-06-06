@@ -16,7 +16,7 @@
   "future_work": [
     "Further exploration of cross-modal attention mechanisms for improved multimodal alignment"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "low_rank_adaptation",
     "fine_tuning",
@@ -51,5 +51,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

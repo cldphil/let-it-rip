@@ -16,7 +16,7 @@
   "future_work": [
     "Development of automated tools for measuring and optimizing dataset similarity during alignment phase"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "safety_alignment",
     "fine_tuning",
@@ -49,5 +49,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

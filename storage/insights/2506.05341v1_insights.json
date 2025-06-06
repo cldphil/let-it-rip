@@ -16,7 +16,7 @@
   "future_work": [
     "Not specified in the available excerpt"
   ],
-  "study_type": "empirical",
+  "study_type": "unknown",
   "techniques_used": [
     "self_reasoning",
     "text_to_3d_synthesis"

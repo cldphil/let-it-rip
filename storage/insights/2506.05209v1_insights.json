@@ -17,7 +17,7 @@
     "Expansion to larger dataset versions beyond v0.1",
     "Development of quality filtering and deduplication techniques for openly licensed content"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "other"
   ],
@@ -48,5 +48,5 @@
   "has_code_available": true,
   "has_dataset_available": true,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

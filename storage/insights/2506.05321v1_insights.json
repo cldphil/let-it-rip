@@ -16,7 +16,7 @@
   "future_work": [
     "Further exploration of targeted missingness patterns for different physiological conditions"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "transfer_learning",
     "other",
@@ -49,5 +49,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

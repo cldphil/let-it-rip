@@ -16,7 +16,7 @@
   "future_work": [
     "Extending the analysis to real-world datasets and production-scale vision-language models to validate findings in practical deployment scenarios"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "multimodal_learning",
     "other",
@@ -49,5 +49,5 @@
   "has_code_available": false,
   "has_dataset_available": true,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

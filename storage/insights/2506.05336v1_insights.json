@@ -16,7 +16,7 @@
   "future_work": [
     "Potential expansion to more complex video understanding tasks and real-time applications"
   ],
-  "study_type": "case_study",
+  "study_type": "review",
   "techniques_used": [
     "self_reasoning",
     "multimodal_learning"

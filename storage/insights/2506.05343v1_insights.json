@@ -16,7 +16,7 @@
   "future_work": [
     "Further optimization of the multi-stage training strategy and flow matching techniques for even greater efficiency"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "flow_matching",
     "transfer_learning",
@@ -51,5 +51,5 @@
   "has_code_available": true,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

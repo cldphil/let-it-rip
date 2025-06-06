@@ -25,7 +25,7 @@ from config import Config
 
 # Page configuration
 st.set_page_config(
-    page_title="GenAI Research Platform",
+    page_title="Research Implementation Platform",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -143,7 +143,7 @@ st.markdown("""
 # Header with gradient
 st.markdown("""
 <div style="background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
-    <h1 style="color: white; margin: 0; font-size: 2.5rem;">🧬 GenAI Research Platform</h1>
+    <h1 style="color: white; margin: 0; font-size: 2.5rem;">Research Implementation Platform</h1>
     <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">Transform research into actionable insights</p>
 </div>
 """, unsafe_allow_html=True)
@@ -162,31 +162,34 @@ stats = st.session_state.storage.get_statistics()
 if page == "📊 Dashboard":
     st.header("Platform Overview")
     
+    # Get fresh statistics each time the dashboard loads
+    current_stats = st.session_state.storage.get_statistics()
+    
     # Key metrics
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric(
             "Total Papers",
-            stats['total_papers']
+            current_stats['total_papers']
         )
     
     with col2:
         st.metric(
             "Avg Quality Score",
-            f"{stats['average_quality_score']:.2f}"
+            f"{current_stats['average_quality_score']:.2f}"
         )
 
     with col3:
         st.metric(
             "Avg Evidence Strength",
-            f"{stats['average_evidence_strength']:.2f}"
+            f"{current_stats['average_evidence_strength']:.2f}"
         )
     
     with col4:
         st.metric(
             "Avg Applicability",
-            f"{stats['average_practical_applicability']:.2f}"
+            f"{current_stats['average_practical_applicability']:.2f}"
         )
     
     # Charts
@@ -196,10 +199,10 @@ if page == "📊 Dashboard":
     
     with col1:
         # Complexity distribution
-        if stats['complexity_distribution']:
+        if current_stats['complexity_distribution']:
             fig_complexity = px.pie(
-                values=list(stats['complexity_distribution'].values()),
-                names=list(stats['complexity_distribution'].keys()),
+                values=list(current_stats['complexity_distribution'].values()),
+                names=list(current_stats['complexity_distribution'].keys()),
                 title="Implementation Complexity",
                 color_discrete_sequence=px.colors.qualitative.Set3
             )
@@ -207,10 +210,10 @@ if page == "📊 Dashboard":
     
     with col2:
         # Study type distribution
-        if stats['study_type_distribution']:
+        if current_stats['study_type_distribution']:
             fig_study = px.bar(
-                x=list(stats['study_type_distribution'].keys()),
-                y=list(stats['study_type_distribution'].values()),
+                x=list(current_stats['study_type_distribution'].keys()),
+                y=list(current_stats['study_type_distribution'].values()),
                 title="Study Types",
                 color_discrete_sequence=['#0066FF']
             )
@@ -360,44 +363,43 @@ elif page == "📚 Browse Insights":
         # Get statistics to check if we have any papers
         stats = st.session_state.storage.get_statistics()
         
-        if stats['total_insights'] > 0:
-            # Use the storage API to get papers
-            insights_dir = Path("storage/insights")
-            
-            if insights_dir.exists():
-                for insight_file in insights_dir.glob("*.json"):
-                    if "_insights" in insight_file.name:
-                        paper_id = insight_file.stem.replace("_insights", "")
+        # Use the storage API to get papers
+        insights_dir = Path("storage/insights")
+        
+        if insights_dir.exists():
+            for insight_file in insights_dir.glob("*.json"):
+                if "_insights" in insight_file.name:
+                    paper_id = insight_file.stem.replace("_insights", "")
+                    
+                    try:
+                        insights = st.session_state.storage.load_insights(paper_id)
+                        paper_data = st.session_state.storage.load_paper(paper_id)
                         
-                        try:
-                            insights = st.session_state.storage.load_insights(paper_id)
-                            paper_data = st.session_state.storage.load_paper(paper_id)
-                            
-                            if insights and paper_data:
-                                # Apply filters
-                                if (insights.implementation_complexity.value in complexity_filter and
-                                    insights.get_quality_score() >= min_quality and
-                                    insights.study_type.value in study_type_filter):
-                                    
-                                    # Apply case study filter if checked
-                                    if show_case_studies_only and insights.study_type.value != 'case_study':
-                                        continue
-                                    
-                                    all_papers.append({
-                                        'paper_id': paper_id,
-                                        'title': paper_data.get('title', 'Unknown'),
-                                        'authors': paper_data.get('authors', []),
-                                        'published': paper_data.get('published', ''),
-                                        'pdf_url': paper_data.get('pdf_url', ''),
-                                        'insights': insights,
-                                        'quality_score': insights.get_quality_score(),
-                                        'evidence_strength': insights.evidence_strength,
-                                        'practical_applicability': insights.practical_applicability,
-                                        'recency': paper_data.get('published', '2020')
-                                    })
-                        except Exception as e:
-                            st.warning(f"Error loading paper {paper_id}: {str(e)}")
-                            continue
+                        if insights and paper_data:
+                            # Apply filters
+                            if (insights.implementation_complexity.value in complexity_filter and
+                                insights.get_quality_score() >= min_quality and
+                                insights.study_type.value in study_type_filter):
+                                
+                                # Apply case study filter if checked
+                                if show_case_studies_only and insights.study_type.value != 'case_study':
+                                    continue
+                                
+                                all_papers.append({
+                                    'paper_id': paper_id,
+                                    'title': paper_data.get('title', 'Unknown'),
+                                    'authors': paper_data.get('authors', []),
+                                    'published': paper_data.get('published', ''),
+                                    'pdf_url': paper_data.get('pdf_url', ''),
+                                    'insights': insights,
+                                    'quality_score': insights.get_quality_score(),
+                                    'evidence_strength': insights.evidence_strength,
+                                    'practical_applicability': insights.practical_applicability,
+                                    'recency': paper_data.get('published', '2020')
+                                })
+                    except Exception as e:
+                        st.warning(f"Error loading paper {paper_id}: {str(e)}")
+                        continue
         
         # Sort papers
         if all_papers:

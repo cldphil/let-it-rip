@@ -16,7 +16,7 @@
   "future_work": [
     "Validation on higher resolution datasets and different data modalities beyond images"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "diffusion_models",
     "other",

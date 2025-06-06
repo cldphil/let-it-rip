@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to more complex video understanding tasks and real-time processing applications"
   ],
-  "study_type": "case_study",
+  "study_type": "unknown",
   "techniques_used": [
     "multimodal_learning",
     "semantic_segmentation",

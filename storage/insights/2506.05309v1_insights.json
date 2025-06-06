@@ -16,7 +16,7 @@
   "future_work": [
     "Extending asynchronous communication capabilities to broader real-world applications like team meetings and group chats"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering",
     "multi_agent"

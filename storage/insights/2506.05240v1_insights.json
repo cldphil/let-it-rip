@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to other generative modeling tasks beyond image generation"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "variational_inference",
     "flow_matching",

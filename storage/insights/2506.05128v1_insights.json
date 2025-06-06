@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to other information extraction tasks beyond event detection"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering",
     "self_reasoning",
@@ -49,5 +49,5 @@
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

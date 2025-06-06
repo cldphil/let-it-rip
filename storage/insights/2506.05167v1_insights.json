@@ -16,7 +16,7 @@
   "future_work": [
     "Extension to other NLP tasks beyond Open-Domain Question Answering"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "other",
     "inference_optimization",

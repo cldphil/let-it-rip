@@ -16,7 +16,7 @@
   "future_work": [
     "Developing better methods to align user perception of credibility with actual content relevance in citations"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "human_preference_evaluation",
     "web_scraping",
@@ -50,5 +50,5 @@
   "has_code_available": false,
   "has_dataset_available": true,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

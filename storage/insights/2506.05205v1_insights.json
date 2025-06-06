@@ -16,7 +16,7 @@
   "future_work": [
     "Scaling task complexity as LLM capabilities improve and developing more sophisticated compositional reasoning evaluations"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering"
   ],

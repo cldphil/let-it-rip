@@ -16,7 +16,7 @@
   "future_work": [
     "Expanding to other domains beyond sports to test generalizability of temporally fine-grained video retrieval approaches"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering",
     "fine_tuning"
@@ -48,5 +48,5 @@
   "has_code_available": false,
   "has_dataset_available": true,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

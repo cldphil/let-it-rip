@@ -16,7 +16,7 @@
   "future_work": [
     "Empirical validation of the theoretical constructions on practical in-context learning tasks"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "transformer_architecture",
     "in_context_learning"

@@ -16,7 +16,7 @@
   "future_work": [
     "Further validation across different conditional generation tasks"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "flow_matching",
     "contrastive_learning",

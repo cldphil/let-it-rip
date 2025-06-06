@@ -16,7 +16,7 @@
   "future_work": [
     "Systematic evaluation across different video understanding tasks and comparison with other preference optimization methods"
   ],
-  "study_type": "unknown",
+  "study_type": "theoretical",
   "techniques_used": [
     "preference_optimization",
     "self_reasoning",

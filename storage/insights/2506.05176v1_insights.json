@@ -16,7 +16,7 @@
   "future_work": [
     "Further enhancement of training pipeline effectiveness through advanced data synthesis techniques"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "data_synthesis",
     "fine_tuning",
@@ -52,5 +52,5 @@
   "has_code_available": true,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

@@ -17,7 +17,7 @@
     "Extension to broader range of problem domains beyond combinatorial puzzles",
     "Comparison with additional search algorithms and optimization methods"
   ],
-  "study_type": "case_study",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering",
     "low_rank_adaptation",

@@ -16,7 +16,7 @@
   "future_work": [
     "Further exploration of hour-long Video-LMM training methodologies and scaling to even longer video durations"
   ],
-  "study_type": "case_study",
+  "study_type": "empirical",
   "techniques_used": [
     "memory_augmentation",
     "multimodal_learning",
@@ -50,5 +50,5 @@
   "has_code_available": true,
   "has_dataset_available": true,
   "reproducibility_score": null,
-  "industry_validation": true
+  "industry_validation": false
 }

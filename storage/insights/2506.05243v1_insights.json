@@ -16,7 +16,7 @@
   "future_work": [
     "Development of improved analysis metrics for intermediate reasoning steps"
   ],
-  "study_type": "empirical",
+  "study_type": "theoretical",
   "techniques_used": [
     "prompt_engineering",
     "chain_of_thought"
