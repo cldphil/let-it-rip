@@ -22,7 +22,9 @@ class StudyType(str, Enum):
 
 
 class TechniqueCategory(str, Enum):
-    """Categories of AI/ML techniques used."""
+    """Expanded categories of AI/ML techniques used in modern GenAI research."""
+    
+    # Core GenAI Techniques
     FINE_TUNING = "fine_tuning"
     RAG = "retrieval_augmented_generation"
     PROMPT_ENGINEERING = "prompt_engineering"
@@ -33,8 +35,68 @@ class TechniqueCategory(str, Enum):
     ZERO_SHOT_LEARNING = "zero_shot_learning"
     TRANSFER_LEARNING = "transfer_learning"
     ENSEMBLE_METHODS = "ensemble_methods"
+    
+    # Modern Generative Models
+    DIFFUSION_MODELS = "diffusion_models"
+    FLOW_MATCHING = "flow_matching"
+    AUTOREGRESSIVE_MODELING = "autoregressive_modeling"
+    VARIATIONAL_INFERENCE = "variational_inference"
+    ENERGY_BASED_MODELING = "energy_based_modeling"
+    
+    # Multimodal & Vision-Language
+    MULTIMODAL_LEARNING = "multimodal_learning"
+    VISION_LANGUAGE_MODELING = "vision_language_modeling"
+    TEXT_TO_3D_SYNTHESIS = "text_to_3d_synthesis"
+    SEMANTIC_SEGMENTATION = "semantic_segmentation"
+    OBJECT_DETECTION = "object_detection"
+    GAUSSIAN_SPLATTING = "gaussian_splatting"
+    
+    # Advanced Training & Optimization
+    CONTRASTIVE_LEARNING = "contrastive_learning"
+    SELF_SUPERVISED_LEARNING = "self_supervised_learning"
+    MULTI_TASK_LEARNING = "multi_task_learning"
+    PREFERENCE_OPTIMIZATION = "preference_optimization"
+    REWARD_MODELING = "reward_modeling"
+    LOW_RANK_ADAPTATION = "low_rank_adaptation"  # LoRA
+    
+    # Architecture & Attention Innovations
+    ATTENTION_MECHANISMS = "attention_mechanisms"
+    CROSS_ATTENTION = "cross_attention"
+    TRANSFORMER_ARCHITECTURE = "transformer_architecture"
+    MEMORY_AUGMENTATION = "memory_augmentation"
+    
+    # Inference & Optimization
+    INFERENCE_OPTIMIZATION = "inference_optimization"
+    KV_CACHE_OPTIMIZATION = "kv_cache_optimization"
+    APPROXIMATE_ATTENTION = "approximate_attention"
+    DYNAMIC_SPARSIFICATION = "dynamic_sparsification"
+    MODEL_PARALLELIZATION = "model_parallelization"
+    
+    # Reasoning & Decision Making
+    SELF_REASONING = "self_reasoning"
+    ADAPTIVE_DECISION_MAKING = "adaptive_decision_making"
+    CAUSAL_DECODING = "causal_decoding"
+    SELF_CORRECTION = "self_correction"
+    IN_CONTEXT_LEARNING = "in_context_learning"
+    
+    # Safety & Alignment
+    SAFETY_ALIGNMENT = "safety_alignment"
+    CONSTITUTIONAL_AI = "constitutional_ai"
+    HUMAN_PREFERENCE_EVALUATION = "human_preference_evaluation"
+    
+    # Data & Preprocessing
+    DATA_SYNTHESIS = "data_synthesis"
+    SYNTHETIC_DATA_GENERATION = "synthetic_data_generation"
+    WEB_SCRAPING = "web_scraping"
+    DOCUMENT_PARSING = "document_parsing"
+    
+    # Specialized Applications
+    LEGAL_AI = "legal_ai"
+    MEDICAL_AI = "medical_ai"
+    SCIENTIFIC_REASONING = "scientific_reasoning"
+    
+    # Other/Uncategorized
     OTHER = "other"
-
 
 class ComplexityLevel(str, Enum):
     """Implementation complexity levels."""

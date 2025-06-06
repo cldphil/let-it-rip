@@ -1,30 +1,32 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05213v1",
-  "extraction_timestamp": "2025-06-06 13:59:01.794308",
+  "extraction_timestamp": "2025-06-06 14:32:58.375838",
   "extraction_version": "1.0",
   "key_findings": [
     "LLM-First Search (LFS) eliminates the need for pre-defined search hyperparameters by allowing LLMs to autonomously control their own search process through internal scoring mechanisms, making it more adaptable across tasks of varying difficulty compared to fixed-parameter methods like MCTS.",
-    "The method enables context-sensitive reasoning without requiring manual tuning or task-specific adaptation, addressing a key limitation of traditional search algorithms that rely on hardcoded policies and external heuristics.",
-    "LFS was evaluated against three established search algorithms - Tree-of-Thoughts Breadth First Search (ToT-BFS), Best First Search (BestFS), and Monte Carlo Tree Search (MCTS) - on mathematical reasoning tasks including Countdown and Sudoku puzzles.",
-    "The approach uses self-guided exploration where the LLM evaluates whether to pursue current search paths or explore alternative branches based on its own assessment, removing dependency on external search strategy configuration.",
-    "Implementation involves structured prompting with color-coded components for task-specific instructions (green), system-level behavior definitions (red), and user queries (blue), with Python variable formatting for dynamic content insertion."
+    "The method addresses a critical limitation of existing search approaches like Monte Carlo Tree Search and Tree-of-Thoughts Breadth First Search, which rely on hardcoded policies and external heuristics that require manual tuning for different tasks.",
+    "LFS enables context-sensitive reasoning by empowering the LLM to evaluate whether to pursue current search paths or explore alternative branches based on its own assessment, removing dependency on task-specific adaptation requirements.",
+    "The approach was evaluated on structured problem-solving tasks including Countdown numbers game and Sudoku puzzles, demonstrating practical applicability to combinatorial optimization and constraint satisfaction problems.",
+    "The research contributes to the broader trend of using increased test-time compute for improved LLM reasoning and planning, offering a more flexible alternative to traditional search algorithms in AI problem-solving applications."
   ],
   "limitations": [
-    "Limited evaluation scope with only two mathematical domains (Countdown and Sudoku) tested",
-    "Reliance on LLM's internal scoring mechanisms may introduce inconsistency or bias in search decisions"
+    "Limited evaluation scope with only two specific problem domains (Countdown and Sudoku) tested",
+    "Reliance on LLM internal scoring mechanisms may introduce inconsistency or bias in search decisions"
   ],
   "future_work": [
-    "Extension to broader problem domains beyond mathematical reasoning tasks"
+    "Extension to broader range of problem domains beyond combinatorial puzzles",
+    "Comparison with additional search algorithms and optimization methods"
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "other",
-    "prompt_engineering"
+    "prompt_engineering",
+    "low_rank_adaptation",
+    "adaptive_decision_making"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
     "compute_requirements": "Standard LLM inference compute for test-time search",
-    "data_requirements": "Countdown and Sudoku puzzle datasets for evaluation",
+    "data_requirements": "Countdown and Sudoku problem instances for evaluation",
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
@@ -32,18 +34,19 @@
   "success_metrics": [],
   "problem_addressed": "Eliminates the need for manual hyperparameter tuning and task-specific adaptation in LLM-based search algorithms by enabling autonomous search control",
   "prerequisites": [
-    "Access to large language models with reasoning capabilities",
-    "Understanding of search algorithms and prompt engineering",
-    "Python programming for implementation"
+    "Access to large language models",
+    "Understanding of search algorithms",
+    "Problem formulation capabilities"
   ],
   "comparable_approaches": [],
   "real_world_applications": [
-    "Mathematical puzzle solving and reasoning tasks",
-    "Automated problem-solving systems requiring adaptive search strategies",
-    "Educational tools for mathematical reasoning"
+    "Combinatorial optimization problems",
+    "Constraint satisfaction puzzles",
+    "Automated reasoning tasks",
+    "Planning and decision-making systems"
   ],
   "evidence_strength": 0.6,
-  "practical_applicability": 0.8,
+  "practical_applicability": 0.7,
   "extraction_confidence": 0.85,
   "has_code_available": true,
   "has_dataset_available": false,

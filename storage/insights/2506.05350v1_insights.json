@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05350v1",
-  "extraction_timestamp": "2025-06-06 13:56:47.815742",
+  "extraction_timestamp": "2025-06-06 14:59:52.085424",
   "extraction_version": "1.0",
   "key_findings": [
     "Contrastive Flow Matching (\u2206FM) addresses flow overlap in conditional diffusion models by adding a contrastive objective that maximizes dissimilarities between predicted flows from different sample pairs, ensuring unique flows across conditions.",
@@ -10,15 +10,17 @@
     "The method addresses a core theoretical limitation in conditional flow matching where the uniqueness guarantee from unconditional settings breaks down, providing a principled solution for better condition separation in generative models."
   ],
   "limitations": [
-    "Limited evaluation details provided in the excerpt",
-    "No quantitative metrics or comprehensive comparison results shown"
+    "Limited evaluation shown only on ImageNet-1k dataset",
+    "No quantitative metrics provided in the available excerpt"
   ],
   "future_work": [
-    "Validation through comprehensive experiments as mentioned in the abstract"
+    "Further validation across different conditional generation tasks"
   ],
-  "study_type": "theoretical",
+  "study_type": "empirical",
   "techniques_used": [
-    "other"
+    "flow_matching",
+    "contrastive_learning",
+    "diffusion_models"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
@@ -38,8 +40,8 @@
   "comparable_approaches": [],
   "real_world_applications": [
     "Class-conditioned image generation",
-    "Conditional diffusion model training",
-    "Improving coherence in generated images"
+    "Conditional content creation",
+    "Improved diffusion model training"
   ],
   "evidence_strength": 0.6,
   "practical_applicability": 0.8,

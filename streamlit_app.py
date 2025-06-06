@@ -173,20 +173,20 @@ if page == "📊 Dashboard":
     
     with col2:
         st.metric(
-            "Insights Extracted",
-            stats['total_insights']
-        )
-    
-    with col3:
-        st.metric(
             "Avg Quality Score",
             f"{stats['average_quality_score']:.2f}"
+        )
+
+    with col3:
+        st.metric(
+            "Avg Evidence Strength",
+            f"{stats['average_evidence_strength']:.2f}"
         )
     
     with col4:
         st.metric(
-            "Total Cost",
-            f"${stats['total_extraction_cost']:.2f}"
+            "Avg Applicability",
+            f"{stats['average_practical_applicability']:.2f}"
         )
     
     # Charts
@@ -216,7 +216,6 @@ if page == "📊 Dashboard":
             )
             st.plotly_chart(fig_study, use_container_width=True)
     
-    # Add "Get Insights" section at the bottom of Dashboard
     st.markdown("---")
     st.subheader("Get New Insights")
     
@@ -512,11 +511,6 @@ elif page == "🎯 Get Recommendations":
     if submit_button:
         # Create user context with optional fields
         context = UserContext(
-            # company_size=company_size if company_size else "medium",
-            # maturity_level=maturity_level if maturity_level else "pilot_ready",
-            # budget_constraint=budget if budget else None,
-            # risk_tolerance=risk_tolerance if risk_tolerance else "moderate",
-            preferred_techniques=[],  # Removed from UI
             use_case_description=business_context if business_context else "General exploration of GenAI applications",
             specific_problems=[p.strip() for p in specific_problems.split('\n') if p.strip()] if specific_problems else []
         )

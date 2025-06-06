@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05231v1",
-  "extraction_timestamp": "2025-06-06 13:58:44.548234",
+  "extraction_timestamp": "2025-06-06 14:32:58.217772",
   "extraction_version": "1.0",
   "key_findings": [
     "PTSD combines the advantages of Parallel Tempering (PT) and diffusion models by training diffusion models sequentially across temperature levels, addressing the limitation that PT only yields dependent samples and requires expensive recomputation for new samples.",
@@ -18,7 +18,8 @@
   ],
   "study_type": "empirical",
   "techniques_used": [
-    "other"
+    "variational_inference",
+    "diffusion_models"
   ],
   "implementation_complexity": "high",
   "resource_requirements": {

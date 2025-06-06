@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05198v1",
-  "extraction_timestamp": "2025-06-06 13:59:15.241620",
+  "extraction_timestamp": "2025-06-06 14:33:13.519939",
   "extraction_version": "1.0",
   "key_findings": [
     "Cross-modality memorization occurs in vision-language models where facts learned in one modality (text or image) can transfer to the other modality, demonstrating that multimodal models create shared representations across different input types.",
@@ -18,7 +18,9 @@
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "other"
+    "multimodal_learning",
+    "other",
+    "synthetic_data_generation"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
@@ -39,7 +41,7 @@
   "real_world_applications": [
     "Privacy auditing of multimodal AI systems",
     "Knowledge-intensive multimodal applications",
-    "Sensitive information leakage detection in production models"
+    "Sensitive information detection in vision-language models"
   ],
   "evidence_strength": 0.8,
   "practical_applicability": 0.9,

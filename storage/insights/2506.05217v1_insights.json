@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05217v1",
-  "extraction_timestamp": "2025-06-06 13:58:45.130378",
+  "extraction_timestamp": "2025-06-06 14:32:57.695396",
   "extraction_version": "1.0",
   "key_findings": [
     "DSG-World introduces a novel dual-state observation approach that uses two perturbed views of the same scene with different object configurations to overcome occlusion problems in 3D world modeling, eliminating the need for multi-stage processing like segmentation and inpainting.",
@@ -14,16 +14,16 @@
     "Limited evaluation details provided in the abstract regarding quantitative performance metrics"
   ],
   "future_work": [
-    "Extension to dynamic scenes with temporal consistency",
-    "Integration with robotic manipulation systems"
+    "Extension to multi-state observations beyond dual states for even more comprehensive scene coverage"
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "other"
+    "semantic_segmentation",
+    "gaussian_splatting"
   ],
   "implementation_complexity": "high",
   "resource_requirements": {
-    "compute_requirements": "Not specified in provided excerpt",
+    "compute_requirements": "Not specified in abstract",
     "data_requirements": "Dual-state video observations of scenes with object perturbations",
     "budget_tier": null,
     "special_hardware": [],
@@ -34,14 +34,13 @@
   "prerequisites": [
     "Dual-state video capture capability",
     "3D Gaussian splatting implementation",
-    "Semantic segmentation models",
-    "Multi-view geometry understanding"
+    "Segmentation and consistency enforcement algorithms"
   ],
   "comparable_approaches": [],
   "real_world_applications": [
-    "Robotics scene understanding and manipulation",
-    "3D scene reconstruction for AR/VR applications",
-    "Computer vision systems requiring physical consistency"
+    "Robotics world modeling",
+    "Computer vision scene reconstruction",
+    "3D scene understanding systems"
   ],
   "evidence_strength": 0.6,
   "practical_applicability": 0.7,

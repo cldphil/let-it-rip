@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05343v1",
-  "extraction_timestamp": "2025-06-06 13:56:48.943726",
+  "extraction_timestamp": "2025-06-06 14:59:52.267961",
   "extraction_version": "1.0",
   "key_findings": [
     "ContentV achieves state-of-the-art video generation performance (85.14 on VBench) with only 8B parameters, demonstrating that efficient architectures can compete with larger models while requiring significantly less computational resources.",
@@ -18,9 +18,10 @@
   ],
   "study_type": "empirical",
   "techniques_used": [
-    "reinforcement_learning",
+    "flow_matching",
     "transfer_learning",
-    "other"
+    "multi_task_learning",
+    "reinforcement_learning"
   ],
   "implementation_complexity": "high",
   "resource_requirements": {

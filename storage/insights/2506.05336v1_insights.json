@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05336v1",
-  "extraction_timestamp": "2025-06-06 13:57:02.284894",
+  "extraction_timestamp": "2025-06-06 14:31:12.496186",
   "extraction_version": "1.0",
   "key_findings": [
     "VideoMolmo introduces a novel two-stage approach for spatio-temporal grounding by decomposing visual grounding into sequential steps: pointing followed by mask generation, which produces more accurate and coherent segmentation masks compared to prior approaches.",
@@ -18,7 +18,8 @@
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "other"
+    "self_reasoning",
+    "multimodal_learning"
   ],
   "implementation_complexity": "high",
   "resource_requirements": {

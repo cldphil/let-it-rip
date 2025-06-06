@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05137v1",
-  "extraction_timestamp": "2025-06-06 13:59:57.218511",
+  "extraction_timestamp": "2025-06-06 14:33:54.588631",
   "extraction_version": "1.0",
   "key_findings": [
     "Neural jump stochastic differential equation model integrates neural networks as parameter estimators in conventional jump diffusion models, addressing the limitation that traditional Black-Scholes models cannot capture volatility smiles and leptokurtic return distributions.",
@@ -18,6 +18,8 @@
   ],
   "study_type": "empirical",
   "techniques_used": [
+    "variational_inference",
+    "transformer_architecture",
     "other"
   ],
   "implementation_complexity": "high",

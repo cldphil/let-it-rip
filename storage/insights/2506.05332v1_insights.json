@@ -1,28 +1,30 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05332v1",
-  "extraction_timestamp": "2025-06-06 13:57:02.600893",
+  "extraction_timestamp": "2025-06-06 14:31:10.038046",
   "extraction_version": "1.0",
   "key_findings": [
     "VideoMarathon dataset contains 9,700 hours of long videos (3-60 minutes each) with 3.3M high-quality QA pairs across 6 fundamental topics (temporality, spatiality, object, action, scene, event), representing the first large-scale hour-long video instruction-following dataset for training video language models.",
     "Hour-LLaVA model processes hour-long videos at 1 FPS during both training and inference using a Memory Augmentation (MemAug) mechanism that adaptively integrates question-relevant and spatiotemporal-informative semantics from cached information to maintain long-term dependencies.",
     "The MemAug mechanism provides learnable compression directly supervised by next-token prediction loss, outperforming explicit token compression methods that rely on hand-crafted heuristics, effectively mitigating information loss from sparse sampling in long videos.",
-    "The approach supports 22 diverse tasks requiring both short- and long-term video comprehension, significantly extending training video durations up to 1 hour compared to existing video instruction datasets which focus on shorter clips.",
+    "The system supports 22 diverse tasks requiring both short- and long-term video comprehension, significantly extending training video durations up to 1 hour compared to existing video instruction datasets which focus on shorter clips.",
     "Training on VideoMarathon achieved best performance results, demonstrating that large-scale hour-long video training can unlock new capabilities in video-language understanding models for practical applications requiring extended temporal reasoning."
   ],
   "limitations": [
-    "Limited information provided about computational costs and training time requirements for hour-scale video processing",
-    "Incomplete paper excerpt prevents full assessment of performance metrics and comparison results"
+    "Limited information provided about computational costs and memory requirements for processing hour-long videos",
+    "No detailed comparison metrics or quantitative performance improvements mentioned in the provided excerpt"
   ],
   "future_work": [
     "Further exploration of hour-long Video-LMM training methodologies and scaling to even longer video durations"
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "other"
+    "memory_augmentation",
+    "multimodal_learning",
+    "dynamic_sparsification"
   ],
   "implementation_complexity": "high",
   "resource_requirements": {
-    "compute_requirements": "Not specified in provided excerpt",
+    "compute_requirements": "Not specified in provided text",
     "data_requirements": "9,700 hours of video data with 3.3M QA pairs",
     "budget_tier": null,
     "special_hardware": [],
@@ -31,9 +33,9 @@
   "success_metrics": [],
   "problem_addressed": "Scarcity of well-annotated long videos for training hour-long Video-LMMs and the challenge of processing extended video content while maintaining temporal understanding",
   "prerequisites": [
-    "Large-scale video processing infrastructure",
-    "Multimodal model training capabilities",
-    "Memory management systems"
+    "Video processing infrastructure",
+    "Large-scale dataset handling capabilities",
+    "Multimodal model training expertise"
   ],
   "comparable_approaches": [],
   "real_world_applications": [

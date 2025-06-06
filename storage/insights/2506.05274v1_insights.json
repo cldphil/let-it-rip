@@ -1,25 +1,25 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05274v1",
-  "extraction_timestamp": "2025-06-06 13:58:19.191667",
+  "extraction_timestamp": "2025-06-06 14:32:12.534550",
   "extraction_version": "1.0",
   "key_findings": [
     "Introduced TF-CoVR, the first large-scale benchmark for temporally fine-grained Composed Video Retrieval with 180K triplets from gymnastics and diving domains, addressing the gap in existing benchmarks that focus only on appearance shifts or coarse event changes.",
     "Developed a novel benchmark construction approach where each query-modification pair is associated with multiple valid target videos (3.9 on average) rather than single targets, better reflecting real-world scenarios like sports highlight generation.",
     "Proposed TF-CoVR-Base, a two-stage training framework that first pre-trains a video encoder on fine-grained action classification to obtain temporally discriminative embeddings, then aligns composed queries with target videos for improved temporal understanding.",
-    "Utilized LLM prompting to generate modification text by analyzing label differences between clips from different videos, creating more realistic and diverse query-target relationships compared to previous single-video approaches.",
-    "Focused on sports domains (gymnastics and diving) which contain fast-paced, subtle temporal differences that are challenging for existing video retrieval systems, providing a more rigorous evaluation framework for temporal video understanding."
+    "Utilized LLM prompting to generate modification text based on label differences between clips from different videos, creating more realistic and diverse query-target relationships compared to previous single-video approaches.",
+    "Focused on sports domains (gymnastics and diving) which contain subtle, fast-paced temporal differences that are challenging for existing video retrieval systems, providing a more rigorous evaluation framework for temporal video understanding."
   ],
   "limitations": [
     "Limited to specific sports domains (gymnastics and diving) which may not generalize to other video types or temporal patterns",
-    "Requires high-quality annotated video datasets with fine-grained temporal labels which may be expensive to obtain for other domains"
+    "Relies on existing fine-grained datasets (FineGym and FineDiving) which constrains the diversity and scale of temporal variations"
   ],
   "future_work": [
-    "Expansion to other domains beyond sports that require fine-grained temporal understanding"
+    "Expanding to other domains beyond sports to test generalizability of temporally fine-grained video retrieval approaches"
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "fine_tuning",
-    "prompt_engineering"
+    "prompt_engineering",
+    "fine_tuning"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
@@ -30,18 +30,17 @@
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Existing video retrieval systems cannot handle subtle, fast-paced temporal differences in videos, limiting their effectiveness for applications requiring fine-grained temporal understanding",
+  "problem_addressed": "Existing video retrieval systems cannot capture subtle, fast-paced temporal differences in videos, limiting their effectiveness for applications requiring fine-grained temporal understanding",
   "prerequisites": [
-    "Access to fine-grained annotated video datasets",
+    "Access to fine-grained video datasets",
     "Video encoding capabilities",
-    "LLM integration for text generation"
+    "LLM for text generation"
   ],
   "comparable_approaches": [],
   "real_world_applications": [
     "Sports highlight generation",
-    "Video content recommendation systems",
-    "Athletic performance analysis",
-    "Video search and retrieval platforms"
+    "Fine-grained video search and retrieval",
+    "Athletic performance analysis"
   ],
   "evidence_strength": 0.8,
   "practical_applicability": 0.7,

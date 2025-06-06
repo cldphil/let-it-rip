@@ -530,7 +530,6 @@ class InsightStorage:
         """Get enhanced storage statistics."""
         stats = {
             'total_papers': 0,
-            'total_insights': 0,
             'papers_with_code': 0,
             'complexity_distribution': {},
             'study_type_distribution': {},
@@ -538,13 +537,11 @@ class InsightStorage:
             'average_evidence_strength': 0.0,
             'average_practical_applicability': 0.0,
             'average_key_findings_count': 0.0,
-            'total_extraction_cost': 0.0,
             'recent_papers_count': 0  # Papers from last 2 years
         }
         
         # Count files
         stats['total_papers'] = len(list((self.storage_root / "papers").glob("*.json")))
-        stats['total_insights'] = len(list((self.storage_root / "insights").glob("*.json")))
         
         # Get distributions and enhanced metrics from SQLite
         cursor = self.metadata_conn.cursor()
@@ -593,15 +590,6 @@ class InsightStorage:
         result = cursor.fetchone()
         if result:
             stats['recent_papers_count'] = result['recent_count'] or 0
-        
-        # Total cost
-        cursor.execute("""
-            SELECT SUM(estimated_cost_usd) as total_cost
-            FROM extraction_metadata
-        """)
-        result = cursor.fetchone()
-        if result:
-            stats['total_extraction_cost'] = result['total_cost'] or 0.0
         
         return stats
     

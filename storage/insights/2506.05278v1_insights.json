@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05278v1",
-  "extraction_timestamp": "2025-06-06 13:57:59.470175",
+  "extraction_timestamp": "2025-06-06 14:32:11.335577",
   "extraction_version": "1.0",
   "key_findings": [
     "MICRO-ACT framework addresses knowledge conflicts in RAG systems by using hierarchical action space that automatically perceives context complexity and decomposes knowledge sources into fine-grained comparisons, achieving consistent significant increases in QA accuracy across 5 benchmark datasets and 3 conflict types.",
@@ -14,17 +14,18 @@
     "Model struggles to maintain consistent performance with complex contexts without proper decomposition"
   ],
   "future_work": [
-    "Not explicitly mentioned in provided text"
+    "Not explicitly mentioned in the provided excerpt"
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "retrieval_augmented_generation",
-    "other"
+    "reinforcement_learning",
+    "self_reasoning",
+    "retrieval_augmented_generation"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
-    "compute_requirements": "Not specified in provided text",
-    "data_requirements": "Five benchmark datasets mentioned but specifics not provided",
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "Five benchmark datasets mentioned but specific sizes not provided",
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
@@ -39,8 +40,9 @@
   "comparable_approaches": [],
   "real_world_applications": [
     "Question answering systems",
-    "Retrieval-augmented generation applications",
-    "Knowledge-intensive NLP tasks"
+    "Information retrieval systems",
+    "Knowledge-based chatbots",
+    "Document-based QA platforms"
   ],
   "evidence_strength": 0.8,
   "practical_applicability": 0.8,

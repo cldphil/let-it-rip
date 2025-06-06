@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05334v1",
-  "extraction_timestamp": "2025-06-06 13:57:05.070380",
+  "extraction_timestamp": "2025-06-06 14:31:10.728208",
   "extraction_version": "1.0",
   "key_findings": [
     "Created Search Arena dataset with over 24,000 paired multi-turn user interactions and 12,000 human preference votes, revealing that users are influenced by citation quantity even when citations don't directly support claims, indicating a gap between perceived and actual credibility in search-augmented LLMs.",
@@ -18,10 +18,11 @@
   ],
   "study_type": "case_study",
   "techniques_used": [
-    "retrieval_augmented_generation",
-    "other"
+    "human_preference_evaluation",
+    "web_scraping",
+    "retrieval_augmented_generation"
   ],
-  "implementation_complexity": "high",
+  "implementation_complexity": "medium",
   "resource_requirements": {
     "compute_requirements": "High cost for search-augmented LLM evaluation mentioned",
     "data_requirements": "24,000+ paired interactions, 12,000 human preference votes",
@@ -30,18 +31,18 @@
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "Analyzing and evaluating search-augmented language models to understand user preferences, credibility perception gaps, and performance trade-offs across different task types",
+  "problem_addressed": "Lack of comprehensive evaluation frameworks for search-augmented LLMs and understanding of user preferences in multi-turn search-enhanced conversations",
   "prerequisites": [
     "Access to web search APIs",
-    "Large-scale human evaluation infrastructure",
-    "Multi-turn conversation handling capabilities"
+    "LLM integration capabilities",
+    "Human evaluation infrastructure"
   ],
   "comparable_approaches": [],
   "real_world_applications": [
     "Search-enhanced chatbots",
-    "Fact-checking systems",
-    "Information retrieval and question-answering platforms",
-    "Multi-turn conversational AI with web grounding"
+    "Question-answering systems",
+    "Information retrieval applications",
+    "Multi-turn conversational AI"
   ],
   "evidence_strength": 0.8,
   "practical_applicability": 0.7,

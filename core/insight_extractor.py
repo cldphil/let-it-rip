@@ -19,6 +19,188 @@ from config import Config
 
 logger = logging.getLogger(__name__)
 
+# Enhanced technique mapping for the extractor
+TECHNIQUE_MAPPING = {
+    # Core GenAI (existing)
+    'rag': TechniqueCategory.RAG,
+    'retrieval_augmented_generation': TechniqueCategory.RAG,
+    'retrieval-augmented': TechniqueCategory.RAG,
+    'fine_tuning': TechniqueCategory.FINE_TUNING,
+    'fine-tuning': TechniqueCategory.FINE_TUNING,
+    'finetuning': TechniqueCategory.FINE_TUNING,
+    'prompt_engineering': TechniqueCategory.PROMPT_ENGINEERING,
+    'prompt-engineering': TechniqueCategory.PROMPT_ENGINEERING,
+    'prompting': TechniqueCategory.PROMPT_ENGINEERING,
+    'multi_agent': TechniqueCategory.MULTI_AGENT,
+    'multi-agent': TechniqueCategory.MULTI_AGENT,
+    'multiagent': TechniqueCategory.MULTI_AGENT,
+    'chain_of_thought': TechniqueCategory.CHAIN_OF_THOUGHT,
+    'chain-of-thought': TechniqueCategory.CHAIN_OF_THOUGHT,
+    'cot': TechniqueCategory.CHAIN_OF_THOUGHT,
+    'reinforcement_learning': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'reinforcement-learning': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'rlhf': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'few_shot_learning': TechniqueCategory.FEW_SHOT_LEARNING,
+    'few-shot': TechniqueCategory.FEW_SHOT_LEARNING,
+    'few shot': TechniqueCategory.FEW_SHOT_LEARNING,
+    'zero_shot_learning': TechniqueCategory.ZERO_SHOT_LEARNING,
+    'zero-shot': TechniqueCategory.ZERO_SHOT_LEARNING,
+    'zero shot': TechniqueCategory.ZERO_SHOT_LEARNING,
+    'transfer_learning': TechniqueCategory.TRANSFER_LEARNING,
+    'transfer-learning': TechniqueCategory.TRANSFER_LEARNING,
+    'ensemble_methods': TechniqueCategory.ENSEMBLE_METHODS,
+    'ensemble': TechniqueCategory.ENSEMBLE_METHODS,
+    
+    # Modern Generative Models
+    'diffusion_models': TechniqueCategory.DIFFUSION_MODELS,
+    'diffusion': TechniqueCategory.DIFFUSION_MODELS,
+    'flow_matching': TechniqueCategory.FLOW_MATCHING,
+    'autoregressive_modeling': TechniqueCategory.AUTOREGRESSIVE_MODELING,
+    'autoregressive': TechniqueCategory.AUTOREGRESSIVE_MODELING,
+    'variational_inference': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'energy_based_modeling': TechniqueCategory.ENERGY_BASED_MODELING,
+    'score_matching': TechniqueCategory.ENERGY_BASED_MODELING,
+    'denoising_objectives': TechniqueCategory.DIFFUSION_MODELS,
+    
+    # Multimodal & Vision-Language
+    'multimodal_learning': TechniqueCategory.MULTIMODAL_LEARNING,
+    'multimodal': TechniqueCategory.MULTIMODAL_LEARNING,
+    'vision_language_modeling': TechniqueCategory.VISION_LANGUAGE_MODELING,
+    'text_to_3d_synthesis': TechniqueCategory.TEXT_TO_3D_SYNTHESIS,
+    'text-to-3d': TechniqueCategory.TEXT_TO_3D_SYNTHESIS,
+    'semantic_segmentation': TechniqueCategory.SEMANTIC_SEGMENTATION,
+    'object_detection': TechniqueCategory.OBJECT_DETECTION,
+    'caption_generation': TechniqueCategory.VISION_LANGUAGE_MODELING,
+    'gaussian_splatting': TechniqueCategory.GAUSSIAN_SPLATTING,
+    '3d_gaussian_splatting': TechniqueCategory.GAUSSIAN_SPLATTING,
+    '3d_reconstruction': TechniqueCategory.GAUSSIAN_SPLATTING,
+    
+    # Advanced Training & Optimization
+    'contrastive_learning': TechniqueCategory.CONTRASTIVE_LEARNING,
+    'self_supervised_learning': TechniqueCategory.SELF_SUPERVISED_LEARNING,
+    'multi_task_learning': TechniqueCategory.MULTI_TASK_LEARNING,
+    'preference_optimization': TechniqueCategory.PREFERENCE_OPTIMIZATION,
+    'reward_modeling': TechniqueCategory.REWARD_MODELING,
+    'low_rank_adaptation': TechniqueCategory.LOW_RANK_ADAPTATION,
+    'lora': TechniqueCategory.LOW_RANK_ADAPTATION,
+    'multi_stage_training': TechniqueCategory.MULTI_TASK_LEARNING,
+    'two_stage_training': TechniqueCategory.MULTI_TASK_LEARNING,
+    
+    # Architecture & Attention
+    'attention_mechanisms': TechniqueCategory.ATTENTION_MECHANISMS,
+    'attention_analysis': TechniqueCategory.ATTENTION_MECHANISMS,
+    'cross_attention': TechniqueCategory.CROSS_ATTENTION,
+    'transformer_architecture': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    'memory_augmentation': TechniqueCategory.MEMORY_AUGMENTATION,
+    'attention_replacement': TechniqueCategory.ATTENTION_MECHANISMS,
+    'architectural_modification': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    
+    # Inference & Optimization
+    'inference_optimization': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    'kv_cache_optimization': TechniqueCategory.KV_CACHE_OPTIMIZATION,
+    'cache_compression': TechniqueCategory.KV_CACHE_OPTIMIZATION,
+    'approximate_attention': TechniqueCategory.APPROXIMATE_ATTENTION,
+    'dynamic_sparsification': TechniqueCategory.DYNAMIC_SPARSIFICATION,
+    'sparsity_exploitation': TechniqueCategory.DYNAMIC_SPARSIFICATION,
+    'model_parallelization': TechniqueCategory.MODEL_PARALLELIZATION,
+    'context_compression': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    'dynamic_thresholding': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    
+    # Reasoning & Decision Making
+    'self_reasoning': TechniqueCategory.SELF_REASONING,
+    'self_guided_reasoning': TechniqueCategory.SELF_REASONING,
+    'adaptive_decision_making': TechniqueCategory.ADAPTIVE_DECISION_MAKING,
+    'causal_decoding': TechniqueCategory.CAUSAL_DECODING,
+    'self_correction': TechniqueCategory.SELF_CORRECTION,
+    'self_consistency': TechniqueCategory.SELF_CORRECTION,
+    'self_reflection': TechniqueCategory.SELF_REASONING,
+    'in_context_learning': TechniqueCategory.IN_CONTEXT_LEARNING,
+    'multi_stage_reasoning': TechniqueCategory.SELF_REASONING,
+    'verifier_feedback': TechniqueCategory.SELF_CORRECTION,
+    'best_of_n_sampling': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    
+    # Safety & Alignment
+    'safety_alignment': TechniqueCategory.SAFETY_ALIGNMENT,
+    'human_preference_evaluation': TechniqueCategory.HUMAN_PREFERENCE_EVALUATION,
+    'constitutional_interpretation': TechniqueCategory.CONSTITUTIONAL_AI,
+    
+    # Data & Preprocessing
+    'data_synthesis': TechniqueCategory.DATA_SYNTHESIS,
+    'synthetic_data_generation': TechniqueCategory.SYNTHETIC_DATA_GENERATION,
+    'web_scraping': TechniqueCategory.WEB_SCRAPING,
+    'web_search_integration': TechniqueCategory.WEB_SCRAPING,
+    'document_parsing': TechniqueCategory.DOCUMENT_PARSING,
+    'text_parsing': TechniqueCategory.DOCUMENT_PARSING,
+    'multi_modal_processing': TechniqueCategory.MULTIMODAL_LEARNING,
+    'preprocessing_pipelines': TechniqueCategory.DOCUMENT_PARSING,
+    'data_preprocessing': TechniqueCategory.DOCUMENT_PARSING,
+    'data_selection': TechniqueCategory.DATA_SYNTHESIS,
+    'adaptive_masking': TechniqueCategory.SELF_SUPERVISED_LEARNING,
+    
+    # All the specific techniques from your error log
+    'representation_similarity_analysis': TechniqueCategory.CONTRASTIVE_LEARNING,
+    'spatial_reasoning': TechniqueCategory.SELF_REASONING,
+    'numerical_layout_generation': TechniqueCategory.TEXT_TO_3D_SYNTHESIS,
+    'spatio_temporal_grounding': TechniqueCategory.MULTIMODAL_LEARNING,
+    'sequential_decomposition': TechniqueCategory.SELF_REASONING,
+    'sparse_sampling': TechniqueCategory.DYNAMIC_SPARSIFICATION,
+    'grafting': TechniqueCategory.TRANSFER_LEARNING,
+    'token_interleaving': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    'foundation_models': TechniqueCategory.TRANSFER_LEARNING,
+    'rollout_replay': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'constrained_optimization': TechniqueCategory.PREFERENCE_OPTIMIZATION,
+    'primal_dual_algorithms': TechniqueCategory.PREFERENCE_OPTIMIZATION,
+    'logit_margin_flattening': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    'power_law_modeling': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    'benchmark_development': TechniqueCategory.OTHER,
+    'human_annotation': TechniqueCategory.HUMAN_PREFERENCE_EVALUATION,
+    'temporal_evaluation_metrics': TechniqueCategory.OTHER,
+    'hierarchical_action_space': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'knowledge_decomposition': TechniqueCategory.SELF_REASONING,
+    'confidence_weighting': TechniqueCategory.PREFERENCE_OPTIMIZATION,
+    'classifier_guidance': TechniqueCategory.DIFFUSION_MODELS,
+    'latent_space_optimization': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'natural_language_inference': TechniqueCategory.SELF_REASONING,
+    'neuron_encryption': TechniqueCategory.SAFETY_ALIGNMENT,
+    'selective_decryption': TechniqueCategory.SAFETY_ALIGNMENT,
+    'task_specific_neuron_extraction': TechniqueCategory.TRANSFER_LEARNING,
+    'ai_augmented_optimization': TechniqueCategory.REINFORCEMENT_LEARNING,
+    'team_simulation': TechniqueCategory.MULTI_AGENT,
+    'behavioral_modeling': TechniqueCategory.MULTI_AGENT,
+    'mcmc': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'parallel_tempering': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'neural_samplers': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'structured_decomposition': TechniqueCategory.SELF_REASONING,
+    'legal_precedent_analysis': TechniqueCategory.LEGAL_AI,
+    'policy_analysis': TechniqueCategory.LEGAL_AI,
+    'dual_state_modeling': TechniqueCategory.GAUSSIAN_SPLATTING,
+    'photometric_consistency': TechniqueCategory.GAUSSIAN_SPLATTING,
+    'search_algorithms': TechniqueCategory.ADAPTIVE_DECISION_MAKING,
+    'universal_approximation': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    'cross_modal_evaluation': TechniqueCategory.MULTIMODAL_LEARNING,
+    'memorization_quantification': TechniqueCategory.OTHER,
+    'tree_sampling': TechniqueCategory.ADAPTIVE_DECISION_MAKING,
+    'reward_optimization': TechniqueCategory.REWARD_MODELING,
+    'model_merging': TechniqueCategory.ENSEMBLE_METHODS,
+    'dynamical_systems_theory': TechniqueCategory.OTHER,
+    'morse_smale_analysis': TechniqueCategory.OTHER,
+    'gradient_flow_methods': TechniqueCategory.OTHER,
+    'neural_networks': TechniqueCategory.TRANSFORMER_ARCHITECTURE,
+    'stochastic_differential_equations': TechniqueCategory.OTHER,
+    'gumbel_softmax': TechniqueCategory.VARIATIONAL_INFERENCE,
+    'evidentiality_assessment': TechniqueCategory.SAFETY_ALIGNMENT,
+    'constrained_decoding': TechniqueCategory.INFERENCE_OPTIMIZATION,
+    'comparative_evaluation': TechniqueCategory.OTHER,
+    'multimodal_analysis': TechniqueCategory.MULTIMODAL_LEARNING,
+    'controlled_error_injection': TechniqueCategory.OTHER,
+    'mechanistic_interpretability': TechniqueCategory.OTHER,
+    'systematic_ablation': TechniqueCategory.OTHER,
+    'edge_analysis': TechniqueCategory.OTHER,
+    'prefix_tokens': TechniqueCategory.PROMPT_ENGINEERING,
+    
+    # Fallback
+    'other': TechniqueCategory.OTHER
+}
 
 class InsightExtractor:
     """
@@ -490,7 +672,7 @@ CASE STUDY SPECIFIC: Please pay special attention to:
         }
     
     def _infer_techniques_from_text(self, paper: Dict, sections: Dict) -> List[str]:
-        """Infer techniques from paper text when LLM fails."""
+        """Infer techniques from paper text when LLM fails using enhanced mapping."""
         techniques = []
         
         # Combine all text for analysis
@@ -500,21 +682,13 @@ CASE STUDY SPECIFIC: Please pay special attention to:
         
         all_text_lower = all_text.lower()
         
-        # Map keywords to technique categories
-        technique_keywords = {
-            "fine_tuning": ["fine-tun", "finetuning", "fine tun", "lora", "qlora"],
-            "retrieval_augmented_generation": ["rag", "retrieval", "retrieval-augmented"],
-            "prompt_engineering": ["prompt", "prompting", "few-shot", "zero-shot"],
-            "multi_agent": ["multi-agent", "agent", "multi agent"],
-            "chain_of_thought": ["chain-of-thought", "chain of thought", "cot"],
-            "reinforcement_learning": ["reinforcement", "rlhf", "reward"],
-        }
+        # Check against our enhanced technique mapping
+        for keyword, technique_category in TECHNIQUE_MAPPING.items():
+            if keyword in all_text_lower:
+                techniques.append(technique_category.value)
         
-        for technique, keywords in technique_keywords.items():
-            if any(keyword in all_text_lower for keyword in keywords):
-                techniques.append(technique)
-        
-        return techniques if techniques else []
+        # Remove duplicates and return unique techniques
+        return list(set(techniques)) if techniques else []
     
     def _create_insights_object(self, raw_insights: Dict, paper_id: str) -> PaperInsights:
         """Create validated PaperInsights object from raw extraction."""
@@ -556,52 +730,21 @@ CASE STUDY SPECIFIC: Please pay special attention to:
         
         # Map techniques to valid enum values
         valid_techniques = []
-        technique_mapping = {
-            'rag': TechniqueCategory.RAG,
-            'retrieval_augmented_generation': TechniqueCategory.RAG,
-            'retrieval-augmented': TechniqueCategory.RAG,
-            'fine_tuning': TechniqueCategory.FINE_TUNING,
-            'fine-tuning': TechniqueCategory.FINE_TUNING,
-            'finetuning': TechniqueCategory.FINE_TUNING,
-            'prompt_engineering': TechniqueCategory.PROMPT_ENGINEERING,
-            'prompt-engineering': TechniqueCategory.PROMPT_ENGINEERING,
-            'prompting': TechniqueCategory.PROMPT_ENGINEERING,
-            'multi_agent': TechniqueCategory.MULTI_AGENT,
-            'multi-agent': TechniqueCategory.MULTI_AGENT,
-            'multiagent': TechniqueCategory.MULTI_AGENT,
-            'chain_of_thought': TechniqueCategory.CHAIN_OF_THOUGHT,
-            'chain-of-thought': TechniqueCategory.CHAIN_OF_THOUGHT,
-            'cot': TechniqueCategory.CHAIN_OF_THOUGHT,
-            'reinforcement_learning': TechniqueCategory.REINFORCEMENT_LEARNING,
-            'reinforcement-learning': TechniqueCategory.REINFORCEMENT_LEARNING,
-            'rlhf': TechniqueCategory.REINFORCEMENT_LEARNING,
-            'few_shot_learning': TechniqueCategory.FEW_SHOT_LEARNING,
-            'few-shot': TechniqueCategory.FEW_SHOT_LEARNING,
-            'few shot': TechniqueCategory.FEW_SHOT_LEARNING,
-            'zero_shot_learning': TechniqueCategory.ZERO_SHOT_LEARNING,
-            'zero-shot': TechniqueCategory.ZERO_SHOT_LEARNING,
-            'zero shot': TechniqueCategory.ZERO_SHOT_LEARNING,
-            'transfer_learning': TechniqueCategory.TRANSFER_LEARNING,
-            'transfer-learning': TechniqueCategory.TRANSFER_LEARNING,
-            'ensemble_methods': TechniqueCategory.ENSEMBLE_METHODS,
-            'ensemble': TechniqueCategory.ENSEMBLE_METHODS,
-            'other': TechniqueCategory.OTHER
-        }
-        
         for tech in raw_insights.get('techniques_used', []):
-            tech_lower = tech.lower().replace(' ', '_')
-            if tech_lower in technique_mapping:
-                valid_techniques.append(technique_mapping[tech_lower])
+            tech_lower = tech.lower().replace(' ', '_').replace('-', '_')
+            
+            if tech_lower in TECHNIQUE_MAPPING:
+                valid_techniques.append(TECHNIQUE_MAPPING[tech_lower])
             else:
                 # Try to find partial matches
                 found = False
-                for key, value in technique_mapping.items():
+                for key, value in TECHNIQUE_MAPPING.items():
                     if key in tech_lower or tech_lower in key:
                         valid_techniques.append(value)
                         found = True
                         break
                 if not found:
-                    logger.warning(f"Unknown technique '{tech}' - mapping to OTHER")
+                    # No more warnings - just map to OTHER
                     valid_techniques.append(TechniqueCategory.OTHER)
         
         # Map complexity level

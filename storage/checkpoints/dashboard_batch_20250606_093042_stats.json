@@ -1,0 +1,35 @@
+{
+  "checkpoint_name": "dashboard_batch_20250606_093042",
+  "timestamp": "2025-06-06T14:34:13.864238",
+  "statistics": {
+    "total_processed": 5,
+    "successful": 50,
+    "failed": 0,
+    "skipped": 0,
+    "total_time": 30.490848,
+    "total_cost": 0.4000000000000003,
+    "errors": []
+  },
+  "storage_stats": {
+    "total_papers": 50,
+    "total_insights": 50,
+    "papers_with_code": 15,
+    "complexity_distribution": {
+      "high": 21,
+      "low": 1,
+      "medium": 28
+    },
+    "study_type_distribution": {
+      "case_study": 23,
+      "empirical": 22,
+      "theoretical": 4,
+      "unknown": 1
+    },
+    "average_quality_score": 0.6596000000000001,
+    "average_evidence_strength": 0.7040000000000001,
+    "average_practical_applicability": 0.7659999999999999,
+    "average_key_findings_count": 5.0,
+    "total_extraction_cost": 0.4,
+    "recent_papers_count": 165
+  }
+}
