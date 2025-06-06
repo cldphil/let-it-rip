@@ -1,0 +1,49 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04142v1",
+  "extraction_timestamp": "2025-06-06 01:32:21.666295",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Data contamination in LLM evaluation occurs when models memorize benchmark data during training, leading to overestimated performance due to parameters acquiring shortcut solutions rather than genuine understanding.",
+    "Shortcut neurons can be identified through comparative analysis between contaminated and clean models, combined with causal analysis to determine which neurons contribute to contamination-based performance gains.",
+    "Shortcut neuron patching method effectively suppresses contamination effects by selectively disabling identified shortcut neurons during evaluation, providing more trustworthy performance assessment without requiring new benchmarks.",
+    "The approach offers a cost-effective alternative to continuously building new benchmarks, as it analyzes contamination mechanisms within existing models rather than creating dynamic evaluation datasets.",
+    "This neuron-level analysis provides insights into how LLMs encode and utilize memorized information, contributing to better understanding of model interpretability and evaluation reliability in production environments."
+  ],
+  "limitations": [
+    "Method requires access to both contaminated and clean versions of models for comparative analysis",
+    "Effectiveness may vary across different model architectures and contamination types"
+  ],
+  "future_work": [
+    "Extending the approach to different types of contamination and model architectures"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "Requires both contaminated and clean model versions for comparison",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Data contamination in LLM evaluation that leads to unfair and unreliable performance assessments on public benchmarks",
+  "prerequisites": [
+    "Access to model internals",
+    "Understanding of neuron-level analysis",
+    "Contaminated and clean model pairs"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "LLM evaluation and benchmarking",
+    "Model trustworthiness assessment",
+    "Fair comparison of language models"
+  ],
+  "evidence_strength": 0.7,
+  "practical_applicability": 0.6,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04050v1",
+  "extraction_timestamp": "2025-06-06 01:34:26.631390",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Explainable AI methods (SHAP and LIME) can effectively identify tokens that make AI-generated text detectable, enabling targeted modifications to reduce detectability through four proposed token replacement strategies.",
+    "Ensemble classifier combining bert-base-multilingual-uncased, distilbert-base-multilingual-cased, and xlm-roberta-base with concatenated representations and L2 regularization maintains robust detection performance across multiple languages and domains.",
+    "Token replacement approaches can significantly diminish single classifier detection capabilities, but ensemble approaches prove more resilient to such adversarial modifications, demonstrating the arms race between generation and detection.",
+    "Multi-model ensemble approach mitigates overfitting risks by freezing pre-trained weights and leveraging complementary features from different transformer architectures, with hyperparameter optimization focused on F1 scores.",
+    "The research demonstrates practical implications for both AI text detection systems and potential misuse scenarios, highlighting the need for robust multi-model detection approaches in real-world applications."
+  ],
+  "limitations": [
+    "Token replacement strategies may degrade text quality while attempting to reduce detectability",
+    "Ensemble approach requires significantly more computational resources than single model detection"
+  ],
+  "future_work": [
+    "Development of more sophisticated token replacement strategies that maintain text quality while reducing detectability"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Multiple transformer models (BERT variants, DistilBERT, XLM-RoBERTa)",
+    "data_requirements": "AuTexTification dataset for training and evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Reducing detectability of AI-generated text while developing robust detection methods to counter such evasion techniques",
+  "prerequisites": [
+    "Access to pre-trained transformer models",
+    "SHAP and LIME explainability frameworks",
+    "Multi-language text datasets",
+    "Ensemble learning implementation capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "AI content detection systems for academic integrity",
+    "Social media platform content moderation",
+    "News and journalism authenticity verification",
+    "Legal document authenticity assessment"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

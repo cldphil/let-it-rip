@@ -1,0 +1,49 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04078v1",
+  "extraction_timestamp": "2025-06-06 01:33:40.852499",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "LLMEval-Medicine benchmark addresses critical limitations in medical LLM evaluation by incorporating 2,996 questions derived from real-world electronic health records and expert-designed clinical scenarios, moving beyond traditional multiple-choice formats to better assess complex medical reasoning.",
+    "The benchmark covers five core medical areas with physician validation, implementing an automated evaluation pipeline that incorporates expert-developed checklists into an LLM-as-Judge framework, validated through human-machine agreement analysis.",
+    "Current medical benchmarks suffer from three major limitations: question design predominantly using multiple-choice formats, data sources not derived from real clinical scenarios, and evaluation methods that poorly assess complex reasoning capabilities.",
+    "The study demonstrates that medical LLM evaluation requires high accuracy standards with little room for error, necessitating benchmarks that reflect real-world clinical decision-making scenarios rather than academic test formats.",
+    "The research establishes a methodology for validating machine scoring through human-machine agreement analysis, providing a framework for reliable automated evaluation of medical LLMs in clinical contexts."
+  ],
+  "limitations": [
+    "Limited scope to five core medical areas may not cover all clinical specialties",
+    "Dependence on electronic health records may introduce bias from specific healthcare systems"
+  ],
+  "future_work": [
+    "Expansion to additional medical specialties and clinical domains"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "2,996 clinical questions from electronic health records",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Inadequate evaluation of medical LLMs due to unrealistic benchmarks that don't reflect real clinical scenarios and complex medical reasoning requirements",
+  "prerequisites": [
+    "Access to electronic health records",
+    "Medical expert validation",
+    "Clinical domain expertise"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Medical LLM evaluation and validation",
+    "Clinical decision support system assessment",
+    "Healthcare AI quality assurance"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

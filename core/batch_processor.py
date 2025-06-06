@@ -10,7 +10,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Set
 import logging
-from concurrent.futures import ThreadPoolExecutor
 import traceback
 
 from .insight_extractor import InsightExtractor
@@ -18,6 +17,7 @@ from .insight_storage import InsightStorage
 from .insight_schema import PaperInsights, ExtractionMetadata
 
 logger = logging.getLogger(__name__)
+
 
 class BatchProcessor:
     """
@@ -198,8 +198,14 @@ class BatchProcessor:
                 # Store raw paper data
                 stored_id = self.storage.store_paper(paper)
                 
-                # Extract insights
-                insights, metadata = await self.extractor.extract_insights(paper)
+                # Extract insights synchronously (InsightExtractor is not async)
+                # Run in executor to avoid blocking
+                loop = asyncio.get_event_loop()
+                insights, metadata = await loop.run_in_executor(
+                    None, 
+                    self.extractor.extract_insights, 
+                    paper
+                )
                 
                 # Store insights
                 self.storage.store_insights(stored_id, insights, metadata)

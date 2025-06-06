@@ -1,0 +1,49 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04118v1",
+  "extraction_timestamp": "2025-06-06 01:32:54.361761",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Guided Speculative Inference (GSI) combines soft best-of-n test-time scaling with reward models and speculative sampling from smaller auxiliary models to efficiently approximate optimal reward-guided decoding policies in large language models.",
+    "GSI achieves higher accuracy than standard soft best-of-n approaches on mathematical reasoning benchmarks (MATH500, OlympiadBench, Minerva Math) while using computationally cheaper auxiliary models for speculation.",
+    "The method provides theoretical guarantees by deriving bounds on KL divergence between the induced distribution and optimal tilted policy \u03c0\u03b2,B(y|x)\u221d\u03c0B(y|x)exp(\u03b2 r(x, y)), ensuring principled approximation quality.",
+    "GSI outperforms reward-guided speculative decoding baselines and in certain settings even surpasses soft best-of-n with the primary model \u03c0B, demonstrating both efficiency and effectiveness gains.",
+    "The approach addresses the computational cost problem of scaling large language models by enabling test-time alignment through efficient reward-guided generation without requiring full model scaling."
+  ],
+  "limitations": [
+    "Limited evaluation scope focusing primarily on mathematical reasoning benchmarks rather than broader language generation tasks",
+    "Requires training and maintaining auxiliary reward models which adds complexity to the overall system"
+  ],
+  "future_work": [
+    "Extension to broader generation tasks beyond mathematical reasoning"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Primary large model plus smaller auxiliary model for speculation",
+    "data_requirements": "Training data for reward model r(x, y)",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Computational inefficiency of test-time scaling in large language models while maintaining alignment and performance quality",
+  "prerequisites": [
+    "Access to large language model",
+    "Trained reward model",
+    "Smaller auxiliary model for speculation"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Mathematical reasoning systems",
+    "Test-time model alignment",
+    "Efficient LLM inference optimization"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

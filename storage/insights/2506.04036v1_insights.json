@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04036v1",
+  "extraction_timestamp": "2025-06-06 01:34:41.418648",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Over 98.8% of 10,000 real-world custom GPTs are vulnerable to instruction leaking attacks through adversarial prompts, revealing a massive security gap in the OpenAI GPT ecosystem with over 3 million custom GPTs at risk since November 2023.",
+    "Three-phase instruction leaking attack (ILA) methodology successfully extracts proprietary instructions from GPTs with different defense levels, threatening intellectual property of developers who invest in creating custom GPT instructions.",
+    "Unwanted data access behavior by custom GPTs and integrated third-party services creates significant privacy risks for users, as GPTs can access and potentially misuse personal information without explicit consent.",
+    "Functional consistency validation through mimic GPT creation demonstrates that reconstructed instructions closely resemble original ones, proving the effectiveness of instruction extraction attacks and the inadequacy of current defense mechanisms.",
+    "The vast scale of the vulnerability (affecting nearly all tested GPTs) indicates systemic security flaws in the OpenAI platform's protection mechanisms, requiring immediate attention from both platform providers and custom GPT developers."
+  ],
+  "limitations": [
+    "Study focuses only on OpenAI GPTs and may not generalize to other LLM platforms",
+    "Limited information provided about specific defense mechanisms tested and their effectiveness"
+  ],
+  "future_work": [
+    "Development of more robust defense strategies against instruction leaking attacks",
+    "Systematic evaluation of privacy protection mechanisms for user data"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "10,000 real-world custom GPTs for testing",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Security and privacy threats in OpenAI's custom GPT ecosystem, specifically instruction leaking attacks that compromise developer intellectual property and unwanted data access that threatens user privacy",
+  "prerequisites": [
+    "Access to OpenAI GPT platform",
+    "Understanding of adversarial prompt engineering",
+    "Knowledge of LLM security vulnerabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Security assessment of custom GPT applications",
+    "Privacy risk evaluation for enterprise GPT deployments",
+    "Development of defense mechanisms for proprietary AI instructions"
+  ],
+  "evidence_strength": 0.9,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

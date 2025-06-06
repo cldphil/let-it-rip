@@ -1,0 +1,50 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04077v1",
+  "extraction_timestamp": "2025-06-06 01:33:42.567337",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "A novel three-stage data augmentation pipeline successfully addresses the scarcity of labeled speaking assessment data by using LLMs to generate diverse responses at specific proficiency levels, then converting them to synthesized speech via speaker-aware text-to-speech synthesis.",
+    "Dynamic importance loss function adaptively reweights training instances based on feature distribution differences between synthesized and real speech, effectively bridging the domain gap between artificial and authentic speaking samples.",
+    "Multimodal large language model integration of aligned textual features with speech signals enables direct proficiency score prediction, outperforming methods that rely solely on real data or conventional augmentation techniques on the LTTC dataset.",
+    "Speaker-aware text-to-speech synthesis component ensures that generated speech samples maintain realistic acoustic characteristics while preserving the linguistic diversity needed for robust model training across different proficiency levels.",
+    "The approach effectively mitigates low-resource constraints in automated speaking assessment, enabling cross-modal information processing for opinion expression evaluation with improved scoring reliability and prompt diversity."
+  ],
+  "limitations": [
+    "Limited evaluation to only the LTTC dataset, requiring validation on additional speaking assessment benchmarks",
+    "Potential quality gap between synthesized speech and natural speech recordings may affect model generalization"
+  ],
+  "future_work": [
+    "Validation on additional speaking assessment datasets and languages beyond the current evaluation scope"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Large language models and text-to-speech synthesis systems requiring significant GPU resources",
+    "data_requirements": "LTTC dataset with labeled speaking recordings for training and evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Scarcity of labeled speaking recordings for automated speaking assessment on opinion expressions, which restricts prompt diversity and undermines scoring reliability",
+  "prerequisites": [
+    "Access to large language models for response generation",
+    "Speaker-aware text-to-speech synthesis capabilities",
+    "Multimodal machine learning framework",
+    "Labeled speaking assessment dataset"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Automated language proficiency testing systems",
+    "Educational technology platforms for speaking skill assessment",
+    "Language learning applications with opinion expression evaluation"
+  ],
+  "evidence_strength": 0.7,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04172v1",
+  "extraction_timestamp": "2025-06-06 01:32:07.064235",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Token-aware data imputation method using structured group-wise CSV-style prompting significantly reduces input prompt size while maintaining or improving imputation quality, particularly effective for smaller datasets with class imbalance.",
+    "Elimination of irrelevant contextual information from input prompts improves LLM performance in data imputation tasks, demonstrating that prompt optimization is crucial for synthetic data generation quality.",
+    "In-context learning capabilities of large language models can be effectively leveraged for tabular data imputation in class-imbalanced binary classification datasets through careful prompt engineering.",
+    "The approach addresses the critical gap in LLM-based data imputation for class-imbalanced datasets with missing data by providing a practical solution that combines structured prompting with context filtering.",
+    "Prompt design has significant impact on synthetic tabular data generation quality, establishing the importance of systematic prompt optimization for LLM-based data augmentation tasks."
+  ],
+  "limitations": [
+    "Testing limited to only two class-imbalanced binary classification datasets",
+    "Effectiveness primarily demonstrated on relatively smaller datasets"
+  ],
+  "future_work": [
+    "Extension to multi-class classification problems and larger datasets"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "low",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "Class-imbalanced binary classification datasets",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Data imputation for class-imbalanced tabular datasets with missing values using large language models",
+  "prerequisites": [
+    "Access to large language models",
+    "Understanding of CSV data formatting",
+    "Knowledge of class imbalance handling"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Synthetic tabular data generation for machine learning",
+    "Data augmentation for imbalanced datasets",
+    "Missing data imputation in classification tasks"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04156v1",
+  "extraction_timestamp": "2025-06-06 01:32:24.804225",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Researchers at NIH National Library of Medicine developed ArchEHR-QA, the first expert-annotated dataset capturing patient information needs in the context of their Electronic Health Records, comprising real-world cases from ICU and emergency department settings with clinician-interpreted questions and sentence-level relevance annotations.",
+    "Three open-weight large language models (Llama 4, Llama 3, and Mixtral) were evaluated using three distinct prompting strategies: generating answers with citations to clinical note sentences, generating answers before citations, and a third approach for grounded EHR question answering benchmarking.",
+    "The dataset includes patient questions from public health forums paired with clinician-interpreted counterparts, relevant clinical note excerpts, and clinician-authored gold standard answers, enabling evaluation of both factual accuracy and relevance of AI-generated responses in healthcare contexts.",
+    "Manual review processes revealed that AI systems can provide partially correct answers but often miss critical clinical details such as antibiotic continuation, colostomy care instructions, and specific wound healing protocols, highlighting the need for more sophisticated grounding mechanisms.",
+    "The research establishes foundational benchmarks for evaluating AI systems' ability to address patient information needs using clinical evidence, with implications for developing patient-facing AI tools that can provide accurate, contextually relevant healthcare information."
+  ],
+  "limitations": [
+    "AI systems demonstrated only partial accuracy in answering patient questions, frequently missing critical clinical details like medication continuations and specific care instructions",
+    "Limited scope focusing only on ICU and emergency department settings, potentially limiting generalizability to other healthcare contexts"
+  ],
+  "future_work": [
+    "Development of more sophisticated grounding mechanisms to improve AI system accuracy in clinical question answering"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": "Multiple large language models evaluation infrastructure",
+    "data_requirements": "Expert clinician annotation for dataset creation and validation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Lack of robust datasets to evaluate AI systems' ability to answer patient information needs using clinical evidence from Electronic Health Records",
+  "prerequisites": [
+    "Access to clinical EHR data",
+    "Expert clinician annotators",
+    "Large language model infrastructure"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Patient-facing AI healthcare information systems",
+    "Clinical decision support tools",
+    "Healthcare chatbots for patient education"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

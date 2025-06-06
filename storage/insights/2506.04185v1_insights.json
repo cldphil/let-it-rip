@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04185v1",
+  "extraction_timestamp": "2025-06-06 01:31:52.582321",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "R-Search framework achieves up to 37.2% improvement on complex multi-hop QA tasks compared to Vanilla RAG and LLM without search, demonstrating significant performance gains for knowledge-intensive reasoning tasks.",
+    "The multi-reward reinforcement learning approach enables LLMs to dynamically decide when to retrieve information versus when to reason, optimizing the reasoning-search interaction trajectory through multi-stage, multi-type rewards.",
+    "R-Search shows strong generalization across both simple and complex reasoning tasks, delivering up to 4.2% gains on single-hop datasets while excelling at multi-hop questions where branching RAG methods like SuRe show performance drops.",
+    "The framework uses specific hyperparameters including KL divergence coefficient \u03b2=0.001 and fixed \u03b3e and \u03b3\u03b1 values of 0.2, providing concrete implementation guidance for practitioners.",
+    "R-Search addresses the critical challenge of suboptimal reasoning-search interaction trajectories in LLMs, enabling autonomous multi-step reasoning with deep search interaction for complex logic and knowledge-intensive tasks."
+  ],
+  "limitations": [
+    "Limited information provided about computational overhead and training time requirements",
+    "Incomplete details about the specific multi-reward signal design and optimization process"
+  ],
+  "future_work": [
+    "Extension to broader reasoning-search integration scenarios beyond QA tasks"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "reinforcement_learning"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided content",
+    "data_requirements": "Seven datasets used for evaluation",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "LLMs failing to identify optimal reasoning-search interaction trajectories, resulting in suboptimal responses for complex logic and knowledge-intensive tasks",
+  "prerequisites": [
+    "Reinforcement learning framework implementation",
+    "Multi-reward signal design capability",
+    "Access to search and retrieval systems"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Complex multi-hop question answering systems",
+    "Knowledge-intensive reasoning tasks",
+    "Deep knowledge exploration applications"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

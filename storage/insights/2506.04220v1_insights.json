@@ -1,13 +1,11 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.04220v1",
-  "extraction_timestamp": "2025-06-05 03:30:18.080496",
+  "extraction_timestamp": "2025-06-06 01:31:40.056462",
   "extraction_version": "1.0",
   "key_findings": [
-    "Extraction failed."
+    "Extraction failed - minimal insights only"
   ],
-  "limitations": [
-    "Could not process paper."
-  ],
+  "limitations": [],
   "future_work": [],
   "study_type": "unknown",
   "techniques_used": [],

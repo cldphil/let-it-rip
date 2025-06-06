@@ -174,14 +174,24 @@ class InsightStorage:
         Returns:
             Paper ID
         """
-        paper_id = paper_data.get('id', '').split('/')[-1]  # Extract arXiv ID
+        paper_id = paper_data.get('id', '').split('/')[-1]
         if not paper_id:
             paper_id = f"paper_{datetime.utcnow().timestamp()}"
         
+        # Sanitize Unicode in paper data
+        sanitized_paper = self._sanitize_unicode(paper_data)
+        
         # Store JSON file
         paper_path = self.storage_root / "papers" / f"{paper_id}.json"
-        with open(paper_path, 'w', encoding='utf-8') as f:
-            json.dump(paper_data, f, indent=2, ensure_ascii=False)
+        try:
+            with open(paper_path, 'w', encoding='utf-8') as f:
+                json.dump(sanitized_paper, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logger.error(f"Failed to store paper {paper_id}: {e}")
+            # Try again with more aggressive sanitization
+            sanitized_paper = self._sanitize_unicode(paper_data, aggressive=True)
+            with open(paper_path, 'w', encoding='utf-8') as f:
+                json.dump(sanitized_paper, f, indent=2, ensure_ascii=True)
         
         # Store metadata in SQLite
         self.metadata_conn.execute("""
@@ -190,15 +200,50 @@ class InsightStorage:
             VALUES (?, ?, ?, ?, ?)
         """, (
             paper_id,
-            paper_data.get('title', ''),
-            json.dumps(paper_data.get('authors', [])),
-            paper_data.get('published', ''),
-            json.dumps(paper_data.get('categories', []))
+            sanitized_paper.get('title', ''),
+            json.dumps(sanitized_paper.get('authors', [])),
+            sanitized_paper.get('published', ''),
+            json.dumps(sanitized_paper.get('categories', []))
         ))
         self.metadata_conn.commit()
         
-        logger.info(f"Stored paper {paper_id}: {paper_data.get('title', '')[:50]}...")
+        logger.info(f"Stored paper {paper_id}: {sanitized_paper.get('title', '')[:50]}...")
         return paper_id
+    
+    def _sanitize_unicode(self, data, aggressive=False):
+        """
+        Recursively sanitize Unicode strings in a data structure.
+        Removes or replaces invalid Unicode characters like surrogates.
+        
+        Args:
+            data: The data to sanitize
+            aggressive: If True, use more aggressive sanitization (ASCII only)
+        """
+        if isinstance(data, str):
+            if aggressive:
+                # Remove all non-ASCII characters
+                return ''.join(char if ord(char) < 128 else '?' for char in data)
+            else:
+                # Remove surrogate pairs and other problematic Unicode
+                try:
+                    # First try: encode to UTF-8 and back
+                    return data.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+                except Exception:
+                    # Second try: character-by-character cleaning
+                    cleaned = []
+                    for char in data:
+                        try:
+                            char.encode('utf-8')
+                            cleaned.append(char)
+                        except UnicodeEncodeError:
+                            cleaned.append('?')  # Replace with placeholder
+                    return ''.join(cleaned)
+        elif isinstance(data, dict):
+            return {key: self._sanitize_unicode(value, aggressive) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self._sanitize_unicode(item, aggressive) for item in data]
+        else:
+            return data
     
     def store_insights(self, paper_id: str, insights: PaperInsights, 
                       extraction_metadata: Optional[ExtractionMetadata] = None):
@@ -210,10 +255,21 @@ class InsightStorage:
             insights: Extracted insights
             extraction_metadata: Optional extraction metadata
         """
+        # Sanitize insights data before storing
+        insights_dict = insights.dict()
+        sanitized_insights = self._sanitize_unicode(insights_dict)
+        
         # Store insights JSON
         insights_path = self.storage_root / "insights" / f"{paper_id}_insights.json"
-        with open(insights_path, 'w', encoding='utf-8') as f:
-            json.dump(insights.dict(), f, indent=2, default=str)
+        try:
+            with open(insights_path, 'w', encoding='utf-8') as f:
+                json.dump(sanitized_insights, f, indent=2, default=str)
+        except Exception as e:
+            logger.error(f"Failed to store insights for {paper_id}: {e}")
+            # Try with aggressive sanitization
+            sanitized_insights = self._sanitize_unicode(insights_dict, aggressive=True)
+            with open(insights_path, 'w', encoding='utf-8') as f:
+                json.dump(sanitized_insights, f, indent=2, default=str, ensure_ascii=True)
         
         # Generate embedding from abstract and key findings for enhanced RAG
         paper_data = self.load_paper(paper_id)
@@ -226,6 +282,9 @@ class InsightStorage:
         # Also include the full searchable text from insights
         full_searchable = insights.to_searchable_text()
         combined_text = f"{searchable_text} {full_searchable}"
+        
+        # Sanitize the text before embedding
+        combined_text = self._sanitize_unicode(combined_text)
         
         embedding = self.embedder.encode([combined_text])[0]
         

@@ -1,34 +1,54 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.04202v1",
-  "extraction_timestamp": "2025-06-05 03:31:38.426633",
+  "extraction_timestamp": "2025-06-06 01:31:56.134651",
   "extraction_version": "1.0",
   "key_findings": [
-    "Extraction failed."
+    "TracLLM introduces the first generic context traceback framework for long context LLMs that can pinpoint specific texts (sentences, passages, paragraphs) in input context that contribute most to generated outputs, addressing a critical need for explainability in RAG and agent applications.",
+    "The framework implements an attribution score denoising technique that focuses on the top 20% of largest contribution scores to reduce noise from less informative text segments, significantly improving signal quality for identifying influential context portions.",
+    "An ensemble method combines contribution scores from various attribution methods by taking the maximum score as the final ensemble score, leveraging strengths of different feature attribution approaches across diverse scenarios to enhance overall performance.",
+    "The system addresses three critical real-world applications: debugging LLM-based systems, conducting post-attack forensic analysis for prompt injection and knowledge corruption attacks, and highlighting knowledge sources to enhance user trust in LLM outputs.",
+    "Theoretical analysis proves that TracLLM with Shapley can provably identify texts that lead to specific outputs under certain assumptions, providing mathematical foundation for the framework's reliability in production environments."
   ],
   "limitations": [
-    "Could not process paper."
+    "Existing feature attribution methods like Shapley have sub-optimal performance and incur large computational costs when applied to long context LLMs",
+    "The framework's performance depends on the quality of underlying attribution methods and may require ensemble approaches to achieve optimal results"
   ],
-  "future_work": [],
-  "study_type": "unknown",
-  "techniques_used": [],
-  "implementation_complexity": "unknown",
+  "future_work": [
+    "Extending the framework to handle even longer contexts and improving computational efficiency of attribution methods"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "ensemble_methods"
+  ],
+  "implementation_complexity": "medium",
   "resource_requirements": {
-    "compute_requirements": null,
-    "data_requirements": null,
+    "compute_requirements": "Not specifically mentioned but involves computational overhead for attribution scoring",
+    "data_requirements": "Long context documents, PDF files, webpages for input processing",
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "",
-  "prerequisites": [],
+  "problem_addressed": "Lack of explainability and attribution capabilities in long context LLMs - specifically identifying which parts of input context contribute to generated outputs",
+  "prerequisites": [
+    "Long context LLM deployment",
+    "Feature attribution method implementation",
+    "Context processing capabilities"
+  ],
   "comparable_approaches": [],
-  "real_world_applications": [],
-  "evidence_strength": 0.5,
-  "practical_applicability": 0.5,
-  "extraction_confidence": 0.1,
+  "real_world_applications": [
+    "Debugging LLM-based systems",
+    "Post-attack forensic analysis for prompt injection attacks",
+    "Knowledge corruption attack investigation",
+    "Highlighting knowledge sources for user trust enhancement",
+    "RAG system explainability",
+    "LLM-integrated application transparency"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.9,
+  "extraction_confidence": 0.85,
   "has_code_available": false,
   "has_dataset_available": false,
   "reproducibility_score": null,
-  "industry_validation": false
+  "industry_validation": true
 }

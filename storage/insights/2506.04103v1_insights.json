@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04103v1",
+  "extraction_timestamp": "2025-06-06 01:33:11.778090",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Established global convergence rate of O(\u03b5) between strong solutions of relaxed Euler system and porous medium equation in Rd for ill-prepared initial data, providing quantitative bounds for approximation accuracy in fluid dynamics simulations.",
+    "Achieved enhanced convergence rate of O(\u03b5\u00b2) for well-prepared initial conditions between compressible Euler system solutions and first-order asymptotic approximations, doubling the convergence speed under optimal conditions.",
+    "Proved global strong convergence of Euler-Maxwell system solutions to drift-diffusion model in R\u00b3 with O(\u03b5) rate, enabling accurate modeling of plasma physics and semiconductor device behavior with quantified error bounds.",
+    "Developed novel asymptotic expansion approach combined with stream function techniques that ensures uniform-in-time error estimates, providing robust mathematical framework for long-term stability analysis.",
+    "Extended theoretical framework to partially dissipative hyperbolic systems in classical Sobolev spaces, offering broader applicability to relaxation phenomena in blood flow modeling, gas dynamics, kinetic theory, and traffic flow systems."
+  ],
+  "limitations": [
+    "Results are purely theoretical with no computational validation or numerical experiments provided",
+    "Analysis limited to specific mathematical spaces (Sobolev spaces) which may not cover all practical scenarios"
+  ],
+  "future_work": [
+    "Numerical validation of theoretical convergence rates through computational experiments"
+  ],
+  "study_type": "theoretical",
+  "techniques_used": [],
+  "implementation_complexity": "very_high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified - theoretical analysis",
+    "data_requirements": "Not applicable - mathematical theory",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Quantifying convergence rates in relaxation limits for compressible fluid dynamics systems to enable accurate approximation of complex physical phenomena",
+  "prerequisites": [
+    "Advanced knowledge of partial differential equations",
+    "Sobolev space theory",
+    "Asymptotic analysis",
+    "Hyperbolic systems theory"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Blood flow modeling with friction forces",
+    "Non-equilibrium gas dynamics",
+    "Kinetic theory applications",
+    "Traffic flow modeling",
+    "Plasma physics simulations",
+    "Semiconductor device modeling"
+  ],
+  "evidence_strength": 0.9,
+  "practical_applicability": 0.6,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

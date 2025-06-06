@@ -1,0 +1,49 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04088v1",
+  "extraction_timestamp": "2025-06-06 01:33:12.797359",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "TURBO framework successfully bridges the gap between structured table data and visual table images by using privileged structured information during training, enabling multimodal large language models to perform complex tabular reasoning on image-based tables.",
+    "The framework leverages DeepSeek-R1 as a structure-aware reasoning trace generator to create high-quality modality-bridged training data, addressing the challenge of aligning structured information with visual representations in real-world scenarios where tables appear as images.",
+    "The approach tackles a critical real-world problem where high-quality textual representations of tables are often unavailable, and tables typically exist only as images, making traditional LLM-based tabular reasoning approaches ineffective.",
+    "The methodology involves multi-step information extraction and logical inference capabilities, transferring structured reasoning skills to MLLMs despite the input modality gap between text and visual data.",
+    "Industry collaboration between Nanjing University and Alibaba Group's AI Business unit demonstrates practical applicability and potential for large-scale deployment in commercial settings where visual table processing is essential."
+  ],
+  "limitations": [
+    "Limited information provided about specific performance metrics or quantitative improvements achieved",
+    "Incomplete methodology details regarding the exact implementation of the structure-aware reasoning trace generator"
+  ],
+  "future_work": [
+    "Further development of modality-bridged data generation techniques for enhanced visual-textual alignment"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified in provided excerpt",
+    "data_requirements": "Structured tables with corresponding visual representations for training",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Enabling tabular reasoning on image-based tables where structured textual representations are unavailable, bridging the gap between visual and structured data modalities",
+  "prerequisites": [
+    "Multimodal large language models",
+    "Access to both structured table data and corresponding visual representations",
+    "DeepSeek-R1 or similar reasoning trace generation capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Processing scanned documents containing tables",
+    "Automated analysis of financial reports and spreadsheets in image format",
+    "Document understanding systems for business intelligence"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

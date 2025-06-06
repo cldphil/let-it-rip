@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04133v1",
+  "extraction_timestamp": "2025-06-06 01:32:58.722227",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper establishes a comprehensive TRiSM framework with four core pillars (governance, explainability, ModelOps, and privacy/security) specifically designed for LLM-based agentic multi-agent systems, addressing the unique challenges of autonomous AI agents that can use tools and make decisions independently.",
+    "A novel risk taxonomy is introduced that identifies unique threat vectors specific to agentic AI systems, including agent-to-agent communication vulnerabilities, tool misuse risks, and emergent behaviors from multi-agent interactions that don't exist in traditional single-agent systems.",
+    "The research provides specific evaluation metrics across five dimensions: reliability (confidence vs. outcomes calibration, fairness indices), explainability (explanation fidelity, human interpretability ratings), user-centered metrics (satisfaction scores, goal fulfillment rates), coordination effectiveness (multi-agent task completion rates, communication overhead), and composite performance measures.",
+    "Trust-building mechanisms are contextualized for distributed LLM agent systems, including transparency techniques and oversight methods that account for the complexity of multi-agent coordination and the need for real-time monitoring of autonomous decision-making processes.",
+    "The framework addresses the scalability challenges of deploying agentic AI in enterprise and societal domains, providing structured approaches for managing the increased complexity and risk profile of systems where multiple AI agents collaborate autonomously with access to external tools and APIs."
+  ],
+  "limitations": [
+    "The paper appears to be primarily theoretical/review-based without extensive empirical validation of the proposed TRiSM framework in real-world deployments",
+    "Limited quantitative performance data or comparative analysis with existing trust and security frameworks for traditional AI systems"
+  ],
+  "future_work": [
+    "Empirical validation of the TRiSM framework across different industry verticals and use cases",
+    "Development of automated tools and platforms that implement the proposed trust, risk, and security management principles"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified - depends on scale of multi-agent deployment",
+    "data_requirements": "Not specified - framework-focused rather than data-driven",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Managing trust, risk, and security in LLM-based agentic multi-agent systems that operate autonomously with tool access and inter-agent collaboration capabilities",
+  "prerequisites": [
+    "Understanding of LLM architectures and capabilities",
+    "Multi-agent system design experience",
+    "Enterprise AI governance frameworks",
+    "Security and risk management expertise"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Enterprise decision-making systems with multiple AI agents",
+    "Autonomous business process management",
+    "Collaborative AI systems in societal domains",
+    "Tool-using AI agents in production environments"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

@@ -345,7 +345,7 @@ Paper Type: {'Case Study' if is_case_study else 'Research Paper'}
 
 {sections_text}
 
-Extract comprehensive insights in this JSON format:
+Extract comprehensive insights and return ONLY a JSON object with this exact format (no markdown, no extra text):
 {{
     "key_findings": [
         "Detailed finding 1 - Be specific about methods, results, and implications. Include quantitative improvements where mentioned.",
@@ -353,35 +353,33 @@ Extract comprehensive insights in this JSON format:
         "Detailed finding 3 - Highlight unique contributions or novel approaches. Include performance metrics if available.",
         "Detailed finding 4 - Discuss implementation details, requirements, or deployment considerations.",
         "Detailed finding 5 - Cover broader implications, lessons learned, or future directions."
-    ],  // Extract 5-10 detailed findings. Each should be 1-3 sentences focusing on ACTIONABLE insights.
-    
+    ],
     "limitations": ["Key limitation 1", "Key limitation 2"],
     "future_work": ["Future direction if mentioned"],
-    
     "study_type": "{self._infer_study_type(is_case_study, sections)}",
-    "techniques_used": ["rag", "fine_tuning", "prompt_engineering"],  // Identify specific techniques
-    
-    "implementation_complexity": "low|medium|high|very_high",
+    "techniques_used": ["rag", "fine_tuning", "prompt_engineering"],
+    "implementation_complexity": "low",
     "resource_requirements": {{
         "compute_requirements": "Specific if mentioned (e.g., '4 GPUs')",
         "data_requirements": "Specific if mentioned (e.g., '10k examples')"
     }},
-    
     "problem_addressed": "What specific problem does this solve?",
     "prerequisites": ["Technical requirements"],
     "real_world_applications": ["Specific use cases mentioned"],
-    
-    "evidence_strength": 0.7,  // 0-1, based on empirical validation
-    "practical_applicability": 0.8,  // 0-1, how ready for implementation
-    
-    "has_code_available": false,  // Look for GitHub links or code availability
+    "evidence_strength": 0.7,
+    "practical_applicability": 0.8,
+    "has_code_available": false,
     "has_dataset_available": false,
-    "industry_validation": {str(is_case_study).lower()}  // True if tested in industry
+    "industry_validation": {str(is_case_study).lower()}
 }}
 
 {self._get_case_study_instructions() if is_case_study else ''}
 
-IMPORTANT: Focus on extracting PRACTICAL, IMPLEMENTABLE insights that practitioners can use."""
+IMPORTANT: 
+1. Focus on extracting PRACTICAL, IMPLEMENTABLE insights that practitioners can use.
+2. Return ONLY the JSON object, no markdown formatting, no explanations.
+3. Ensure all JSON values are properly formatted (strings in quotes, numbers without quotes).
+4. For implementation_complexity use one of: "low", "medium", "high", "very_high"."""
 
         try:
             response = self.client.messages.create(
@@ -391,9 +389,29 @@ IMPORTANT: Focus on extracting PRACTICAL, IMPLEMENTABLE insights that practition
                 messages=[{"role": "user", "content": prompt}]
             )
             
-            result = json.loads(response.content[0].text)
+            # Extract JSON from response, handling potential markdown formatting
+            response_text = response.content[0].text
+            
+            # Try to extract JSON from markdown code blocks if present
+            import re
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
+            if json_match:
+                json_text = json_match.group(1)
+            else:
+                # Try to find JSON directly
+                json_match = re.search(r'(\{.*\})', response_text, re.DOTALL)
+                if json_match:
+                    json_text = json_match.group(1)
+                else:
+                    json_text = response_text
+            
+            result = json.loads(json_text)
             return result
             
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parsing failed: {e}")
+            logger.error(f"Response text: {response_text[:500]}...")  # Log first 500 chars
+            return self._create_fallback_insights(paper, sections, is_case_study)
         except Exception as e:
             logger.error(f"LLM extraction failed: {e}")
             return self._create_fallback_insights(paper, sections, is_case_study)
@@ -441,19 +459,62 @@ CASE STUDY SPECIFIC: Please pay special attention to:
                       ['achieve', 'improve', 'result', 'show', 'demonstrate', 'find']):
                     key_findings.append(sentence.strip() + '.')
         
+        # Add findings from sections if available
+        if sections.get('results'):
+            results_sentences = sections['results'].split('. ')[:2]
+            key_findings.extend([s.strip() + '.' for s in results_sentences if s.strip()])
+        
         if not key_findings:
             key_findings = ["Analysis of " + paper.get('title', 'research paper')]
         
+        # Ensure we have at least 5 findings (pad with generic ones if needed)
+        while len(key_findings) < 5:
+            key_findings.append(f"Additional analysis needed for finding {len(key_findings) + 1}")
+        
         return {
-            "key_findings": key_findings[:5],
-            "limitations": ["Full analysis not available"],
+            "key_findings": key_findings[:10],
+            "limitations": ["Full analysis not available due to extraction error"],
+            "future_work": [],
             "study_type": "case_study" if is_case_study else "unknown",
-            "techniques_used": [],
+            "techniques_used": self._infer_techniques_from_text(paper, sections),
             "implementation_complexity": "unknown",
+            "resource_requirements": {},
+            "problem_addressed": paper.get('title', 'Unknown problem'),
+            "prerequisites": [],
+            "real_world_applications": [],
             "evidence_strength": 0.3,
             "practical_applicability": 0.3,
+            "has_code_available": False,
+            "has_dataset_available": False,
             "industry_validation": is_case_study
         }
+    
+    def _infer_techniques_from_text(self, paper: Dict, sections: Dict) -> List[str]:
+        """Infer techniques from paper text when LLM fails."""
+        techniques = []
+        
+        # Combine all text for analysis
+        all_text = f"{paper.get('title', '')} {paper.get('summary', '')} "
+        for section_text in sections.values():
+            all_text += section_text + " "
+        
+        all_text_lower = all_text.lower()
+        
+        # Map keywords to technique categories
+        technique_keywords = {
+            "fine_tuning": ["fine-tun", "finetuning", "fine tun", "lora", "qlora"],
+            "retrieval_augmented_generation": ["rag", "retrieval", "retrieval-augmented"],
+            "prompt_engineering": ["prompt", "prompting", "few-shot", "zero-shot"],
+            "multi_agent": ["multi-agent", "agent", "multi agent"],
+            "chain_of_thought": ["chain-of-thought", "chain of thought", "cot"],
+            "reinforcement_learning": ["reinforcement", "rlhf", "reward"],
+        }
+        
+        for technique, keywords in technique_keywords.items():
+            if any(keyword in all_text_lower for keyword in keywords):
+                techniques.append(technique)
+        
+        return techniques if techniques else []
     
     def _create_insights_object(self, raw_insights: Dict, paper_id: str) -> PaperInsights:
         """Create validated PaperInsights object from raw extraction."""
@@ -464,22 +525,110 @@ CASE STUDY SPECIFIC: Please pay special attention to:
             data_requirements=resource_data.get('data_requirements')
         )
         
-        # Create insights object
+        # Map study type to valid enum value
+        study_type_mapping = {
+            'experimental': 'empirical',
+            'experiment': 'empirical',
+            'case-study': 'case_study',
+            'case study': 'case_study',
+            'field study': 'case_study',
+            'theoretical': 'theoretical',
+            'theory': 'theoretical',
+            'framework': 'theoretical',
+            'pilot': 'pilot',
+            'prototype': 'pilot',
+            'survey': 'survey',
+            'review': 'review',
+            'meta-analysis': 'meta_analysis',
+            'meta analysis': 'meta_analysis',
+            'empirical': 'empirical',
+            'case_study': 'case_study',
+            'meta_analysis': 'meta_analysis',
+            'unknown': 'unknown'
+        }
+        
+        raw_study_type = raw_insights.get('study_type', 'unknown').lower()
+        mapped_study_type = study_type_mapping.get(raw_study_type, 'unknown')
+        
+        # Log if mapping was needed
+        if raw_study_type != mapped_study_type:
+            logger.info(f"Mapped study type '{raw_study_type}' to '{mapped_study_type}'")
+        
+        # Map techniques to valid enum values
+        valid_techniques = []
+        technique_mapping = {
+            'rag': TechniqueCategory.RAG,
+            'retrieval_augmented_generation': TechniqueCategory.RAG,
+            'retrieval-augmented': TechniqueCategory.RAG,
+            'fine_tuning': TechniqueCategory.FINE_TUNING,
+            'fine-tuning': TechniqueCategory.FINE_TUNING,
+            'finetuning': TechniqueCategory.FINE_TUNING,
+            'prompt_engineering': TechniqueCategory.PROMPT_ENGINEERING,
+            'prompt-engineering': TechniqueCategory.PROMPT_ENGINEERING,
+            'prompting': TechniqueCategory.PROMPT_ENGINEERING,
+            'multi_agent': TechniqueCategory.MULTI_AGENT,
+            'multi-agent': TechniqueCategory.MULTI_AGENT,
+            'multiagent': TechniqueCategory.MULTI_AGENT,
+            'chain_of_thought': TechniqueCategory.CHAIN_OF_THOUGHT,
+            'chain-of-thought': TechniqueCategory.CHAIN_OF_THOUGHT,
+            'cot': TechniqueCategory.CHAIN_OF_THOUGHT,
+            'reinforcement_learning': TechniqueCategory.REINFORCEMENT_LEARNING,
+            'reinforcement-learning': TechniqueCategory.REINFORCEMENT_LEARNING,
+            'rlhf': TechniqueCategory.REINFORCEMENT_LEARNING,
+            'few_shot_learning': TechniqueCategory.FEW_SHOT_LEARNING,
+            'few-shot': TechniqueCategory.FEW_SHOT_LEARNING,
+            'few shot': TechniqueCategory.FEW_SHOT_LEARNING,
+            'zero_shot_learning': TechniqueCategory.ZERO_SHOT_LEARNING,
+            'zero-shot': TechniqueCategory.ZERO_SHOT_LEARNING,
+            'zero shot': TechniqueCategory.ZERO_SHOT_LEARNING,
+            'transfer_learning': TechniqueCategory.TRANSFER_LEARNING,
+            'transfer-learning': TechniqueCategory.TRANSFER_LEARNING,
+            'ensemble_methods': TechniqueCategory.ENSEMBLE_METHODS,
+            'ensemble': TechniqueCategory.ENSEMBLE_METHODS,
+            'other': TechniqueCategory.OTHER
+        }
+        
+        for tech in raw_insights.get('techniques_used', []):
+            tech_lower = tech.lower().replace(' ', '_')
+            if tech_lower in technique_mapping:
+                valid_techniques.append(technique_mapping[tech_lower])
+            else:
+                # Try to find partial matches
+                found = False
+                for key, value in technique_mapping.items():
+                    if key in tech_lower or tech_lower in key:
+                        valid_techniques.append(value)
+                        found = True
+                        break
+                if not found:
+                    logger.warning(f"Unknown technique '{tech}' - mapping to OTHER")
+                    valid_techniques.append(TechniqueCategory.OTHER)
+        
+        # Map complexity level
+        complexity_mapping = {
+            'low': ComplexityLevel.LOW,
+            'medium': ComplexityLevel.MEDIUM,
+            'high': ComplexityLevel.HIGH,
+            'very_high': ComplexityLevel.VERY_HIGH,
+            'very high': ComplexityLevel.VERY_HIGH,
+            'extreme': ComplexityLevel.VERY_HIGH,
+            'unknown': ComplexityLevel.UNKNOWN
+        }
+        
+        raw_complexity = raw_insights.get('implementation_complexity', 'unknown').lower()
+        mapped_complexity = complexity_mapping.get(raw_complexity, ComplexityLevel.UNKNOWN)
+        
+        # Create insights object with validated values
         insights = PaperInsights(
             paper_id=paper_id,
             key_findings=raw_insights.get('key_findings', [])[:10],
             limitations=raw_insights.get('limitations', []),
             future_work=raw_insights.get('future_work', []),
             
-            study_type=StudyType(raw_insights.get('study_type', 'unknown')),
-            techniques_used=[
-                TechniqueCategory(tech) for tech in raw_insights.get('techniques_used', [])
-                if tech in [e.value for e in TechniqueCategory]
-            ],
+            study_type=StudyType(mapped_study_type),
+            techniques_used=list(set(valid_techniques)),  # Remove duplicates
             
-            implementation_complexity=ComplexityLevel(
-                raw_insights.get('implementation_complexity', 'unknown')
-            ),
+            implementation_complexity=mapped_complexity,
             resource_requirements=resources,
             success_metrics=[],  # Not extracting metrics per your requirement
             
@@ -488,12 +637,12 @@ CASE STUDY SPECIFIC: Please pay special attention to:
             comparable_approaches=raw_insights.get('comparable_approaches', []),
             real_world_applications=raw_insights.get('real_world_applications', []),
             
-            evidence_strength=raw_insights.get('evidence_strength', 0.5),
-            practical_applicability=raw_insights.get('practical_applicability', 0.5),
+            evidence_strength=max(0.0, min(1.0, float(raw_insights.get('evidence_strength', 0.5)))),
+            practical_applicability=max(0.0, min(1.0, float(raw_insights.get('practical_applicability', 0.5)))),
             
-            has_code_available=raw_insights.get('has_code_available', False),
-            has_dataset_available=raw_insights.get('has_dataset_available', False),
-            industry_validation=raw_insights.get('industry_validation', False)
+            has_code_available=bool(raw_insights.get('has_code_available', False)),
+            has_dataset_available=bool(raw_insights.get('has_dataset_available', False)),
+            industry_validation=bool(raw_insights.get('industry_validation', False))
         )
         
         return insights

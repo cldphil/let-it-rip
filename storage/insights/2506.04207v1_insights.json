@@ -1,33 +1,50 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.04207v1",
-  "extraction_timestamp": "2025-06-05 03:31:03.269019",
+  "extraction_timestamp": "2025-06-06 01:31:55.067698",
   "extraction_version": "1.0",
   "key_findings": [
-    "Extraction failed."
+    "ReVisual-R1 achieves superior performance across multimodal reasoning benchmarks, with 53.6% accuracy on MathVerse, 48.8% on MathVision, and 89.2% on MATH500, outperforming existing open-source reasoning models like OpenVLThinker-7B and MM-Eureka-Qwen-7B by significant margins.",
+    "The research identifies three crucial phenomena in current multimodal training pipelines that prevent effective complex reasoning activation, suggesting that direct application of reinforcement learning from textual models like Deepseek-R1 to multimodal models is insufficient without addressing these underlying issues.",
+    "The proposed staged reinforcement learning approach with optimized cold start initialization provides a more effective training methodology for multimodal large language models compared to isolated RL application, demonstrating consistent improvements across both visual and textual reasoning tasks.",
+    "The model shows strong cross-domain generalization, performing well on both multimodal benchmarks (MathVerse, MathVision, DynaMath, WeMath, LogicVista) and pure textual reasoning tasks (AIME24, AIME25, GPQA), indicating robust reasoning capabilities that transfer across modalities.",
+    "The work provides a systematic analysis of why existing multimodal reasoning approaches fail and offers a principled solution through staged training, contributing both theoretical understanding and practical improvements to the field of multimodal AI reasoning."
   ],
   "limitations": [
-    "Could not process paper."
+    "The paper excerpt does not provide complete methodology details or comprehensive evaluation metrics",
+    "Limited information about computational requirements and training time compared to baseline methods"
   ],
-  "future_work": [],
-  "study_type": "unknown",
-  "techniques_used": [],
-  "implementation_complexity": "unknown",
+  "future_work": [
+    "Further investigation into multimodal reasoning activation mechanisms and training pipeline optimization"
+  ],
+  "study_type": "empirical",
+  "techniques_used": [
+    "reinforcement_learning"
+  ],
+  "implementation_complexity": "high",
   "resource_requirements": {
-    "compute_requirements": null,
-    "data_requirements": null,
+    "compute_requirements": "Not specified in excerpt",
+    "data_requirements": "Multiple benchmark datasets including MathVerse, MathVision, DynaMath, WeMath, LogicVista, AIME24, AIME25, GPQA, MATH500",
     "budget_tier": null,
     "special_hardware": [],
     "cloud_services": []
   },
   "success_metrics": [],
-  "problem_addressed": "",
-  "prerequisites": [],
+  "problem_addressed": "Improving complex reasoning capabilities in Multimodal Large Language Models through better training methodologies that go beyond direct application of text-based reinforcement learning approaches",
+  "prerequisites": [
+    "Understanding of multimodal large language models",
+    "Knowledge of reinforcement learning techniques",
+    "Access to multimodal reasoning benchmarks"
+  ],
   "comparable_approaches": [],
-  "real_world_applications": [],
-  "evidence_strength": 0.5,
-  "practical_applicability": 0.5,
-  "extraction_confidence": 0.1,
-  "has_code_available": false,
+  "real_world_applications": [
+    "Mathematical problem solving with visual components",
+    "Multimodal educational AI systems",
+    "Complex reasoning tasks requiring both visual and textual understanding"
+  ],
+  "evidence_strength": 0.8,
+  "practical_applicability": 0.7,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
   "has_dataset_available": false,
   "reproducibility_score": null,
   "industry_validation": false

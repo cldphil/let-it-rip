@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04089v1",
+  "extraction_timestamp": "2025-06-06 01:33:10.427455",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "AmbiK dataset provides 1000 pairs of ambiguous and unambiguous kitchen robot instructions, totaling 2000 tasks, addressing the lack of standardized benchmarks for ambiguity detection in embodied AI systems.",
+    "The dataset categorizes ambiguity into three distinct types: Human Preferences, Common Sense Knowledge, and Safety, enabling systematic evaluation of different ambiguity detection approaches.",
+    "LLM-assisted data collection combined with human validation creates a scalable methodology for generating high-quality ambiguous instruction datasets in domain-specific environments.",
+    "Each task pair includes comprehensive annotations: environment descriptions, clarifying questions and answers, user intents, and task plans, providing rich context for training and evaluation.",
+    "The fully textual nature of the dataset makes it accessible for researchers without requiring complex robotic simulation environments, lowering barriers to entry for ambiguity detection research."
+  ],
+  "limitations": [
+    "Dataset is limited to kitchen environment scenarios, potentially limiting generalizability to other domains",
+    "Reliance on LLM-assisted generation may introduce biases inherent in the underlying language models used for data creation"
+  ],
+  "future_work": [
+    "Extension to other domestic and industrial environments beyond kitchen settings"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [
+    "prompt_engineering"
+  ],
+  "implementation_complexity": "low",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "1000 ambiguous-unambiguous task pairs totaling 2000 tasks",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Lack of standardized benchmark for evaluating ambiguity detection methods in embodied AI systems, particularly for natural language instruction interpretation in robotic environments",
+  "prerequisites": [
+    "Access to LLMs for data generation",
+    "Human annotators for validation",
+    "Understanding of kitchen environment contexts"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Domestic service robots",
+    "Kitchen automation systems",
+    "Embodied AI assistants",
+    "Natural language interface for robotic systems"
+  ],
+  "evidence_strength": 0.6,
+  "practical_applicability": 0.8,
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

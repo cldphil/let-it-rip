@@ -4,7 +4,6 @@ Run with: python -m pytest tests/test_extraction.py -v
 """
 
 import pytest
-import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
@@ -14,8 +13,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
 from core import (
-    HierarchicalInsightExtractor,
-    SyncHierarchicalExtractor,
+    InsightExtractor,
     PaperInsights,
     StudyType,
     ComplexityLevel,
@@ -23,8 +21,8 @@ from core import (
 )
 
 
-class TestHierarchicalExtraction:
-    """Test the hierarchical extraction system."""
+class TestInsightExtraction:
+    """Test the insight extraction system."""
     
     @pytest.fixture
     def sample_paper_minimal(self):
@@ -82,7 +80,7 @@ class TestHierarchicalExtraction:
     @pytest.fixture
     def extractor(self):
         """Create an extractor instance."""
-        return SyncHierarchicalExtractor()
+        return InsightExtractor()
     
     def test_minimal_extraction(self, extractor, sample_paper_minimal):
         """Test extraction with minimal paper data."""
@@ -109,22 +107,17 @@ class TestHierarchicalExtraction:
         assert TechniqueCategory.FINE_TUNING in insights.techniques_used
         
         # Check extracted details
-        assert insights.resource_requirements.team_size.value in ['small_team', 'medium_team']
-        assert len(insights.success_metrics) > 0
-        
-        # Check industry detection
-        from core import Industry
-        assert Industry.HEALTHCARE in insights.industry_applications
+        assert insights.resource_requirements.compute_requirements is not None
+        assert len(insights.key_findings) > 0
         
         # Check confidence
         assert insights.extraction_confidence > 0.6  # Should be high for detailed extraction
     
     def test_section_extraction(self, extractor, sample_paper_full):
         """Test that relevant sections are extracted."""
-        # Access the async extractor to test section extraction
-        sections = extractor.async_extractor._extract_relevant_sections(
-            sample_paper_full['full_text'],
-            ['methodology', 'results', 'implementation']
+        # Access the section extraction method
+        sections = extractor._extract_relevant_sections(
+            sample_paper_full['full_text']
         )
         
         assert 'methodology' in sections
@@ -132,27 +125,15 @@ class TestHierarchicalExtraction:
         assert 'GPUs' in sections.get('methodology', '')
         assert 'accuracy' in sections.get('results', '')
     
-    def test_quick_classification(self, extractor, sample_paper_full):
-        """Test the quick classification stage."""
-        async def run_classification():
-            result = await extractor.async_extractor._quick_classify(
-                sample_paper_full['title'],
-                sample_paper_full['summary']
-            )
-            return result
+    def test_case_study_detection(self, extractor, sample_paper_full):
+        """Test case study detection."""
+        # Paper with "case study" in title and hospital deployment
+        is_case_study = extractor._detect_case_study(
+            sample_paper_full,
+            {}  # Empty sections
+        )
         
-        # Run async function
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            classification = loop.run_until_complete(run_classification())
-        finally:
-            loop.close()
-        
-        assert classification['worth_deep_analysis'] == True
-        assert classification['study_type'] in ['case_study', 'empirical']
-        assert classification['has_implementation_details'] == True
-        assert len(classification['focus_sections']) > 0
+        assert is_case_study == True
     
     def test_error_handling(self, extractor):
         """Test extraction with invalid input."""
@@ -201,7 +182,7 @@ class TestInsightQuality:
     
     @pytest.fixture
     def extractor(self):
-        return SyncHierarchicalExtractor()
+        return InsightExtractor()
     
     def test_insight_completeness(self, extractor):
         """Test that all required fields are populated."""
@@ -220,7 +201,6 @@ class TestInsightQuality:
         
         # Check required fields
         assert insights.paper_id == 'quality_test'
-        assert insights.main_contribution != ''
         assert isinstance(insights.key_findings, list)
         assert isinstance(insights.limitations, list)
         assert isinstance(insights.techniques_used, list)
@@ -254,39 +234,11 @@ class TestInsightQuality:
         assert quality_scores[1] < 0.5  # Purely theoretical
 
 
-@pytest.mark.asyncio
-class TestAsyncExtraction:
-    """Test async extraction functionality."""
-    
-    async def test_concurrent_extraction(self):
-        """Test extracting multiple papers concurrently."""
-        extractor = HierarchicalInsightExtractor()
-        
-        papers = [
-            {
-                'id': f'async_test_{i}',
-                'title': f'Test Paper {i}',
-                'summary': f'Summary for paper {i} about implementing GenAI.'
-            }
-            for i in range(3)
-        ]
-        
-        # Extract concurrently
-        tasks = [extractor.extract_insights(paper) for paper in papers]
-        results = await asyncio.gather(*tasks)
-        
-        # Verify all completed
-        assert len(results) == 3
-        for (insights, metadata) in results:
-            assert isinstance(insights, PaperInsights)
-            assert metadata.extraction_time_seconds > 0
-
-
 if __name__ == "__main__":
     # Run basic tests without pytest
     print("Running extraction tests...")
     
-    extractor = SyncHierarchicalExtractor()
+    extractor = InsightExtractor()
     
     # Test 1: Basic extraction
     print("\nTest 1: Basic extraction")

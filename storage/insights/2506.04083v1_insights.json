@@ -1,0 +1,49 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04083v1",
+  "extraction_timestamp": "2025-06-06 01:33:41.055796",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The DGAR (Deep Generative Adaptive Replay) method addresses catastrophic forgetting in temporal knowledge graph reasoning by generating historical entity distribution representations from complete historical context rather than individual facts, showing improved performance over traditional replay methods.",
+    "Historical context prompts are used as sampling units to preserve temporal semantics, addressing the limitation where existing methods reorganize individual historical facts while overlooking essential historical context for accurate semantic understanding.",
+    "An adaptive fusion mechanism with parameter \u03b1 effectively balances historical and current distribution representations, with experimental results showing varying performance improvements across different datasets based on temporal gap characteristics.",
+    "The method incorporates a guider component that captures common features between historical and current distributions to mitigate performance losses caused by distribution conflicts, with smaller performance drops observed on datasets with shorter temporal gaps like GDELT.",
+    "The approach combines Deep Adaptive Replay (DAR) and Diff-HDG components to resolve conflicts between historical and emerging facts, moving beyond simple historical fact replay to address potential contradictions in temporal knowledge evolution."
+  ],
+  "limitations": [
+    "Limited effectiveness on datasets with minimal distribution differences, as observed with GDELT dataset where adaptive parameters have restricted capacity to adjust effectively",
+    "Performance improvements vary significantly across datasets depending on temporal gap characteristics and distribution shift magnitude"
+  ],
+  "future_work": [
+    "Further optimization of adaptive fusion mechanisms for datasets with minimal temporal distribution differences"
+  ],
+  "study_type": "case_study",
+  "techniques_used": [],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": "Not specified",
+    "data_requirements": "Temporal knowledge graph datasets including GDELT",
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Catastrophic forgetting in temporal knowledge graph reasoning when models are fine-tuned with new data, specifically addressing context preservation and conflict resolution between historical and emerging facts",
+  "prerequisites": [
+    "Knowledge of temporal knowledge graphs",
+    "Understanding of continual learning frameworks",
+    "Experience with distribution adaptation techniques"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Temporal knowledge base maintenance",
+    "Dynamic knowledge graph updating",
+    "Historical data preservation in evolving knowledge systems"
+  ],
+  "evidence_strength": 0.7,
+  "practical_applicability": 0.6,
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}
