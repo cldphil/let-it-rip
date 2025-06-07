@@ -342,8 +342,8 @@ class InsightExtractor:
                 insights.total_author_hindex = total_hindex
                 insights.has_conference_mention = is_conference
                 
-                # Quality score is automatically calculated by the schema
-                logger.info(f"Calculated quality score: {insights.get_quality_score()}")
+                # Reputation score is automatically calculated by the schema
+                logger.info(f"Calculated reputation score: {insights.get_reputation_score()}")
                 
             except Exception as e:
                 logger.warning(f"Failed to fetch author metrics or conference detection: {e}")
@@ -499,7 +499,7 @@ class InsightExtractor:
                 end = min(len(text), match.end() + 800)
                 excerpt = text[start:end].strip()
                 
-                # Look for quality indicators
+                # Look for reputation indicators
                 if any(term in excerpt.lower() for term in ['results', 'performance', 'improved', 'reduced']):
                     if len(excerpt) > len(best_excerpt):
                         best_excerpt = excerpt
@@ -908,7 +908,7 @@ IMPORTANT:
             is_conference = self.semantic_scholar.detect_conference_mention(paper)
             insights.total_author_hindex = total_hindex
             insights.has_conference_mention = is_conference
-            logger.info(f"Minimal insights with quality score: {insights.get_quality_score()}")
+            logger.info(f"Minimal insights with reputation score: {insights.get_reputation_score()}")
         except Exception as e:
             logger.warning(f"Failed to fetch author metrics for minimal insights: {e}")
         

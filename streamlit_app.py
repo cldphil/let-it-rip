@@ -181,18 +181,18 @@ if page == "📊 Dashboard":
         )
     
     with col2:
-        # Quality score metric
+        # Reputation score metric
         if current_stats.get('total_insights', 0) > 0:
             st.metric(
-                "Avg Quality Score",
-                f"{current_stats['average_quality_score']:.2f}",
+                "Avg Reputation Score",
+                f"{current_stats['average_reputation_score']:.2f}",
                 help="Based on author h-index and conference validation"
             )
         else:
             st.metric(
-                "Avg Quality Score",
+                "Avg Reputation Score",
                 "N/A",
-                help="Process papers to see quality scores"
+                help="Process papers to see reputation scores"
             )
 
     with col3:
@@ -432,7 +432,7 @@ elif page == "📚 Browse Insights":
         # Updated sort options - removed deprecated fields
         sort_by = st.selectbox(
             "Sort Results By",
-            options=['quality_score', 'recency', 'key_findings_count', 'extraction_confidence'],
+            options=['reputation_score', 'recency', 'key_findings_count', 'extraction_confidence'],
             index=0,
             help="Choose how to order the results"
         )
@@ -492,7 +492,7 @@ elif page == "📚 Browse Insights":
                                     'published': paper_data.get('published', ''),
                                     'pdf_url': paper_data.get('pdf_url', ''),
                                     'insights': insights,
-                                    'quality_score': insights.get_quality_score(),
+                                    'reputation_score': insights.get_reputation_score(),
                                     'recency': paper_data.get('published', '2020'),
                                     'key_findings_count': len(insights.key_findings),
                                     'extraction_confidence': insights.extraction_confidence
@@ -566,8 +566,8 @@ elif page == "📚 Browse Insights":
                             st.markdown(f"📄 [View Full Paper PDF]({paper['pdf_url']})")
                     
                     with col2:
-                        # Updated quality metrics - removed deprecated fields
-                        st.metric("Quality Score", f"{paper['quality_score']:.2f}")
+                        # Updated reputation metrics - removed deprecated fields
+                        st.metric("Reputation Score", f"{paper['reputation_score']:.2f}")
                         st.metric("Key Findings", paper['key_findings_count'])
                         st.metric("Extraction Confidence", f"{paper['extraction_confidence']:.2f}")
                         
@@ -675,7 +675,7 @@ elif page == "🎯 Get Recommendations":
                             st.write(f"- {paper['title']}{case_tag}")
                             # Updated score components display
                             components = paper.get('components', {})
-                            st.write(f"  Quality: {components.get('quality', 0):.2f} | "
+                            st.write(f"  Reputation: {components.get('reputation', 0):.2f} | "
                                    f"Recency: {components.get('recency', 0):.2f} | "
                                    f"Case Study: {components.get('case_study', 0):.2f} | "
                                    f"Validation: {components.get('validation', 0):.2f}")
@@ -901,7 +901,7 @@ elif page == "⚙️ Settings":
         "Metric": [
             "Total Papers",
             "Total Insights",
-            "Average Quality Score",
+            "Average Reputation Score",
             "Average Key Findings Count",
             "Papers with Code",
             "Industry Validated Papers",
@@ -911,7 +911,7 @@ elif page == "⚙️ Settings":
         "Value": [
             current_stats.get('total_papers', 0),
             current_stats.get('total_insights', 0),
-            f"{current_stats.get('average_quality_score', 0):.2f}",
+            f"{current_stats.get('average_reputation_score', 0):.2f}",
             f"{current_stats.get('average_key_findings_count', 0):.1f}",
             current_stats.get('papers_with_code', 0),
             current_stats.get('industry_validated_count', 0),
@@ -932,16 +932,16 @@ elif page == "⚙️ Settings":
     - Batch Size: {Config.BATCH_SIZE}
     - Max Key Findings: {Config.MAX_KEY_FINDINGS}
     - Recency Weight: {Config.RECENCY_WEIGHT}
-    - Quality Weight: {Config.QUALITY_WEIGHT}
+    - Reputation Weight: {Config.REPUTATION_WEIGHT}
     """)
     
-    # Quality Score Information
-    st.subheader("Quality Score Information")
+    # Reputation Score Information
+    st.subheader("Reputation Score Information")
     
     st.markdown("""
     <div class="info-box">
-        <h4>Quality Score Calculation</h4>
-        <p>The quality score is automatically calculated based on:</p>
+        <h4>Reputation Score Calculation</h4>
+        <p>The reputation score is automatically calculated based on:</p>
         <ul>
             <li><strong>Author H-Index:</strong> Sum of h-indices for all paper authors</li>
             <li><strong>Conference Validation:</strong> 1.5x multiplier if published at a recognized conference</li>
@@ -963,7 +963,7 @@ elif page == "⚙️ Settings":
         <p><strong>Updates in v2.0:</strong></p>
         <ul>
             <li>Removed subjective evidence metrics</li>
-            <li>Enhanced quality scoring with author h-index</li>
+            <li>Enhanced reputation scoring with author h-index</li>
             <li>Improved case study validation</li>
             <li>Better industry validation tracking</li>
         </ul>
@@ -974,6 +974,6 @@ elif page == "⚙️ Settings":
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>© 2025 GenAI Research Platform | Enhanced with Objective Quality Metrics</p>
+    <p>© 2025 GenAI Research Platform | Enhanced with Objective Reputation Metrics</p>
 </div>
 """, unsafe_allow_html=True)

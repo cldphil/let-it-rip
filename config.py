@@ -37,22 +37,22 @@ class Config:
     RESULTS_MAX_CHARS = 600
     CONCLUSION_MAX_CHARS = 600
     
-    # Updated Quality Scoring Weights (removed deprecated evidence and applicability weights)
+    # Updated Reputation Scoring Weights (removed deprecated evidence and applicability weights)
     RECENCY_WEIGHT = 0.25  # Prioritize recent research
-    QUALITY_WEIGHT = 0.35  # Increased weight for objective quality score (author h-index + conference)
+    REPUTATION_WEIGHT = 0.35  # Increased weight for objective reputation score (author h-index + conference)
     VALIDATION_WEIGHT = 0.20  # Industry validation importance
     CASE_STUDY_WEIGHT = 0.20  # Real-world implementation evidence
-    RECENCY_DECAY_RATE = 0.1  # Quality decay per year (10%)
+    RECENCY_DECAY_RATE = 0.1  # Reputation decay per year (10%)
     
-    # Quality Score Configuration
+    # Reputation Score Configuration
     CONFERENCE_MULTIPLIER = 1.5  # Multiplier for papers with conference validation
-    QUALITY_SCORE_NORMALIZATION = 100.0  # Divisor for normalizing h-index to 0-1 range
-    MAX_QUALITY_SCORE = 1.0  # Maximum quality score cap
+    REPUTATION_SCORE_NORMALIZATION = 100.0  # Divisor for normalizing h-index to 0-1 range
+    MAX_REPUTATION_SCORE = 1.0  # Maximum reputation score cap
     
     # Author H-Index Configuration
     SEMANTIC_SCHOLAR_CACHE_DAYS = 30  # Days to cache author h-index data
     AUTHOR_HINDEX_TIMEOUT = 10  # Timeout for author lookup requests
-    MIN_HINDEX_FOR_QUALITY = 5  # Minimum h-index to consider for quality bonus
+    MIN_HINDEX_FOR_REPUTATION = 5  # Minimum h-index to consider for reputation bonus
     
     # Processing Settings
     BATCH_SIZE = 10  # Number of papers to process in each batch
@@ -180,7 +180,7 @@ class Config:
     # Ranking Algorithm Configuration (updated weights)
     RANKING_WEIGHTS = {
         'similarity': 0.30,      # Vector similarity
-        'quality': 0.25,         # Author h-index + conference validation
+        'reputation': 0.25,         # Author h-index + conference validation
         'recency': 0.20,         # Time-based relevance
         'findings_richness': 0.15,  # Number and depth of key findings
         'validation_bonus': 0.10    # Industry validation and technique match bonuses
@@ -190,7 +190,7 @@ class Config:
     MAX_PAPERS_FOR_SYNTHESIS = 25  # Maximum papers to include in synthesis
     CASE_STUDY_BONUS_THRESHOLD = 0.7  # Minimum case study score for bonus
     VALIDATION_BONUS_THRESHOLD = 0.8  # Minimum validation score for bonus
-    CONSERVATIVE_QUALITY_THRESHOLD = 0.5  # Quality threshold for conservative users
+    CONSERVATIVE_REPUTATION_THRESHOLD = 0.5  # Reputation threshold for conservative users
     
     @classmethod
     def validate_config(cls):
@@ -221,13 +221,13 @@ class Config:
         return None
     
     @classmethod
-    def get_quality_score_config(cls):
-        """Get quality score calculation configuration."""
+    def get_reputation_score_config(cls):
+        """Get reputation score calculation configuration."""
         return {
             'conference_multiplier': cls.CONFERENCE_MULTIPLIER,
-            'normalization_factor': cls.QUALITY_SCORE_NORMALIZATION,
-            'max_score': cls.MAX_QUALITY_SCORE,
-            'min_hindex_threshold': cls.MIN_HINDEX_FOR_QUALITY
+            'normalization_factor': cls.REPUTATION_SCORE_NORMALIZATION,
+            'max_score': cls.MAX_REPUTATION_SCORE,
+            'min_hindex_threshold': cls.MIN_HINDEX_FOR_REPUTATION
         }
     
     @classmethod
@@ -238,7 +238,7 @@ class Config:
             'recency_decay_rate': cls.RECENCY_DECAY_RATE,
             'case_study_bonus_threshold': cls.CASE_STUDY_BONUS_THRESHOLD,
             'validation_bonus_threshold': cls.VALIDATION_BONUS_THRESHOLD,
-            'conservative_quality_threshold': cls.CONSERVATIVE_QUALITY_THRESHOLD
+            'conservative_reputation_threshold': cls.CONSERVATIVE_REPUTATION_THRESHOLD
         }
     
     @classmethod

@@ -1,6 +1,6 @@
 """
 Detailed test of the extraction system to verify it's working correctly.
-Updated to test new quality score calculation and remove deprecated field tests.
+Updated to test new reputation score calculation and remove deprecated field tests.
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ def test_detailed_extraction():
     # Create extractor
     extractor = InsightExtractor()
     
-    # Test paper with more content and known authors for quality score testing
+    # Test paper with more content and known authors for reputation score testing
     test_paper = {
         'id': 'arxiv:2401.12345',
         'title': 'Implementing RAG for Enterprise Customer Service: A Case Study at Fortune 500 Company',
@@ -49,18 +49,18 @@ def test_detailed_extraction():
     print(f"Complexity: {insights.implementation_complexity.value}")
     print(f"Confidence: {insights.extraction_confidence:.2f}")
     
-    # Test new quality score calculation
+    # Test new reputation score calculation
     print(f"\n=== Quality Score Analysis ===")
     print(f"Total Author H-Index: {insights.total_author_hindex}")
     print(f"Conference Mention Detected: {insights.has_conference_mention}")
-    print(f"Calculated Quality Score: {insights.get_quality_score():.3f}")
+    print(f"Calculated Quality Score: {insights.get_reputation_score():.3f}")
     
-    # Verify quality score calculation manually
-    expected_quality = insights.total_author_hindex * (1.5 if insights.has_conference_mention else 1.0) / 100.0
-    expected_quality = min(1.0, expected_quality)
-    print(f"Expected Quality Score: {expected_quality:.3f}")
+    # Verify reputation score calculation manually
+    expected_reputation = insights.total_author_hindex * (1.5 if insights.has_conference_mention else 1.0) / 100.0
+    expected_reputation = min(1.0, expected_reputation)
+    print(f"Expected Quality Score: {expected_reputation:.3f}")
     
-    if abs(insights.get_quality_score() - expected_quality) < 0.001:
+    if abs(insights.get_reputation_score() - expected_reputation) < 0.001:
         print("✓ Quality score calculation is correct")
     else:
         print("✗ Quality score calculation mismatch")
@@ -120,14 +120,14 @@ def test_minimal_paper():
     print(f"  Complexity: {insights.implementation_complexity.value}")
     print(f"  Confidence: {insights.extraction_confidence:.2f}")
     print(f"  Techniques found: {len(insights.techniques_used)}")
-    print(f"  Quality Score: {insights.get_quality_score():.3f}")
+    print(f"  Quality Score: {insights.get_reputation_score():.3f}")
     print(f"  Total Author H-Index: {insights.total_author_hindex}")
     print(f"  Conference Detected: {insights.has_conference_mention}")
     
     return insights, metadata
 
-def test_quality_score_variations():
-    """Test quality score calculation with different scenarios."""
+def test_reputation_score_variations():
+    """Test reputation score calculation with different scenarios."""
     print("\n\n=== Testing Quality Score Variations ===")
     
     extractor = InsightExtractor()
@@ -137,34 +137,34 @@ def test_quality_score_variations():
         {
             'name': 'High H-Index Authors with Conference',
             'paper': {
-                'id': 'test_high_quality',
+                'id': 'test_high_reputation',
                 'title': 'Advanced AI Research Published at ICML',
                 'authors': ['Geoffrey Hinton', 'Yann LeCun', 'Yoshua Bengio'],
                 'summary': 'Advanced research accepted at ICML 2024.',
                 'comments': 'Accepted at ICML 2024'
             },
-            'expected_high_quality': True
+            'expected_high_reputation': True
         },
         {
             'name': 'Unknown Authors without Conference',
             'paper': {
-                'id': 'test_low_quality',
+                'id': 'test_low_reputation',
                 'title': 'Simple Experiment with Basic Methods',
                 'authors': ['Unknown Researcher', 'Another Unknown'],
                 'summary': 'Basic experiment with standard methods.'
             },
-            'expected_high_quality': False
+            'expected_high_reputation': False
         },
         {
             'name': 'Mixed Authors with Conference',
             'paper': {
-                'id': 'test_mixed_quality',
+                'id': 'test_mixed_reputation',
                 'title': 'Novel Approach Presented at NeurIPS Workshop',
                 'authors': ['Geoffrey Hinton', 'Unknown Researcher'],
                 'summary': 'Novel approach presented at NeurIPS workshop.',
                 'comments': 'Workshop paper at NeurIPS'
             },
-            'expected_high_quality': True  # Should benefit from conference bonus
+            'expected_high_reputation': True  # Should benefit from conference bonus
         }
     ]
     
@@ -172,8 +172,8 @@ def test_quality_score_variations():
         print(f"\n--- {test_case['name']} ---")
         insights, metadata = extractor.extract_insights(test_case['paper'])
         
-        quality_score = insights.get_quality_score()
-        print(f"Quality Score: {quality_score:.3f}")
+        reputation_score = insights.get_reputation_score()
+        print(f"Quality Score: {reputation_score:.3f}")
         print(f"Author H-Index Total: {insights.total_author_hindex}")
         print(f"Conference Detected: {insights.has_conference_mention}")
         
@@ -182,14 +182,14 @@ def test_quality_score_variations():
         expected_score = min(1.0, expected_score)
         print(f"Expected Score: {expected_score:.3f}")
         
-        if abs(quality_score - expected_score) < 0.001:
+        if abs(reputation_score - expected_score) < 0.001:
             print("✓ Quality calculation correct")
         else:
             print("✗ Quality calculation error")
         
         # Check if expectation matches
-        is_high_quality = quality_score > 0.3  # Threshold for "high quality"
-        if is_high_quality == test_case['expected_high_quality']:
+        is_high_reputation = reputation_score > 0.3  # Threshold for "high reputation"
+        if is_high_reputation == test_case['expected_high_reputation']:
             print("✓ Quality expectation met")
         else:
             print("✗ Quality expectation not met")
@@ -231,10 +231,10 @@ def test_field_removal():
         else:
             print(f"✗ FAIL: New field '{field}' not found")
     
-    # Test that quality score method works
+    # Test that reputation score method works
     try:
-        quality_score = insights.get_quality_score()
-        print(f"\n✓ Quality score method works: {quality_score:.3f}")
+        reputation_score = insights.get_reputation_score()
+        print(f"\n✓ Quality score method works: {reputation_score:.3f}")
     except Exception as e:
         print(f"\n✗ Quality score method failed: {e}")
 
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         test_minimal_paper()
         
         # Quality score variation tests
-        test_quality_score_variations()
+        test_reputation_score_variations()
         
         # Field removal verification
         test_field_removal()

@@ -117,7 +117,7 @@ class InsightStorage:
                 study_type TEXT,
                 complexity TEXT,
                 techniques TEXT,
-                quality_score REAL,
+                reputation_score REAL,
                 extraction_confidence REAL,
                 has_code BOOLEAN,
                 has_dataset BOOLEAN,
@@ -139,7 +139,7 @@ class InsightStorage:
                 FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
             );
             
-            CREATE INDEX IF NOT EXISTS idx_insights_quality ON insights(quality_score DESC);
+            CREATE INDEX IF NOT EXISTS idx_insights_reputation ON insights(reputation_score DESC);
             CREATE INDEX IF NOT EXISTS idx_insights_complexity ON insights(complexity);
             CREATE INDEX IF NOT EXISTS idx_insights_study_type ON insights(study_type);
             CREATE INDEX IF NOT EXISTS idx_insights_industry_validation ON insights(industry_validation);
@@ -294,7 +294,7 @@ class InsightStorage:
                 "study_type": insights.study_type.value,
                 "complexity": insights.implementation_complexity.value,
                 "techniques": ", ".join(t.value for t in insights.techniques_used),
-                "quality_score": insights.get_quality_score(),
+                "reputation_score": insights.get_reputation_score(),
                 "key_findings_count": len(insights.key_findings),
                 "has_code": insights.has_code_available,
                 "has_dataset": insights.has_dataset_available,
@@ -308,7 +308,7 @@ class InsightStorage:
         self.metadata_conn.execute("""
             INSERT OR REPLACE INTO insights 
             (paper_id, study_type, complexity, techniques, 
-             quality_score, extraction_confidence, 
+             reputation_score, extraction_confidence, 
              has_code, has_dataset, key_findings_count, industry_validation, extraction_timestamp)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -316,7 +316,7 @@ class InsightStorage:
             insights.study_type.value,
             insights.implementation_complexity.value,
             json.dumps([t.value for t in insights.techniques_used]),
-            insights.get_quality_score(),
+            insights.get_reputation_score(),
             insights.extraction_confidence,
             insights.has_code_available,
             insights.has_dataset_available,
@@ -365,7 +365,7 @@ class InsightStorage:
             n_results: Number of results to return
             
         Returns:
-            List of paper insights with similarity scores, prioritized by quality, recency, and relevance
+            List of paper insights with similarity scores, prioritized by reputation, recency, and relevance
         """
         # Generate query embedding from user context
         query_text = user_context.to_search_query()
@@ -438,7 +438,7 @@ class InsightStorage:
         
         New formula emphasizes:
         - Vector similarity (30%)
-        - Quality score (25%) 
+        - Reputation score (25%) 
         - Recency (20%)
         - Key findings richness (15%)
         - Technique relevance and risk alignment (10%)
@@ -450,8 +450,8 @@ class InsightStorage:
         # Recency score (more recent = higher score)
         recency_score = max(0, 1.0 - (current_year - pub_year) * 0.1)  # 10% decay per year
         
-        # Quality score from insights
-        quality_score = insights.get_quality_score()
+        # Reputation score from insights
+        reputation_score = insights.get_reputation_score()
         
         # Key findings richness (more detailed findings = higher score)
         findings_score = min(1.0, len(insights.key_findings) / 8.0)  # Normalize to max 8 findings
@@ -470,7 +470,7 @@ class InsightStorage:
             # Prioritize case studies and industry validation for conservative users
             if insights.study_type.value == "case_study" and insights.industry_validation:
                 risk_bonus = 0.1
-            elif quality_score > 0.7:  # High quality papers
+            elif reputation_score > 0.7:  # High reputation papers
                 risk_bonus = 0.05
         elif user_context.risk_tolerance == "aggressive":
             # Prioritize low complexity for aggressive/fast implementation
@@ -487,7 +487,7 @@ class InsightStorage:
         # Updated weighted combination
         final_score = (
             similarity_score * 0.30 +        # Vector similarity (increased weight)
-            quality_score * 0.25 +           # Quality score (maintained)
+            reputation_score * 0.25 +           # Reputation score (maintained)
             recency_score * 0.20 +           # Recency (maintained)
             findings_score * 0.15 +          # Key findings richness (increased)
             technique_bonus +                # Technique preference bonus
@@ -508,8 +508,8 @@ class InsightStorage:
         
         # Risk tolerance constraints
         if user_context.risk_tolerance == "conservative":
-            # For conservative users, prefer validated studies or high quality
-            if not insights.industry_validation and insights.get_quality_score() < 0.5:
+            # For conservative users, prefer validated studies or high reputation
+            if not insights.industry_validation and insights.get_reputation_score() < 0.5:
                 return False
         
         # Budget constraint via complexity
@@ -549,7 +549,7 @@ class InsightStorage:
             'papers_with_code': 0,
             'complexity_distribution': {},
             'study_type_distribution': {},
-            'average_quality_score': 0.0,
+            'average_reputation_score': 0.0,
             'average_key_findings_count': 0.0,
             'recent_papers_count': 0,  # Papers from last 2 years
             'industry_validated_count': 0,  # Count of industry validated papers
@@ -568,7 +568,7 @@ class InsightStorage:
             return stats
         
         # Aggregate metrics from JSON files
-        total_quality = 0.0
+        total_reputation = 0.0
         total_findings = 0
         
         complexity_counts = {}
@@ -582,12 +582,12 @@ class InsightStorage:
                 with open(insight_file, 'r', encoding='utf-8') as f:
                     insight_data = json.load(f)
                 
-                # Create PaperInsights object for quality score calculation
+                # Create PaperInsights object for reputation score calculation
                 insights = PaperInsights(**insight_data)
                 
                 # Update metrics
-                quality_score = insights.get_quality_score()
-                total_quality += quality_score
+                reputation_score = insights.get_reputation_score()
+                total_reputation += reputation_score
                 total_findings += len(insights.key_findings)
                 
                 # Count code availability
@@ -626,7 +626,7 @@ class InsightStorage:
         
         # Calculate averages
         if stats['total_insights'] > 0:
-            stats['average_quality_score'] = round(total_quality / stats['total_insights'], 2)
+            stats['average_reputation_score'] = round(total_reputation / stats['total_insights'], 2)
             stats['average_key_findings_count'] = round(total_findings / stats['total_insights'], 1)
         
         # Set distributions

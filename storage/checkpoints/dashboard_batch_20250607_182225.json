@@ -1,0 +1,16 @@
+{
+  "processed_ids": [
+    "2506.05344v1",
+    "2506.05350v1"
+  ],
+  "timestamp": "2025-06-07T23:22:36.493992",
+  "stats": {
+    "total_processed": 0,
+    "successful": 2,
+    "failed": 0,
+    "skipped": 0,
+    "total_time": 0.0,
+    "total_cost": 0.016,
+    "errors": []
+  }
+}

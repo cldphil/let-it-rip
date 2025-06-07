@@ -294,7 +294,7 @@ def main():
             
             print(f"\n=== ENHANCED STATISTICS ===")
             print(f"Total papers in storage: {storage_stats['total_papers']}")
-            print(f"Average quality score: {storage_stats['average_quality_score']:.2f}")
+            print(f"Average reputation score: {storage_stats['average_reputation_score']:.2f}")
             print(f"Average key findings per paper: {storage_stats['average_key_findings_count']:.1f}")
             print(f"Recent papers (last 2 years): {storage_stats['recent_papers_count']}")
             

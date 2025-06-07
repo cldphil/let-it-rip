@@ -63,7 +63,7 @@ class SynthesisEngine:
         
         logger.info(f"Retrieved {len(relevant_papers)} relevant papers for analysis")
         
-        # Step 2: Rerank papers using enhanced quality metrics
+        # Step 2: Rerank papers using enhanced reputation metrics
         reranked_papers = self._rerank_papers(relevant_papers)
         
         # Step 3: Select top papers for synthesis (cap at 25 for context window)
@@ -85,7 +85,7 @@ class SynthesisEngine:
     def _rerank_papers(self, papers: List[Dict]) -> List[Dict]:
         """
         New formula: 
-        final_score = 0.35 * quality + 0.25 * recency + 0.20 * case_study_bonus + 0.20 * validation_bonus
+        final_score = 0.35 * reputation + 0.25 * recency + 0.20 * case_study_bonus + 0.20 * validation_bonus
         """
         current_year = datetime.now().year
         
@@ -120,12 +120,12 @@ class SynthesisEngine:
                 if insights.study_type == StudyType.CASE_STUDY and len(insights.key_findings) >= 5:
                     validation_score = 1.0
             
-            # Quality score from insights (already includes author h-index and conference validation)
-            quality_score = insights.get_quality_score()
+            # Reputation score from insights (already includes author h-index and conference validation)
+            reputation_score = insights.get_reputation_score()
             
             # Calculate final reranking score with updated algorithm
             paper_data['rerank_score'] = (
-                0.35 * quality_score +          # Quality (includes author h-index, conference)
+                0.35 * reputation_score +          # Reputation (includes author h-index, conference)
                 0.25 * recency_score +          # Recency (recent research prioritized)
                 0.20 * case_study_score +       # Case study implementation bonus
                 0.20 * validation_score         # Industry validation bonus
@@ -133,7 +133,7 @@ class SynthesisEngine:
             
             # Store components for transparency
             paper_data['score_components'] = {
-                'quality': quality_score,
+                'reputation': reputation_score,
                 'recency': recency_score,
                 'case_study': case_study_score,
                 'validation': validation_score
@@ -226,7 +226,7 @@ class SynthesisEngine:
                 'approach': primary_approach,
                 'findings': key_findings_text,
                 'limitations': '; '.join(insights.limitations[:2]) if insights.limitations else "Not specified",
-                'quality_score': insights.get_quality_score(),
+                'reputation_score': insights.get_reputation_score(),
                 'complexity': insights.implementation_complexity.value,
                 'published_year': self._extract_year(paper_info),
                 'is_case_study': insights.study_type == StudyType.CASE_STUDY,
@@ -330,7 +330,7 @@ class SynthesisEngine:
    Approach: {summary['approach']}
    Key Findings: {summary['findings']}
    Limitations: {summary['limitations']}
-   Quality Score: {summary['quality_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Reputation Score: {summary['reputation_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
    Key Findings Count: {summary['key_findings_count']} | Study Type: {summary['study_type']}
 """
 
@@ -344,7 +344,7 @@ class SynthesisEngine:
 {summary['rank']}. {code_tag}{summary['title']}
    Approach: {summary['approach']}
    Key Findings: {summary['findings']}
-   Quality Score: {summary['quality_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Reputation Score: {summary['reputation_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
    Study Type: {summary['study_type']} | Key Findings: {summary['key_findings_count']}
 """
 
@@ -403,7 +403,7 @@ Please provide a strategic recommendation following this structure:
 
 IMPORTANT: 
 - Give strong preference to recommendations backed by real-world case studies, especially industry-validated ones
-- Focus on quality scores (which include author credibility and conference validation) rather than subjective metrics
+- Focus on reputation scores (which include author credibility and conference validation) rather than subjective metrics
 - Consider the number and depth of key findings as indicators of research thoroughness
 - If no relevant case studies exist, note this as a consideration and recommend pilot approaches
 
@@ -568,13 +568,13 @@ Format as a comparison matrix that helps the client make an informed decision.""
                     approaches[technique.value] = {
                         'count': 0,
                         'case_studies': 0,
-                        'avg_quality': 0,
+                        'avg_reputation': 0,
                         'complexities': [],
                         'validated_cases': []
                     }
                 
                 approaches[technique.value]['count'] += 1
-                approaches[technique.value]['avg_quality'] += insights.get_quality_score()
+                approaches[technique.value]['avg_reputation'] += insights.get_reputation_score()
                 approaches[technique.value]['complexities'].append(
                     insights.implementation_complexity.value
                 )
@@ -590,7 +590,7 @@ Format as a comparison matrix that helps the client make an informed decision.""
         # Calculate averages
         for approach_data in approaches.values():
             if approach_data['count'] > 0:
-                approach_data['avg_quality'] /= approach_data['count']
+                approach_data['avg_reputation'] /= approach_data['count']
         
         return approaches
     
@@ -609,7 +609,7 @@ Format as a comparison matrix that helps the client make an informed decision.""
             approach_name = approach.replace('_', ' ').title()
             summary += f"**{approach_name}**\n"
             summary += f"- Papers: {data['count']} (including {data['case_studies']} case studies)\n"
-            summary += f"- Avg Quality Score: {data['avg_quality']:.2f}\n"
+            summary += f"- Avg Reputation Score: {data['avg_reputation']:.2f}\n"
             
             if data['validated_cases']:
                 summary += f"- Industry Validated Cases:\n"
@@ -678,10 +678,10 @@ Based on analysis of {len(papers)} research papers (including {len(case_studies)
             avg_score = data['total_score'] / data['count'] if data['count'] > 0 else 0
             approach_name = approach.replace('_', ' ').title()
             fallback_text += f"**{approach_name}**\n"
-            fallback_text += f"- Found in {data['count']} high-quality papers"
+            fallback_text += f"- Found in {data['count']} high-reputation papers"
             if data['case_study_count'] > 0:
                 fallback_text += f" (including {data['case_study_count']} case studies)"
-            fallback_text += f"\n- Average quality score: {avg_score:.2f}\n\n"
+            fallback_text += f"\n- Average reputation score: {avg_score:.2f}\n\n"
         
         if case_studies:
             fallback_text += f"""## Notable Case Studies

@@ -169,7 +169,7 @@ class PaperInsights(BaseModel):
         description="Specific real-world use cases mentioned"
     )
     
-    # New quality indicators
+    # New reputation indicators
     total_author_hindex: int = Field(
         default=0,
         description="Sum of h-indices for all authors"
@@ -219,11 +219,11 @@ class PaperInsights(BaseModel):
         
         return " ".join(filter(None, parts))
     
-    def get_quality_score(self) -> float:
+    def get_reputation_score(self) -> float:
         """
-        Calculate quality score based on author h-index and conference mention.
+        Calculate reputation score based on author h-index and conference mention.
         
-        Formula: quality_score = (total_author_hindex * conference_multiplier) / 100
+        Formula: reputation_score = (total_author_hindex * conference_multiplier) / 100
         where conference_multiplier is 1.5 if conference mentioned, 1.0 otherwise.
         
         Normalized to 0-1 range by dividing by 100 (assuming max reasonable total h-index of ~100).
@@ -232,9 +232,9 @@ class PaperInsights(BaseModel):
         raw_score = self.total_author_hindex * conference_multiplier
         
         # Normalize to 0-1 range (cap at 1.0)
-        quality_score = min(1.0, raw_score / 100.0)
+        reputation_score = min(1.0, raw_score / 100.0)
         
-        return quality_score
+        return reputation_score
 
 
 class UserContext(BaseModel):
@@ -293,7 +293,7 @@ class ExtractionMetadata(BaseModel):
     tokens_used: Optional[int] = None
     api_calls_made: int = 1
     
-    # Quality metrics
+    # Reputation metrics
     sections_found: Dict[str, bool] = Field(default_factory=dict)
     section_lengths: Dict[str, int] = Field(default_factory=dict)
     extraction_errors: List[str] = Field(default_factory=list)
