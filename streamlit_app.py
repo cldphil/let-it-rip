@@ -168,8 +168,7 @@ if page == "📊 Dashboard":
     with col1:
         st.metric(
             "Total Papers",
-            current_stats['total_papers'],
-            delta=f"{current_stats.get('total_insights', 0)} with insights" if current_stats.get('total_insights', 0) > 0 else None
+            current_stats['total_papers']
         )
     
     with col2:

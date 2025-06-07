@@ -527,7 +527,10 @@ class InsightStorage:
             return json.load(f)
     
     def get_statistics(self) -> Dict:
-        """Get enhanced storage statistics."""
+        """
+        Get enhanced storage statistics by reading directly from JSON files.
+        This ensures statistics are always up-to-date and accurate.
+        """
         stats = {
             'total_papers': 0,
             'total_insights': 0,
@@ -541,61 +544,80 @@ class InsightStorage:
             'recent_papers_count': 0  # Papers from last 2 years
         }
         
-        # Count files
-        stats['total_papers'] = len(list((self.storage_root / "papers").glob("*.json")))
+        # Count paper files
+        paper_files = list((self.storage_root / "papers").glob("*.json"))
+        stats['total_papers'] = len(paper_files)
         
-        # Get distributions and enhanced metrics from SQLite
-        cursor = self.metadata_conn.cursor()
+        # Process insights files directly
+        insights_files = list((self.storage_root / "insights").glob("*_insights.json"))
+        stats['total_insights'] = len(insights_files)
         
-        # Complexity distribution
-        cursor.execute("""
-            SELECT complexity, COUNT(*) as count 
-            FROM insights 
-            GROUP BY complexity
-        """)
-        stats['complexity_distribution'] = dict(cursor.fetchall())
+        if stats['total_insights'] == 0:
+            return stats
         
-        # Study type distribution
-        cursor.execute("""
-            SELECT study_type, COUNT(*) as count 
-            FROM insights 
-            GROUP BY study_type
-        """)
-        stats['study_type_distribution'] = dict(cursor.fetchall())
+        # Aggregate metrics from JSON files
+        total_quality = 0.0
+        total_evidence = 0.0
+        total_applicability = 0.0
+        total_findings = 0
         
-        # Enhanced quality metrics
-        cursor.execute("""
-            SELECT 
-                AVG(quality_score) as avg_quality,
-                AVG(evidence_strength) as avg_evidence,
-                AVG(practical_applicability) as avg_applicability,
-                AVG(key_findings_count) as avg_findings,
-                SUM(CASE WHEN has_code THEN 1 ELSE 0 END) as with_code,
-                COUNT(*) as total_insights
-            FROM insights
-        """)
-        result = cursor.fetchone()
-        if result and result['total_insights'] > 0:
-            stats['average_quality_score'] = round(result['avg_quality'] or 0.0, 2)
-            stats['average_evidence_strength'] = round(result['avg_evidence'] or 0.0, 2)
-            stats['average_practical_applicability'] = round(result['avg_applicability'] or 0.0, 2)
-            stats['average_key_findings_count'] = round(result['avg_findings'] or 0.0, 1)
-            stats['papers_with_code'] = result['with_code'] or 0
-            stats['total_insights'] = result['total_insights']
-        else:
-            # No insights yet - keep defaults at 0.0
-            stats['total_insights'] = 0
+        complexity_counts = {}
+        study_type_counts = {}
         
-        # Recent papers count (last 2 years)
         current_year = datetime.now().year
-        cursor.execute("""
-            SELECT COUNT(*) as recent_count
-            FROM papers 
-            WHERE published_date >= ?
-        """, (f"{current_year - 2}-01-01",))
-        result = cursor.fetchone()
-        if result:
-            stats['recent_papers_count'] = result['recent_count'] or 0
+        
+        for insight_file in insights_files:
+            try:
+                # Load insights
+                with open(insight_file, 'r', encoding='utf-8') as f:
+                    insight_data = json.load(f)
+                
+                # Create PaperInsights object for quality score calculation
+                insights = PaperInsights(**insight_data)
+                
+                # Update metrics
+                quality_score = insights.get_quality_score()
+                total_quality += quality_score
+                total_evidence += insights.evidence_strength
+                total_applicability += insights.practical_applicability
+                total_findings += len(insights.key_findings)
+                
+                # Count code availability
+                if insights.has_code_available:
+                    stats['papers_with_code'] += 1
+                
+                # Update distributions
+                complexity = insights.implementation_complexity.value
+                complexity_counts[complexity] = complexity_counts.get(complexity, 0) + 1
+                
+                study_type = insights.study_type.value
+                study_type_counts[study_type] = study_type_counts.get(study_type, 0) + 1
+                
+                # Check if paper is recent
+                paper_id = insight_file.stem.replace("_insights", "")
+                paper_data = self.load_paper(paper_id)
+                if paper_data and paper_data.get('published'):
+                    try:
+                        pub_year = int(paper_data['published'][:4])
+                        if pub_year >= current_year - 2:
+                            stats['recent_papers_count'] += 1
+                    except:
+                        pass
+                        
+            except Exception as e:
+                logger.warning(f"Error processing insights file {insight_file}: {e}")
+                continue
+        
+        # Calculate averages
+        if stats['total_insights'] > 0:
+            stats['average_quality_score'] = round(total_quality / stats['total_insights'], 2)
+            stats['average_evidence_strength'] = round(total_evidence / stats['total_insights'], 2)
+            stats['average_practical_applicability'] = round(total_applicability / stats['total_insights'], 2)
+            stats['average_key_findings_count'] = round(total_findings / stats['total_insights'], 1)
+        
+        # Set distributions
+        stats['complexity_distribution'] = complexity_counts
+        stats['study_type_distribution'] = study_type_counts
         
         return stats
     
