@@ -20,7 +20,7 @@ from core import (
     TechniqueCategory,
     ComplexityLevel
 )
-from arxiv_fetcher import ArxivGenAIFetcher
+from core.arxiv_fetcher import ArxivGenAIFetcher
 from config import Config
 
 # Page configuration
@@ -221,11 +221,11 @@ if page == "📊 Dashboard":
     with col1:
         # Complexity distribution
         if current_stats['complexity_distribution']:
-            fig_complexity = px.pie(
-                values=list(current_stats['complexity_distribution'].values()),
-                names=list(current_stats['complexity_distribution'].keys()),
+            fig_complexity = px.bar(
+                x=list(current_stats['complexity_distribution'].keys()),
+                y=list(current_stats['complexity_distribution'].values()),
                 title="Implementation Complexity",
-                color_discrete_sequence=px.colors.qualitative.Set3
+                color_discrete_sequence=['#0066FF']
             )
             st.plotly_chart(fig_complexity, use_container_width=True)
     

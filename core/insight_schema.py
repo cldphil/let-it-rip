@@ -8,7 +8,6 @@ from enum import Enum
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 
-
 class StudyType(str, Enum):
     """Types of research studies."""
     EMPIRICAL = "empirical"
@@ -19,7 +18,6 @@ class StudyType(str, Enum):
     META_ANALYSIS = "meta_analysis"
     REVIEW = "review"
     UNKNOWN = "unknown"
-
 
 class TechniqueCategory(str, Enum):
     """Expanded categories of AI/ML techniques used in modern GenAI research."""
@@ -106,7 +104,6 @@ class ComplexityLevel(str, Enum):
     VERY_HIGH = "very_high"
     UNKNOWN = "unknown"
 
-
 class ResourceRequirements(BaseModel):
     """Detailed resource requirements for implementation."""
     compute_requirements: Optional[str] = None  # e.g., "4 GPUs", "TPU cluster"
@@ -115,7 +112,6 @@ class ResourceRequirements(BaseModel):
     special_hardware: Optional[List[str]] = Field(default_factory=list)
     cloud_services: Optional[List[str]] = Field(default_factory=list)
 
-
 class SuccessMetric(BaseModel):
     """Individual success metric with details."""
     metric_name: str
@@ -123,7 +119,6 @@ class SuccessMetric(BaseModel):
     improvement_unit: Optional[str] = None  # e.g., "percentage", "time_seconds"
     baseline_comparison: Optional[str] = None
     statistical_significance: Optional[bool] = None
-
 
 class PaperInsights(BaseModel):
     """Comprehensive insights extracted from a research paper."""
@@ -174,19 +169,21 @@ class PaperInsights(BaseModel):
         description="Specific real-world use cases mentioned"
     )
     
-    # Quality indicators
-    evidence_strength: float = Field(
-        default=0.5,
-        ge=0.0,
-        le=1.0,
-        description="Strength of empirical evidence (0-1)"
+    # New quality indicators
+    total_author_hindex: int = Field(
+        default=0,
+        description="Sum of h-indices for all authors"
     )
-    practical_applicability: float = Field(
-        default=0.5,
-        ge=0.0,
-        le=1.0,
-        description="How applicable to real-world scenarios (0-1)"
+    has_conference_mention: bool = Field(
+        default=False,
+        description="Whether paper mentions conference/workshop acceptance"
     )
+    author_hindices: Dict[str, int] = Field(
+        default_factory=dict,
+        description="Individual h-indices for each author"
+    )
+    
+    # Confidence in extraction
     extraction_confidence: float = Field(
         default=0.5,
         ge=0.0,
@@ -223,35 +220,21 @@ class PaperInsights(BaseModel):
         return " ".join(filter(None, parts))
     
     def get_quality_score(self) -> float:
-        """Calculate overall quality score."""
-        # Weighted average of different factors
-        weights = {
-            'evidence': 0.3,
-            'applicability': 0.3,
-            'confidence': 0.2,
-            'reproducibility': 0.1,
-            'validation': 0.1
-        }
+        """
+        Calculate quality score based on author h-index and conference mention.
         
-        score = (
-            weights['evidence'] * self.evidence_strength +
-            weights['applicability'] * self.practical_applicability +
-            weights['confidence'] * self.extraction_confidence
-        )
+        Formula: quality_score = (total_author_hindex * conference_multiplier) / 100
+        where conference_multiplier is 1.5 if conference mentioned, 1.0 otherwise.
         
-        # Bonus for reproducibility
-        if self.reproducibility_score is not None:
-            score += weights['reproducibility'] * self.reproducibility_score
-        else:
-            score += weights['reproducibility'] * 0.3  # Default low score
+        Normalized to 0-1 range by dividing by 100 (assuming max reasonable total h-index of ~100).
+        """
+        conference_multiplier = 1.5 if self.has_conference_mention else 1.0
+        raw_score = self.total_author_hindex * conference_multiplier
         
-        # Bonus for industry validation
-        if self.industry_validation:
-            score += weights['validation'] * 1.0
-        else:
-            score += weights['validation'] * 0.0
+        # Normalize to 0-1 range (cap at 1.0)
+        normalized_score = min(1.0, raw_score / 100.0)
         
-        return min(1.0, score)  # Cap at 1.0
+        return normalized_score
 
 
 class UserContext(BaseModel):
@@ -268,6 +251,7 @@ class UserContext(BaseModel):
     
     # Constraints
     budget_constraint: Optional[str] = None  # low, medium, high, unlimited
+    timeline_weeks: Optional[int] = None
     risk_tolerance: str = "moderate"  # conservative, moderate, aggressive
     
     # Preferences

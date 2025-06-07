@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05344v1",
-  "extraction_timestamp": "2025-06-06 14:59:52.206877",
+  "extraction_timestamp": "2025-06-07 02:03:42.324827",
   "extraction_version": "1.0",
   "key_findings": [
     "Only approximately 5% of attention heads in MLLMs actively contribute to visual understanding, termed 'visual heads', revealing extreme sparsity in visual processing that can be exploited for optimization.",
@@ -18,9 +18,9 @@
   ],
   "study_type": "empirical",
   "techniques_used": [
-    "kv_cache_optimization",
     "dynamic_sparsification",
-    "attention_mechanisms"
+    "attention_mechanisms",
+    "kv_cache_optimization"
   ],
   "implementation_complexity": "medium",
   "resource_requirements": {
@@ -32,17 +32,10 @@
   },
   "success_metrics": [],
   "problem_addressed": "Inefficient inference in Multimodal Large Language Models due to computational overhead in processing visual inputs",
-  "prerequisites": [
-    "Understanding of transformer attention mechanisms",
-    "Access to MLLM architectures",
-    "Knowledge of KV-Cache optimization techniques"
-  ],
-  "comparable_approaches": [],
   "real_world_applications": [
     "Real-time multimodal AI applications",
     "Resource-constrained deployment of MLLMs",
-    "Mobile and edge computing with visual AI",
-    "Cost-effective multimodal inference services"
+    "Mobile and edge computing with visual AI"
   ],
   "evidence_strength": 0.8,
   "practical_applicability": 0.9,

@@ -1,6 +1,6 @@
 {
   "paper_id": "http://arxiv.org/abs/2506.05350v1",
-  "extraction_timestamp": "2025-06-06 14:59:52.085424",
+  "extraction_timestamp": "2025-06-07 02:03:42.181594",
   "extraction_version": "1.0",
   "key_findings": [
     "Contrastive Flow Matching (\u2206FM) addresses flow overlap in conditional diffusion models by adding a contrastive objective that maximizes dissimilarities between predicted flows from different sample pairs, ensuring unique flows across conditions.",
@@ -11,15 +11,15 @@
   ],
   "limitations": [
     "Limited evaluation shown only on ImageNet-1k dataset",
-    "No quantitative metrics provided in the available excerpt"
+    "No quantitative metrics or computational overhead analysis provided in the excerpt"
   ],
   "future_work": [
-    "Further validation across different conditional generation tasks"
+    "Extension to other conditional generation tasks beyond class-conditioned image generation"
   ],
-  "study_type": "theoretical",
+  "study_type": "empirical",
   "techniques_used": [
-    "flow_matching",
     "contrastive_learning",
+    "flow_matching",
     "diffusion_models"
   ],
   "implementation_complexity": "medium",
@@ -32,16 +32,10 @@
   },
   "success_metrics": [],
   "problem_addressed": "Flow overlap and ambiguous generation in conditional diffusion models where flows from different conditions are not unique",
-  "prerequisites": [
-    "Understanding of flow matching",
-    "Diffusion model training experience",
-    "Contrastive learning concepts"
-  ],
-  "comparable_approaches": [],
   "real_world_applications": [
     "Class-conditioned image generation",
-    "Conditional content creation",
-    "Improved diffusion model training"
+    "Conditional diffusion model training",
+    "Improving coherence in generative AI models"
   ],
   "evidence_strength": 0.6,
   "practical_applicability": 0.8,

@@ -12,8 +12,7 @@ import anthropic
 
 from core.insight_schema import (
     PaperInsights, StudyType, TechniqueCategory, 
-    ComplexityLevel, ResourceRequirements,
-    SuccessMetric, ExtractionMetadata
+    ComplexityLevel, ExtractionMetadata
 )
 from config import Config
 
@@ -591,14 +590,9 @@ Extract comprehensive insights and return ONLY a JSON object with this exact for
         "Detailed finding 5 - Cover broader implications, lessons learned, or future directions."
     ],
     "limitations": ["Key limitation 1", "Key limitation 2"],
-    "future_work": ["Future direction if mentioned"],
     "study_type": "{self._infer_study_type(is_case_study, sections)}",
     "techniques_used": ["rag", "fine_tuning", "prompt_engineering"],
     "implementation_complexity": "low",
-    "resource_requirements": {{
-        "compute_requirements": "Specific if mentioned (e.g., '4 GPUs')",
-        "data_requirements": "Specific if mentioned (e.g., '10k examples')"
-    }},
     "problem_addressed": "What specific problem does this solve?",
     "prerequisites": ["Technical requirements"],
     "real_world_applications": ["Specific use cases mentioned"],
@@ -753,11 +747,9 @@ IMPORTANT:
         return {
             "key_findings": key_findings[:10],
             "limitations": ["Full analysis not available due to extraction error"],
-            "future_work": [],
             "study_type": "case_study" if is_case_study else "unknown",
             "techniques_used": self._infer_techniques_from_text(paper, sections),
             "implementation_complexity": "unknown",
-            "resource_requirements": {},
             "problem_addressed": paper.get('title', 'Unknown problem'),
             "prerequisites": [],
             "real_world_applications": [],
@@ -788,14 +780,7 @@ IMPORTANT:
         return list(set(techniques)) if techniques else []
     
     def _create_insights_object(self, raw_insights: Dict, paper_id: str) -> PaperInsights:
-        """Create validated PaperInsights object from raw extraction."""
-        # Parse resource requirements
-        resource_data = raw_insights.get('resource_requirements', {})
-        resources = ResourceRequirements(
-            compute_requirements=resource_data.get('compute_requirements'),
-            data_requirements=resource_data.get('data_requirements')
-        )
-        
+        """Create validated PaperInsights object from raw extraction."""        
         # Map study type to valid enum value
         study_type_mapping = {
             'experimental': 'empirical',
@@ -863,14 +848,11 @@ IMPORTANT:
             paper_id=paper_id,
             key_findings=raw_insights.get('key_findings', [])[:10],
             limitations=raw_insights.get('limitations', []),
-            future_work=raw_insights.get('future_work', []),
             
             study_type=StudyType(mapped_study_type),
             techniques_used=list(set(valid_techniques)),  # Remove duplicates
             
             implementation_complexity=mapped_complexity,
-            resource_requirements=resources,
-            success_metrics=[],  # Not extracting metrics per your requirement
             
             problem_addressed=raw_insights.get('problem_addressed', ''),
             prerequisites=raw_insights.get('prerequisites', []),

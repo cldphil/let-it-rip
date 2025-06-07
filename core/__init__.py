@@ -8,8 +8,6 @@ from .insight_schema import (
     StudyType,
     TechniqueCategory,
     ComplexityLevel,
-    ResourceRequirements,
-    SuccessMetric,
     ExtractionMetadata
 )
 
@@ -31,8 +29,6 @@ __all__ = [
     'StudyType',
     'TechniqueCategory',
     'ComplexityLevel',
-    'ResourceRequirements',
-    'SuccessMetric',
     'ExtractionMetadata',
     
     # Extractors
