@@ -9,6 +9,10 @@ import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 import anthropic
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'research_tools'))
+from services.semantic_scholar_hidx import SemanticScholarAPI
 
 from core.insight_schema import (
     PaperInsights, StudyType, TechniqueCategory, 
@@ -215,6 +219,9 @@ class InsightExtractor:
         
         self.client = anthropic.Anthropic(api_key=self.api_key)
         
+        # Initialize Semantic Scholar API for author metrics and conference detection
+        self.semantic_scholar = SemanticScholarAPI()
+        
         # Section patterns for intelligent detection
         self.section_patterns = {
             'problem_context': {
@@ -318,6 +325,29 @@ class InsightExtractor:
             
             # Create insights object
             insights = self._create_insights_object(insights_data, paper.get('id', ''))
+            
+            # Fetch author h-indices and detect conference
+            logger.info("Fetching author metrics and conference detection...")
+            try:
+                # Get author h-indices
+                total_hindex = self.semantic_scholar.get_author_hindex_scores(paper)
+                logger.info(f"Total author h-index: {total_hindex}")
+                
+                # Detect conference/workshop
+                is_conference = self.semantic_scholar.detect_conference_mention(paper)
+                conference_multiplier = 1.5 if is_conference else 1.0
+                logger.info(f"Conference detected: {is_conference}, multiplier: {conference_multiplier}")
+                
+                # Set author metrics and conference flag
+                insights.total_author_hindex = total_hindex
+                insights.has_conference_mention = is_conference
+                
+                # Quality score is automatically calculated by the schema
+                logger.info(f"Calculated quality score: {insights.quality_score}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to fetch author metrics or conference detection: {e}")
+                # Schema will use default values (0 h-index, False for conference)
             
             # Set extraction confidence based on sections found
             if has_full_text:
@@ -596,8 +626,6 @@ Extract comprehensive insights and return ONLY a JSON object with this exact for
     "problem_addressed": "What specific problem does this solve?",
     "prerequisites": ["Technical requirements"],
     "real_world_applications": ["Specific use cases mentioned"],
-    "evidence_strength": 0.7,
-    "practical_applicability": 0.8,
     "has_code_available": false,
     "has_dataset_available": false,
     "industry_validation": {str(is_case_study).lower()}
@@ -753,8 +781,6 @@ IMPORTANT:
             "problem_addressed": paper.get('title', 'Unknown problem'),
             "prerequisites": [],
             "real_world_applications": [],
-            "evidence_strength": 0.3,
-            "practical_applicability": 0.3,
             "has_code_available": False,
             "has_dataset_available": False,
             "industry_validation": is_case_study
@@ -859,9 +885,6 @@ IMPORTANT:
             comparable_approaches=raw_insights.get('comparable_approaches', []),
             real_world_applications=raw_insights.get('real_world_applications', []),
             
-            evidence_strength=max(0.0, min(1.0, float(raw_insights.get('evidence_strength', 0.5)))),
-            practical_applicability=max(0.0, min(1.0, float(raw_insights.get('practical_applicability', 0.5)))),
-            
             has_code_available=bool(raw_insights.get('has_code_available', False)),
             has_dataset_available=bool(raw_insights.get('has_dataset_available', False)),
             industry_validation=bool(raw_insights.get('industry_validation', False))
@@ -871,10 +894,22 @@ IMPORTANT:
     
     def _create_minimal_insights(self, paper: Dict) -> PaperInsights:
         """Create minimal insights when extraction fails."""
-        return PaperInsights(
+        insights = PaperInsights(
             paper_id=paper.get('id', 'unknown'),
             key_findings=["Extraction failed - minimal insights only"],
             study_type=StudyType.UNKNOWN,
             implementation_complexity=ComplexityLevel.UNKNOWN,
             extraction_confidence=0.1
         )
+        
+        # Even for minimal insights, try to get author metrics and conference detection
+        try:
+            total_hindex = self.semantic_scholar.get_author_hindex_scores(paper)
+            is_conference = self.semantic_scholar.detect_conference_mention(paper)
+            insights.total_author_hindex = total_hindex
+            insights.has_conference_mention = is_conference
+            logger.info(f"Minimal insights with quality score: {insights.quality_score}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch author metrics for minimal insights: {e}")
+        
+        return insights
