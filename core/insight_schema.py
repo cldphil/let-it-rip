@@ -3,7 +3,7 @@ Structured insight schema for research papers.
 Defines the data models for extracted insights and metadata.
 """
 
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -232,9 +232,9 @@ class PaperInsights(BaseModel):
         raw_score = self.total_author_hindex * conference_multiplier
         
         # Normalize to 0-1 range (cap at 1.0)
-        normalized_score = min(1.0, raw_score / 100.0)
+        quality_score = min(1.0, raw_score / 100.0)
         
-        return normalized_score
+        return quality_score
 
 
 class UserContext(BaseModel):

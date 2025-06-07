@@ -1,0 +1,26 @@
+{
+  "processed_ids": [],
+  "timestamp": "2025-06-07T19:15:12.486160",
+  "stats": {
+    "total_processed": 0,
+    "successful": 0,
+    "failed": 2,
+    "skipped": 0,
+    "total_time": 0.0,
+    "total_cost": 0.0,
+    "errors": [
+      {
+        "paper_id": "2506.05350v1",
+        "error": "'PaperInsights' object has no attribute 'evidence_strength'",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/core/batch_processor.py\", line 211, in _process_single_paper\n    self.storage.store_insights(stored_id, insights, metadata)\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/core/insight_storage.py\", line 300, in store_insights\n    \"has_code\": insights.has_code_available,\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/.venv/lib/python3.9/site-packages/pydantic/main.py\", line 991, in __getattr__\n    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')\nAttributeError: 'PaperInsights' object has no attribute 'evidence_strength'\n",
+        "timestamp": "2025-06-07T19:15:10.812617"
+      },
+      {
+        "paper_id": "2506.05344v1",
+        "error": "'PaperInsights' object has no attribute 'evidence_strength'",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/core/batch_processor.py\", line 211, in _process_single_paper\n    self.storage.store_insights(stored_id, insights, metadata)\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/core/insight_storage.py\", line 300, in store_insights\n    \"has_code\": insights.has_code_available,\n  File \"/Users/elenaphillips/Documents/Development/let-it-rip/.venv/lib/python3.9/site-packages/pydantic/main.py\", line 991, in __getattr__\n    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')\nAttributeError: 'PaperInsights' object has no attribute 'evidence_strength'\n",
+        "timestamp": "2025-06-07T19:15:12.485869"
+      }
+    ]
+  }
+}

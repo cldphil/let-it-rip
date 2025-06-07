@@ -1,12 +1,11 @@
 """
 Streamlit web interface for the GenAI Research Implementation Platform.
-Updated with improved Browse Insights filters to show all papers by default.
+Updated to remove deprecated evidence_strength and practical_applicability fields.
 """
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
 import json
 from pathlib import Path
@@ -16,11 +15,9 @@ from core import (
     InsightStorage,
     SyncBatchProcessor,
     SynthesisEngine,
-    UserContext,
-    TechniqueCategory,
-    ComplexityLevel
+    UserContext
 )
-from core.arxiv_fetcher import ArxivGenAIFetcher
+from services.arxiv_fetcher import ArxivGenAIFetcher
 from config import Config
 
 # Page configuration
@@ -137,6 +134,18 @@ st.markdown("""
         display: inline-block;
         margin-bottom: 0.5rem;
     }
+    
+    /* Industry validation badge */
+    .validation-badge {
+        background-color: #007BFF;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -162,7 +171,7 @@ if page == "📊 Dashboard":
     # Always get fresh statistics when dashboard loads
     current_stats = st.session_state.storage.get_statistics()
     
-    # Key metrics
+    # Key metrics - updated to remove deprecated fields
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -172,11 +181,12 @@ if page == "📊 Dashboard":
         )
     
     with col2:
-        # Only show quality score if we have insights
+        # Quality score metric
         if current_stats.get('total_insights', 0) > 0:
             st.metric(
                 "Avg Quality Score",
-                f"{current_stats['average_quality_score']:.2f}"
+                f"{current_stats['average_quality_score']:.2f}",
+                help="Based on author h-index and conference validation"
             )
         else:
             st.metric(
@@ -186,31 +196,75 @@ if page == "📊 Dashboard":
             )
 
     with col3:
-        # Only show evidence strength if we have insights
+        # Industry validated papers
         if current_stats.get('total_insights', 0) > 0:
+            validation_rate = current_stats.get('industry_validated_count', 0) / current_stats['total_insights']
             st.metric(
-                "Avg Evidence Strength",
-                f"{current_stats['average_evidence_strength']:.2f}"
+                "Industry Validated",
+                f"{current_stats.get('industry_validated_count', 0)} ({validation_rate:.0%})",
+                help="Papers with real-world validation"
             )
         else:
             st.metric(
-                "Avg Evidence Strength",
+                "Industry Validated",
                 "N/A",
-                help="Process papers to see evidence scores"
+                help="Process papers to see validation status"
             )
     
     with col4:
-        # Only show applicability if we have insights
+        # Case studies metric
         if current_stats.get('total_insights', 0) > 0:
+            case_study_rate = current_stats.get('case_studies_count', 0) / current_stats['total_insights']
             st.metric(
-                "Avg Applicability",
-                f"{current_stats['average_practical_applicability']:.2f}"
+                "Case Studies",
+                f"{current_stats.get('case_studies_count', 0)} ({case_study_rate:.0%})",
+                help="Real-world implementation studies"
             )
         else:
             st.metric(
-                "Avg Applicability",
+                "Case Studies",
                 "N/A",
-                help="Process papers to see applicability scores"
+                help="Process papers to see case study count"
+            )
+    
+    # Additional metrics row
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            "Avg Key Findings",
+            f"{current_stats.get('average_key_findings_count', 0):.1f}",
+            help="Average number of key findings per paper"
+        )
+    
+    with col2:
+        st.metric(
+            "Papers with Code",
+            current_stats.get('papers_with_code', 0),
+            help="Papers with available implementation code"
+        )
+    
+    with col3:
+        st.metric(
+            "Recent Papers",
+            current_stats.get('recent_papers_count', 0),
+            help="Papers from the last 2 years"
+        )
+    
+    with col4:
+        # Calculate processing rate if we have data
+        if current_stats.get('total_papers', 0) > 0 and current_stats.get('total_insights', 0) > 0:
+            processing_rate = current_stats['total_insights'] / current_stats['total_papers']
+            st.metric(
+                "Processing Rate",
+                f"{processing_rate:.0%}",
+                help="Percentage of papers successfully processed"
+            )
+        else:
+            st.metric(
+                "Processing Rate",
+                "N/A",
+                help="Process papers to see success rate"
             )
     
     # Charts
@@ -225,7 +279,13 @@ if page == "📊 Dashboard":
                 x=list(current_stats['complexity_distribution'].keys()),
                 y=list(current_stats['complexity_distribution'].values()),
                 title="Implementation Complexity",
-                color_discrete_sequence=['#0066FF']
+                color_discrete_sequence=['#0066FF'],
+                labels={'x': 'Complexity Level', 'y': 'Number of Papers'}
+            )
+            fig_complexity.update_layout(
+                showlegend=False,
+                title_font_size=16,
+                font_size=12
             )
             st.plotly_chart(fig_complexity, use_container_width=True)
     
@@ -236,7 +296,13 @@ if page == "📊 Dashboard":
                 x=list(current_stats['study_type_distribution'].keys()),
                 y=list(current_stats['study_type_distribution'].values()),
                 title="Study Types",
-                color_discrete_sequence=['#0066FF']
+                color_discrete_sequence=['#00D4FF'],
+                labels={'x': 'Study Type', 'y': 'Number of Papers'}
+            )
+            fig_study.update_layout(
+                showlegend=False,
+                title_font_size=16,
+                font_size=12
             )
             st.plotly_chart(fig_study, use_container_width=True)
     
@@ -341,7 +407,7 @@ if page == "📊 Dashboard":
 elif page == "📚 Browse Insights":
     st.header("Browse Research Insights")
     
-    # Enhanced filters with better styling
+    # Enhanced filters with better styling - removed deprecated field filters
     st.markdown("#### Filter Research Papers")
     
     col1, col2, col3 = st.columns(3)
@@ -363,15 +429,25 @@ elif page == "📚 Browse Insights":
         )
     
     with col3:
+        # Updated sort options - removed deprecated fields
         sort_by = st.selectbox(
             "Sort Results By",
-            options=['quality_score', 'evidence_strength', 'practical_applicability', 'recency'],
+            options=['quality_score', 'recency', 'key_findings_count', 'extraction_confidence'],
             index=0,
             help="Choose how to order the results"
         )
     
-    # Additional filter for case studies only
-    show_case_studies_only = st.checkbox("Show only case studies", value=False)
+    # Additional filter row
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        show_case_studies_only = st.checkbox("Show only case studies", value=False)
+    
+    with col2:
+        show_validated_only = st.checkbox("Show only industry validated", value=False)
+    
+    with col3:
+        show_with_code_only = st.checkbox("Show only papers with code", value=False)
     
     # Get all papers using the storage API
     all_papers = []
@@ -401,6 +477,14 @@ elif page == "📚 Browse Insights":
                                 if show_case_studies_only and insights.study_type.value != 'case_study':
                                     continue
                                 
+                                # Apply validation filter if checked
+                                if show_validated_only and not insights.industry_validation:
+                                    continue
+                                
+                                # Apply code availability filter if checked
+                                if show_with_code_only and not insights.has_code_available:
+                                    continue
+                                
                                 all_papers.append({
                                     'paper_id': paper_id,
                                     'title': paper_data.get('title', 'Unknown'),
@@ -409,15 +493,15 @@ elif page == "📚 Browse Insights":
                                     'pdf_url': paper_data.get('pdf_url', ''),
                                     'insights': insights,
                                     'quality_score': insights.get_quality_score(),
-                                    'evidence_strength': insights.evidence_strength,
-                                    'practical_applicability': insights.practical_applicability,
-                                    'recency': paper_data.get('published', '2020')
+                                    'recency': paper_data.get('published', '2020'),
+                                    'key_findings_count': len(insights.key_findings),
+                                    'extraction_confidence': insights.extraction_confidence
                                 })
                     except Exception as e:
                         st.warning(f"Error loading paper {paper_id}: {str(e)}")
                         continue
         
-        # Sort papers
+        # Sort papers based on selected criteria
         if all_papers:
             if sort_by == 'recency':
                 all_papers.sort(key=lambda x: x['published'], reverse=True)
@@ -430,14 +514,18 @@ elif page == "📚 Browse Insights":
         if not all_papers:
             st.info("No papers found. Try fetching some papers first or adjusting your filters.")
         else:
-            # Display papers
+            # Display papers with updated metrics
             for paper in all_papers[:50]:  # Show top 50
                 with st.expander(f"📄 {paper['title'][:100]}..."):
-                    # Add case study badge if applicable
+                    # Add badges for case study and validation status
+                    badges_html = ""
                     if paper['insights'].study_type.value == 'case_study':
-                        st.markdown('<span class="case-study-badge">CASE STUDY</span>', unsafe_allow_html=True)
-                        if paper['insights'].industry_validation:
-                            st.success("✅ Industry Validated")
+                        badges_html += '<span class="case-study-badge">CASE STUDY</span> '
+                    if paper['insights'].industry_validation:
+                        badges_html += '<span class="validation-badge">INDUSTRY VALIDATED</span>'
+                    
+                    if badges_html:
+                        st.markdown(badges_html, unsafe_allow_html=True)
                     
                     col1, col2 = st.columns([3, 1])
                     
@@ -457,7 +545,7 @@ elif page == "📚 Browse Insights":
                         
                         # Key findings
                         if paper['insights'].key_findings:
-                            st.write("**Key Findings:**")
+                            st.write(f"**Key Findings ({len(paper['insights'].key_findings)}):**")
                             for i, finding in enumerate(paper['insights'].key_findings[:5], 1):
                                 st.write(f"{i}. {finding}")
                         
@@ -478,16 +566,26 @@ elif page == "📚 Browse Insights":
                             st.markdown(f"📄 [View Full Paper PDF]({paper['pdf_url']})")
                     
                     with col2:
-                        # Quality metrics
+                        # Updated quality metrics - removed deprecated fields
                         st.metric("Quality Score", f"{paper['quality_score']:.2f}")
-                        st.metric("Evidence", f"{paper['evidence_strength']:.2f}")
-                        st.metric("Applicability", f"{paper['practical_applicability']:.2f}")
+                        st.metric("Key Findings", paper['key_findings_count'])
+                        st.metric("Extraction Confidence", f"{paper['extraction_confidence']:.2f}")
                         
-                        # Badges
+                        # Publication year
+                        if paper['published']:
+                            try:
+                                pub_year = int(paper['published'][:4])
+                                st.metric("Year", pub_year)
+                            except:
+                                st.metric("Year", "Unknown")
+                        
+                        # Status badges
                         if paper['insights'].has_code_available:
                             st.success("✅ Code Available")
                         if paper['insights'].has_dataset_available:
                             st.success("✅ Dataset Available")
+                        if paper['insights'].industry_validation:
+                            st.success("✅ Industry Validated")
                             
     except Exception as e:
         st.error(f"Error loading papers: {str(e)}")
@@ -508,7 +606,7 @@ elif page == "🎯 Get Recommendations":
         st.subheader("Your Context")
         
         business_context = st.text_area(
-            "Describe your business context, such as comapny size, industry, team size, budget constraints, and AI maturity level (Optional)",
+            "Describe your business context, such as company size, industry, team size, budget constraints, and AI maturity level (Optional)",
             placeholder="e.g., We are a mid-size healthcare company looking to improve patient engagement...",
             height=100
         )
@@ -575,7 +673,12 @@ elif page == "🎯 Get Recommendations":
                         for paper in metadata['top_paper_scores'][:3]:
                             case_tag = " [CASE STUDY]" if paper.get('is_case_study') else ""
                             st.write(f"- {paper['title']}{case_tag}")
-                            st.write(f"  Score: {paper['score']:.2f}")
+                            # Updated score components display
+                            components = paper.get('components', {})
+                            st.write(f"  Quality: {components.get('quality', 0):.2f} | "
+                                   f"Recency: {components.get('recency', 0):.2f} | "
+                                   f"Case Study: {components.get('case_study', 0):.2f} | "
+                                   f"Validation: {components.get('validation', 0):.2f}")
             
             # Interactive options
             st.markdown("---")
@@ -599,7 +702,7 @@ elif page == "🎯 Get Recommendations":
                     st.rerun()
         else:
             # Standard recommendations display (non-interactive mode)
-            st.success(f"✅ Analyzed {synthesis_result['papers_analyzed']} papers")
+            st.success(f"✅ Analyzed {synthesis_result.get('papers_analyzed', 0)} papers")
             
             # Top approaches
             st.subheader("🎯 Recommended Approaches")
@@ -787,6 +890,39 @@ elif page == "⚙️ Settings":
         if st.button("🔄 Refresh Data", use_container_width=True):
             st.rerun()
     
+    # Enhanced statistics display
+    st.subheader("Current Statistics")
+    
+    # Get current statistics for display
+    current_stats = st.session_state.storage.get_statistics()
+    
+    # Create a comprehensive statistics table
+    stats_data = {
+        "Metric": [
+            "Total Papers",
+            "Total Insights",
+            "Average Quality Score",
+            "Average Key Findings Count",
+            "Papers with Code",
+            "Industry Validated Papers",
+            "Case Studies",
+            "Recent Papers (Last 2 Years)"
+        ],
+        "Value": [
+            current_stats.get('total_papers', 0),
+            current_stats.get('total_insights', 0),
+            f"{current_stats.get('average_quality_score', 0):.2f}",
+            f"{current_stats.get('average_key_findings_count', 0):.1f}",
+            current_stats.get('papers_with_code', 0),
+            current_stats.get('industry_validated_count', 0),
+            current_stats.get('case_studies_count', 0),
+            current_stats.get('recent_papers_count', 0)
+        ]
+    }
+    
+    stats_df = pd.DataFrame(stats_data)
+    st.dataframe(stats_df, use_container_width=True, hide_index=True)
+    
     # Configuration
     st.subheader("Configuration")
     
@@ -796,7 +932,24 @@ elif page == "⚙️ Settings":
     - Batch Size: {Config.BATCH_SIZE}
     - Max Key Findings: {Config.MAX_KEY_FINDINGS}
     - Recency Weight: {Config.RECENCY_WEIGHT}
+    - Quality Weight: {Config.QUALITY_WEIGHT}
     """)
+    
+    # Quality Score Information
+    st.subheader("Quality Score Information")
+    
+    st.markdown("""
+    <div class="info-box">
+        <h4>Quality Score Calculation</h4>
+        <p>The quality score is automatically calculated based on:</p>
+        <ul>
+            <li><strong>Author H-Index:</strong> Sum of h-indices for all paper authors</li>
+            <li><strong>Conference Validation:</strong> 1.5x multiplier if published at a recognized conference</li>
+            <li><strong>Formula:</strong> (total_author_hindex × conference_multiplier) / 100</li>
+        </ul>
+        <p>This provides an objective measure of research credibility and impact.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # About
     st.subheader("About")
@@ -805,8 +958,15 @@ elif page == "⚙️ Settings":
     <div class="info-box">
         <h4>GenAI Research Implementation Platform</h4>
         <p>Transform cutting-edge AI research into actionable business insights.</p>
-        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Version:</strong> 2.0.0</p>
         <p><strong>License:</strong> MIT</p>
+        <p><strong>Updates in v2.0:</strong></p>
+        <ul>
+            <li>Removed subjective evidence metrics</li>
+            <li>Enhanced quality scoring with author h-index</li>
+            <li>Improved case study validation</li>
+            <li>Better industry validation tracking</li>
+        </ul>
     </div>
     """, unsafe_allow_html=True)
 
@@ -814,6 +974,6 @@ elif page == "⚙️ Settings":
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>© 2025 GenAI Research Platform</p>
+    <p>© 2025 GenAI Research Platform | Enhanced with Objective Quality Metrics</p>
 </div>
 """, unsafe_allow_html=True)

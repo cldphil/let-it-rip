@@ -1,7 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from datetime import datetime
+from typing import List, Dict
 import time
 import json
 import io
@@ -295,8 +295,6 @@ def main():
             print(f"\n=== ENHANCED STATISTICS ===")
             print(f"Total papers in storage: {storage_stats['total_papers']}")
             print(f"Average quality score: {storage_stats['average_quality_score']:.2f}")
-            print(f"Average evidence strength: {storage_stats['average_evidence_strength']:.2f}")
-            print(f"Average practical applicability: {storage_stats['average_practical_applicability']:.2f}")
             print(f"Average key findings per paper: {storage_stats['average_key_findings_count']:.1f}")
             print(f"Recent papers (last 2 years): {storage_stats['recent_papers_count']}")
             

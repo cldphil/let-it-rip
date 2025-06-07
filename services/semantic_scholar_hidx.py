@@ -12,7 +12,6 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-
 class SemanticScholarAPI:
     """
     Client for Semantic Scholar API to fetch author h-index and other metrics.

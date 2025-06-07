@@ -1,21 +1,17 @@
 """
 Synthesis engine for creating personalized recommendations from paper insights.
 Uses a consultant-style LLM approach to match user contexts to relevant research.
-Updated to leverage enhanced extraction with case study awareness.
 """
 
-import json
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from datetime import datetime
 import logging
 
 from anthropic import Anthropic
 
 from .insight_storage import InsightStorage
-from .insight_schema import (
-    PaperInsights, UserContext, StudyType, 
-    TechniqueCategory, ComplexityLevel
-)
+from .insight_schema import PaperInsights, UserContext, StudyType
+
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -88,8 +84,8 @@ class SynthesisEngine:
     
     def _rerank_papers(self, papers: List[Dict]) -> List[Dict]:
         """
-        Rerank papers using enhanced formula that prioritizes case studies:
-        final_score = 0.35 * quality + 0.25 * evidence + 0.15 * applicability + 0.1 * recency + 0.15 * case_study_bonus
+        New formula: 
+        final_score = 0.35 * quality + 0.25 * recency + 0.20 * case_study_bonus + 0.20 * validation_bonus
         """
         current_year = datetime.now().year
         
@@ -116,22 +112,31 @@ class SynthesisEngine:
                 if insights.industry_validation:
                     case_study_score = 1.0  # Full score for validated case studies
             
-            # Calculate final reranking score with case study awareness
+            # Industry validation bonus (separate from case study bonus)
+            validation_score = 0.0
+            if insights.industry_validation:
+                validation_score = 0.8
+                # Extra bonus for validated case studies with substantial findings
+                if insights.study_type == StudyType.CASE_STUDY and len(insights.key_findings) >= 5:
+                    validation_score = 1.0
+            
+            # Quality score from insights (already includes author h-index and conference validation)
+            quality_score = insights.get_quality_score()
+            
+            # Calculate final reranking score with updated algorithm
             paper_data['rerank_score'] = (
-                0.35 * insights.get_quality_score() +
-                0.25 * insights.evidence_strength +
-                0.15 * insights.practical_applicability +
-                0.10 * recency_score +
-                0.15 * case_study_score  # Significant weight for case studies
+                0.35 * quality_score +          # Quality (includes author h-index, conference)
+                0.25 * recency_score +          # Recency (recent research prioritized)
+                0.20 * case_study_score +       # Case study implementation bonus
+                0.20 * validation_score         # Industry validation bonus
             )
             
             # Store components for transparency
             paper_data['score_components'] = {
-                'quality': insights.get_quality_score(),
-                'evidence': insights.evidence_strength,
-                'applicability': insights.practical_applicability,
+                'quality': quality_score,
                 'recency': recency_score,
-                'case_study': case_study_score
+                'case_study': case_study_score,
+                'validation': validation_score
             }
         
         # Sort by rerank score
@@ -196,6 +201,7 @@ class SynthesisEngine:
     def _prepare_research_summaries(self, papers: List[Dict]) -> List[Dict]:
         """
         Prepare research summaries with enhanced handling of rich key findings.
+        Updated to remove references to deprecated fields.
         """
         summaries = []
         
@@ -221,13 +227,13 @@ class SynthesisEngine:
                 'findings': key_findings_text,
                 'limitations': '; '.join(insights.limitations[:2]) if insights.limitations else "Not specified",
                 'quality_score': insights.get_quality_score(),
-                'evidence_strength': insights.evidence_strength,
-                'practical_applicability': insights.practical_applicability,
                 'complexity': insights.implementation_complexity.value,
                 'published_year': self._extract_year(paper_info),
                 'is_case_study': insights.study_type == StudyType.CASE_STUDY,
                 'industry_validated': insights.industry_validation,
-                'has_code': insights.has_code_available
+                'has_code': insights.has_code_available,
+                'key_findings_count': len(insights.key_findings),
+                'study_type': insights.study_type.value
             }
             
             summaries.append(summary)
@@ -298,9 +304,6 @@ class SynthesisEngine:
                                 case_studies: List[Dict],
                                 other_studies: List[Dict],
                                 interactive: bool) -> str:
-        """
-        Create McKinsey-style consultant prompt with case study prioritization.
-        """
         # Format user context
         context_details = []
         if user_context.company_size:
@@ -327,8 +330,8 @@ class SynthesisEngine:
    Approach: {summary['approach']}
    Key Findings: {summary['findings']}
    Limitations: {summary['limitations']}
-   Scores: Quality={summary['quality_score']:.2f}, Evidence={summary['evidence_strength']:.2f}, Applicability={summary['practical_applicability']:.2f}
-   Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Quality Score: {summary['quality_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Key Findings Count: {summary['key_findings_count']} | Study Type: {summary['study_type']}
 """
 
         # Format other research
@@ -341,11 +344,11 @@ class SynthesisEngine:
 {summary['rank']}. {code_tag}{summary['title']}
    Approach: {summary['approach']}
    Key Findings: {summary['findings']}
-   Scores: Quality={summary['quality_score']:.2f}, Evidence={summary['evidence_strength']:.2f}
-   Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Quality Score: {summary['quality_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
+   Study Type: {summary['study_type']} | Key Findings: {summary['key_findings_count']}
 """
 
-        # Create consultant prompt
+        # Create consultant prompt with updated metrics
         prompt = f"""You are a senior consultant at McKinsey & Company specializing in AI strategy and implementation. Your client has approached you for guidance on implementing generative AI solutions.
 
 ## Client Context
@@ -398,7 +401,11 @@ Please provide a strategic recommendation following this structure:
 {" - Are there alternative approaches you'd like to explore?" if interactive else " - Quick wins to build momentum"}
 {" - Do you have specific concerns about this recommendation?" if interactive else " - Success metrics to track"}
 
-IMPORTANT: Give strong preference to recommendations backed by real-world case studies, especially industry-validated ones. If no relevant case studies exist, note this as a consideration.
+IMPORTANT: 
+- Give strong preference to recommendations backed by real-world case studies, especially industry-validated ones
+- Focus on quality scores (which include author credibility and conference validation) rather than subjective metrics
+- Consider the number and depth of key findings as indicators of research thoroughness
+- If no relevant case studies exist, note this as a consideration and recommend pilot approaches
 
 Please structure your response in a clear, professional format using markdown. Be specific and actionable, referencing the research evidence where appropriate."""
 

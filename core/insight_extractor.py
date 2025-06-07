@@ -330,7 +330,7 @@ class InsightExtractor:
             logger.info("Fetching author metrics and conference detection...")
             try:
                 # Get author h-indices
-                total_hindex = self.semantic_scholar.get_author_hindex_scores(paper)
+                total_hindex, individual_hindices = self.semantic_scholar.get_paper_total_hindex(paper.get('authors', []))
                 logger.info(f"Total author h-index: {total_hindex}")
                 
                 # Detect conference/workshop
@@ -343,7 +343,7 @@ class InsightExtractor:
                 insights.has_conference_mention = is_conference
                 
                 # Quality score is automatically calculated by the schema
-                logger.info(f"Calculated quality score: {insights.quality_score}")
+                logger.info(f"Calculated quality score: {insights.get_quality_score()}")
                 
             except Exception as e:
                 logger.warning(f"Failed to fetch author metrics or conference detection: {e}")
@@ -904,11 +904,11 @@ IMPORTANT:
         
         # Even for minimal insights, try to get author metrics and conference detection
         try:
-            total_hindex = self.semantic_scholar.get_author_hindex_scores(paper)
+            total_hindex, individual_hindices = self.semantic_scholar.get_paper_total_hindex(paper.get('authors', []))
             is_conference = self.semantic_scholar.detect_conference_mention(paper)
             insights.total_author_hindex = total_hindex
             insights.has_conference_mention = is_conference
-            logger.info(f"Minimal insights with quality score: {insights.quality_score}")
+            logger.info(f"Minimal insights with quality score: {insights.get_quality_score()}")
         except Exception as e:
             logger.warning(f"Failed to fetch author metrics for minimal insights: {e}")
         

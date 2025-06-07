@@ -5,7 +5,6 @@ Supports incremental processing and failure recovery.
 
 import asyncio
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Set
@@ -14,7 +13,6 @@ import traceback
 
 from .insight_extractor import InsightExtractor
 from .insight_storage import InsightStorage
-from .insight_schema import PaperInsights, ExtractionMetadata
 
 logger = logging.getLogger(__name__)
 

@@ -4,11 +4,10 @@ Uses ChromaDB for vector search and JSON for full data storage.
 """
 
 import json
-import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 import logging
 
 import chromadb
@@ -99,7 +98,7 @@ class InsightStorage:
     
     def _create_tables(self, conn):
         """Create tables in the given connection."""
-        # Drop and recreate insights table to ensure schema is correct
+        # Updated schema without deprecated fields
         conn.executescript("""
             DROP TABLE IF EXISTS extraction_metadata;
             DROP TABLE IF EXISTS insights;
@@ -119,12 +118,11 @@ class InsightStorage:
                 complexity TEXT,
                 techniques TEXT,
                 quality_score REAL,
-                evidence_strength REAL,
-                practical_applicability REAL,
                 extraction_confidence REAL,
                 has_code BOOLEAN,
                 has_dataset BOOLEAN,
                 key_findings_count INTEGER,
+                industry_validation BOOLEAN DEFAULT FALSE,
                 extraction_timestamp TIMESTAMP,
                 FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
             );
@@ -142,10 +140,9 @@ class InsightStorage:
             );
             
             CREATE INDEX IF NOT EXISTS idx_insights_quality ON insights(quality_score DESC);
-            CREATE INDEX IF NOT EXISTS idx_insights_evidence ON insights(evidence_strength DESC);
-            CREATE INDEX IF NOT EXISTS idx_insights_applicability ON insights(practical_applicability DESC);
             CREATE INDEX IF NOT EXISTS idx_insights_complexity ON insights(complexity);
             CREATE INDEX IF NOT EXISTS idx_insights_study_type ON insights(study_type);
+            CREATE INDEX IF NOT EXISTS idx_insights_industry_validation ON insights(industry_validation);
             CREATE INDEX IF NOT EXISTS idx_papers_published ON papers(published_date DESC);
         """)
         conn.commit()
@@ -288,7 +285,7 @@ class InsightStorage:
         
         embedding = self.embedder.encode([combined_text])[0]
         
-        # Store in vector DB with enhanced metadata
+        # Store in vector DB with updated metadata (removed deprecated fields)
         self.insights_collection.add(
             embeddings=[embedding.tolist()],
             documents=[combined_text],
@@ -298,35 +295,33 @@ class InsightStorage:
                 "complexity": insights.implementation_complexity.value,
                 "techniques": ", ".join(t.value for t in insights.techniques_used),
                 "quality_score": insights.get_quality_score(),
-                "evidence_strength": insights.evidence_strength,
-                "practical_applicability": insights.practical_applicability,
                 "key_findings_count": len(insights.key_findings),
                 "has_code": insights.has_code_available,
                 "has_dataset": insights.has_dataset_available,
+                "industry_validation": insights.industry_validation,
                 "published_year": self._extract_year(paper_data) if paper_data else 2020
             }],
             ids=[paper_id]
         )
         
-        # Store in SQLite with enhanced fields
+        # Store in SQLite with updated schema (removed deprecated fields)
         self.metadata_conn.execute("""
             INSERT OR REPLACE INTO insights 
             (paper_id, study_type, complexity, techniques, 
-             quality_score, evidence_strength, practical_applicability, extraction_confidence, 
-             has_code, has_dataset, key_findings_count, extraction_timestamp)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             quality_score, extraction_confidence, 
+             has_code, has_dataset, key_findings_count, industry_validation, extraction_timestamp)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             paper_id,
             insights.study_type.value,
             insights.implementation_complexity.value,
             json.dumps([t.value for t in insights.techniques_used]),
             insights.get_quality_score(),
-            insights.evidence_strength,
-            insights.practical_applicability,
             insights.extraction_confidence,
             insights.has_code_available,
             insights.has_dataset_available,
             len(insights.key_findings),
+            insights.industry_validation,
             insights.extraction_timestamp.isoformat()
         ))
         
@@ -363,14 +358,14 @@ class InsightStorage:
     def find_similar_papers(self, user_context: UserContext, 
                            n_results: int = 20) -> List[Dict]:
         """
-        Find papers matching user context using enhanced vector similarity on abstracts and key findings.
+        Find papers matching user context using vector similarity.
         
         Args:
             user_context: User requirements and constraints
             n_results: Number of results to return
             
         Returns:
-            List of paper insights with similarity scores, prioritized by recency, quality, evidence, and applicability
+            List of paper insights with similarity scores, prioritized by quality, recency, and relevance
         """
         # Generate query embedding from user context
         query_text = user_context.to_search_query()
@@ -414,7 +409,7 @@ class InsightStorage:
             metadata = results['metadatas'][0][i]
             similarity_score = 1 - results['distances'][0][i]  # Convert distance to similarity
             
-            # Calculate enhanced ranking score prioritizing recency, quality, evidence, applicability
+            # Calculate enhanced ranking score with updated algorithm
             ranking_score = self._calculate_ranking_score(
                 similarity_score, 
                 insights, 
@@ -439,7 +434,14 @@ class InsightStorage:
     def _calculate_ranking_score(self, similarity_score: float, insights: PaperInsights, 
                                metadata: Dict, user_context: UserContext) -> float:
         """
-        Calculate enhanced ranking score prioritizing recency, quality, evidence strength, and practical applicability.
+        Calculate enhanced ranking score with updated algorithm.
+        
+        New formula emphasizes:
+        - Vector similarity (30%)
+        - Quality score (25%) 
+        - Recency (20%)
+        - Key findings richness (15%)
+        - Technique relevance and risk alignment (10%)
         """
         # Get publication year for recency scoring
         pub_year = metadata.get('published_year', 2020)
@@ -448,10 +450,8 @@ class InsightStorage:
         # Recency score (more recent = higher score)
         recency_score = max(0, 1.0 - (current_year - pub_year) * 0.1)  # 10% decay per year
         
-        # Quality components
+        # Quality score from insights
         quality_score = insights.get_quality_score()
-        evidence_score = insights.evidence_strength
-        applicability_score = insights.practical_applicability
         
         # Key findings richness (more detailed findings = higher score)
         findings_score = min(1.0, len(insights.key_findings) / 8.0)  # Normalize to max 8 findings
@@ -466,21 +466,33 @@ class InsightStorage:
         
         # Risk tolerance alignment
         risk_bonus = 0.0
-        if user_context.risk_tolerance == "conservative" and evidence_score > 0.7:
-            risk_bonus = 0.1
-        elif user_context.risk_tolerance == "aggressive" and insights.implementation_complexity.value == "low":
-            risk_bonus = 0.1
+        if user_context.risk_tolerance == "conservative":
+            # Prioritize case studies and industry validation for conservative users
+            if insights.study_type.value == "case_study" and insights.industry_validation:
+                risk_bonus = 0.1
+            elif quality_score > 0.7:  # High quality papers
+                risk_bonus = 0.05
+        elif user_context.risk_tolerance == "aggressive":
+            # Prioritize low complexity for aggressive/fast implementation
+            if insights.implementation_complexity.value == "low":
+                risk_bonus = 0.1
         
-        # Weighted combination emphasizing the key factors
+        # Industry validation bonus (especially for case studies)
+        validation_bonus = 0.0
+        if insights.industry_validation:
+            validation_bonus = 0.05
+            if insights.study_type.value == "case_study":
+                validation_bonus = 0.1
+        
+        # Updated weighted combination
         final_score = (
-            similarity_score * 0.25 +        # Vector similarity
-            recency_score * 0.25 +           # Recency priority
-            quality_score * 0.20 +           # Overall quality
-            evidence_score * 0.15 +          # Evidence strength
-            applicability_score * 0.10 +     # Practical applicability
-            findings_score * 0.05 +          # Key findings richness
+            similarity_score * 0.30 +        # Vector similarity (increased weight)
+            quality_score * 0.25 +           # Quality score (maintained)
+            recency_score * 0.20 +           # Recency (maintained)
+            findings_score * 0.15 +          # Key findings richness (increased)
             technique_bonus +                # Technique preference bonus
-            risk_bonus                       # Risk alignment bonus
+            risk_bonus +                     # Risk alignment bonus
+            validation_bonus                 # Industry validation bonus
         )
         
         return min(1.0, final_score)  # Cap at 1.0
@@ -496,7 +508,8 @@ class InsightStorage:
         
         # Risk tolerance constraints
         if user_context.risk_tolerance == "conservative":
-            if insights.evidence_strength < 0.6:  # Slightly relaxed for more results
+            # For conservative users, prefer validated studies or high quality
+            if not insights.industry_validation and insights.get_quality_score() < 0.5:
                 return False
         
         # Budget constraint via complexity
@@ -529,7 +542,6 @@ class InsightStorage:
     def get_statistics(self) -> Dict:
         """
         Get enhanced storage statistics by reading directly from JSON files.
-        This ensures statistics are always up-to-date and accurate.
         """
         stats = {
             'total_papers': 0,
@@ -538,10 +550,10 @@ class InsightStorage:
             'complexity_distribution': {},
             'study_type_distribution': {},
             'average_quality_score': 0.0,
-            'average_evidence_strength': 0.0,
-            'average_practical_applicability': 0.0,
             'average_key_findings_count': 0.0,
-            'recent_papers_count': 0  # Papers from last 2 years
+            'recent_papers_count': 0,  # Papers from last 2 years
+            'industry_validated_count': 0,  # Count of industry validated papers
+            'case_studies_count': 0  # Count of case studies
         }
         
         # Count paper files
@@ -557,8 +569,6 @@ class InsightStorage:
         
         # Aggregate metrics from JSON files
         total_quality = 0.0
-        total_evidence = 0.0
-        total_applicability = 0.0
         total_findings = 0
         
         complexity_counts = {}
@@ -578,13 +588,19 @@ class InsightStorage:
                 # Update metrics
                 quality_score = insights.get_quality_score()
                 total_quality += quality_score
-                total_evidence += insights.evidence_strength
-                total_applicability += insights.practical_applicability
                 total_findings += len(insights.key_findings)
                 
                 # Count code availability
                 if insights.has_code_available:
                     stats['papers_with_code'] += 1
+                
+                # Count industry validation
+                if insights.industry_validation:
+                    stats['industry_validated_count'] += 1
+                
+                # Count case studies
+                if insights.study_type.value == "case_study":
+                    stats['case_studies_count'] += 1
                 
                 # Update distributions
                 complexity = insights.implementation_complexity.value
@@ -611,8 +627,6 @@ class InsightStorage:
         # Calculate averages
         if stats['total_insights'] > 0:
             stats['average_quality_score'] = round(total_quality / stats['total_insights'], 2)
-            stats['average_evidence_strength'] = round(total_evidence / stats['total_insights'], 2)
-            stats['average_practical_applicability'] = round(total_applicability / stats['total_insights'], 2)
             stats['average_key_findings_count'] = round(total_findings / stats['total_insights'], 1)
         
         # Set distributions
