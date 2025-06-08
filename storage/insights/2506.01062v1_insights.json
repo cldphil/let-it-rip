@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01062v1",
+  "extraction_timestamp": "2025-06-08 15:47:11.089351",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "SEALQA benchmark reveals that even frontier LLMs like O3 and O4-MINI achieve only 17.1% and 6.3% accuracy respectively on challenging search-augmented reasoning tasks, indicating significant gaps in current AI capabilities for handling conflicting or noisy web search results.",
+    "Advanced reasoning models including DEEPSEEK-R1-671B and O3-MINI are highly vulnerable to noisy search results, suggesting that current search-augmented generation systems lack robust filtering and verification mechanisms for handling unreliable information sources.",
+    "Increasing test-time compute does not yield reliable performance gains across O3-MINI, O4-MINI, and O3 models, with performance often plateauing or declining early, indicating that computational scaling alone is insufficient for improving reasoning with conflicting information.",
+    "The benchmark introduces three evaluation flavors: SEAL-0 for most challenging questions with near-zero baseline accuracy, SEAL-HARD for general factual accuracy assessment, and LONG SEAL for multi-document needle-in-haystack reasoning scenarios, providing comprehensive evaluation framework for search-augmented systems.",
+    "While recent models show improvement on the 'lost-in-the-middle' problem for long-context reasoning, they still fail at fundamental reasoning tasks when dealing with conflicting information, highlighting the need for better information synthesis and conflict resolution mechanisms in RAG systems."
+  ],
+  "limitations": [
+    "Only partial paper content available limiting full methodology and results analysis",
+    "Benchmark focuses primarily on factual accuracy rather than broader reasoning capabilities"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating and improving search-augmented language models' ability to handle conflicting, noisy, or unhelpful web search results in fact-seeking scenarios",
+  "prerequisites": [
+    "Access to frontier LLMs",
+    "Web search integration capabilities",
+    "Multi-document processing systems"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Question-answering systems with web search",
+    "Information verification tools",
+    "Research assistance platforms",
+    "Fact-checking applications"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

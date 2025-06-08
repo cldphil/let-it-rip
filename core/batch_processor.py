@@ -345,3 +345,13 @@ class SyncBatchProcessor:
     def stats(self) -> Dict:
         """Get processing statistics."""
         return self.async_processor.stats
+    
+    @property
+    def extractor(self):
+        """Get the insight extractor instance."""
+        return self.async_processor.extractor
+    
+    @property
+    def storage(self):
+        """Get the storage instance."""
+        return self.async_processor.storage

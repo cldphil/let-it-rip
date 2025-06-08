@@ -1,0 +1,54 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00963v1",
+  "extraction_timestamp": "2025-06-08 15:53:29.411464",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The research introduces EQPR (Educational Question Planning with self-Reflection), a planning-based framework that generates mathematical questions aligned with multi-dimensional educational objectives, moving beyond traditional text-quality-focused approaches to incorporate pedagogical requirements.",
+    "A new dataset EduMath containing 16,000 mathematical questions with multi-dimensional educational objectives was constructed and annotated, providing a comprehensive resource for training and evaluating educational question generation systems.",
+    "The framework incorporates EQGEVAL evaluation system with three assessment dimensions specifically designed to measure models' ability to generate educationally-aligned questions, addressing the gap in evaluation metrics for educational content generation.",
+    "The method draws inspiration from teachers' actual problem design processes, implementing a self-reflection mechanism that progressively refines question quality to better align with instructional goals and cognitive requirements, as demonstrated in the case study showing iterative improvement.",
+    "The approach addresses complex, multifaceted educational requirements by considering concept coverage, core mathematical qualities (abstraction, logical reasoning), cognitive abilities, contextual relevance, and Bloom's taxonomy levels, enabling more sophisticated educational content generation than single-dimensional methods."
+  ],
+  "limitations": [
+    "The paper excerpt does not provide complete performance metrics or quantitative comparisons with baseline methods",
+    "Limited information about computational requirements, scalability, and deployment considerations for real-world educational systems"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "self_reasoning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Automatically generating high-quality mathematical problems that align with educational objectives and meet complex, multifaceted educational requirements beyond simple textual quality",
+  "prerequisites": [
+    "NLP framework capabilities",
+    "Educational taxonomy knowledge",
+    "Mathematical content expertise",
+    "Multi-dimensional evaluation systems"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Educational technology platforms",
+    "Automated test generation systems",
+    "Personalized learning content creation",
+    "Teacher assistance tools for problem design",
+    "Adaptive learning systems with curriculum alignment"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

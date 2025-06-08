@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01031v1",
+  "extraction_timestamp": "2025-06-08 15:49:40.339177",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "NavBench introduces a comprehensive benchmark for evaluating Multimodal Large Language Models (MLLMs) in embodied navigation tasks, featuring 3,200 question-answer pairs across four task types: step-by-step navigation execution, temporal progress estimation, global instruction alignment, and local observation-action reasoning.",
+    "GPT-4o demonstrates superior performance across all navigation tasks compared to other models, while lighter open-source models show competency only in simpler navigation scenarios, indicating a clear performance hierarchy based on model complexity and training.",
+    "Models with higher comprehension scores in understanding navigation behavior and spatial reasoning consistently achieve better execution performance in actual navigation tasks, establishing a strong correlation between comprehension abilities and practical navigation success.",
+    "Providing map-based context significantly improves decision accuracy in navigation tasks, particularly in medium-difficulty scenarios, suggesting that supplementary spatial information enhances MLLM navigation capabilities beyond pure visual input.",
+    "Most MLLMs struggle significantly with temporal understanding and progress estimation during navigation sequences, representing a critical limitation that could impact real-world deployment in dynamic environments where progress tracking is essential."
+  ],
+  "limitations": [
+    "Most models demonstrate poor temporal understanding and struggle with estimating navigation progress",
+    "Lighter open-source models only succeed in simpler navigation cases, limiting accessibility for resource-constrained applications"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "multimodal_learning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating and improving multimodal large language models' ability to understand and execute embodied navigation tasks in indoor environments",
+  "prerequisites": [
+    "Multimodal Large Language Models",
+    "Indoor navigation datasets",
+    "Robotic action conversion pipeline"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Indoor robotic navigation",
+    "Autonomous mobile robots",
+    "Assistive navigation systems",
+    "Embodied AI agents"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

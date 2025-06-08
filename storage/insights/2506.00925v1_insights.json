@@ -1,0 +1,54 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00925v1",
+  "extraction_timestamp": "2025-06-08 15:54:55.232101",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "ProtInvTree introduces the first reward-guided tree-search framework for protein inverse folding, reformulating sequence generation as a deliberate step-wise decision-making process that enables exploration of multiple design paths through self-evaluation, lookahead, and backtracking mechanisms.",
+    "The framework addresses the one-to-many nature of protein inverse folding by generating diverse protein sequences that can fold into the same target 3D structure while preserving structural consistency, overcoming limitations of existing deep learning methods that focus primarily on recovering native sequences.",
+    "The tree search approach enables systematic exploration and exploitation of promising sequence candidates through structured decision-making, allowing for better optimization of protein design objectives compared to traditional generative models.",
+    "The method combines deep learning with tree search algorithms to provide a more deliberate and controllable approach to protein sequence design, potentially improving success rates in protein engineering applications.",
+    "This work establishes a new paradigm for protein inverse folding that could be extended to other structural biology problems requiring generation of diverse solutions with specific constraints, opening new research directions in computational protein design."
+  ],
+  "limitations": [
+    "Limited information provided about computational complexity and scalability of the tree search approach for large protein structures",
+    "Lack of detailed experimental validation results and quantitative performance comparisons with existing methods in the provided excerpt"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Designing diverse protein sequences that fold into a target 3D structure while addressing the one-to-many nature of protein inverse folding",
+  "prerequisites": [
+    "Deep learning frameworks",
+    "Protein structure analysis tools",
+    "Tree search algorithms",
+    "Computational biology knowledge",
+    "High-performance computing resources"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Protein engineering",
+    "Drug design",
+    "Enzyme optimization",
+    "Therapeutic protein development",
+    "Synthetic biology"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

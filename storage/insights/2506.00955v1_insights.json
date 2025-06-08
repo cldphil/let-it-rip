@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00955v1",
+  "extraction_timestamp": "2025-06-08 15:53:54.035259",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "A novel annotation pipeline using GPT-4o and LLaMA 3 for initial sarcasm detection followed by human verification can effectively create large-scale sarcastic speech datasets, addressing the critical data scarcity problem in sarcasm detection research.",
+    "The collaborative gating architecture for sarcasm detection achieves 73.63% F1 score on speech-only data, demonstrating that effective sarcasm detection is possible without requiring multimodal inputs (text + audio + visual), expanding applicability to audio-only contexts.",
+    "Using publicly available sarcasm-focused podcasts as source material provides a scalable approach to dataset creation, with LLM-based annotation significantly reducing manual annotation costs while maintaining quality through human verification of disagreements.",
+    "The PodSarc dataset represents the first large-scale sarcastic speech dataset created through LLM-assisted annotation, providing a new benchmark for the research community and enabling more robust model training for speech-based sarcasm detection.",
+    "The approach demonstrates that LLMs can effectively understand contextual and tonal nuances in speech transcripts for sarcasm identification, opening possibilities for automated annotation of other complex linguistic phenomena in speech data."
+  ],
+  "limitations": [
+    "Limited to podcast domain which may not generalize to other speech contexts like conversations, interviews, or spontaneous speech",
+    "Requires human verification step for LLM disagreements, limiting full automation and scalability of the annotation process"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "prompt_engineering",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Data scarcity in sarcasm detection for speech-only contexts and over-reliance on multimodal data in existing sarcasm detection systems",
+  "prerequisites": [
+    "Access to LLMs like GPT-4o and LLaMA 3",
+    "Speech transcription capabilities",
+    "Human annotators for verification",
+    "Audio processing infrastructure"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Customer service sentiment analysis from voice calls",
+    "Social media audio content moderation",
+    "Voice assistant improvement for understanding sarcastic queries",
+    "Podcast content analysis and recommendation systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

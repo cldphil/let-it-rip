@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01010v1",
+  "extraction_timestamp": "2025-06-08 15:50:36.269380",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Effectivity frames provide a more compact representation than concurrent game frames (CGF) for alternating-time \u03bc-calculus model checking, potentially enabling faster evaluation of coalitional modalities in multi-agent systems.",
+    "The research implements a translation mechanism from concurrent game frames to effectivity frames and demonstrates practical performance analysis using a generic model checker for coalgebraic \u03bc-calculi.",
+    "Performance comparison against MCMAS (state-of-the-art ATL model checker) shows that conversion overhead from CGF to effectivity frames may impact performance on large systems, requiring careful consideration of system size.",
+    "The study uses both dedicated benchmark series and randomly generated systems/formulas for comprehensive evaluation, providing a robust methodology for assessing model checking performance improvements.",
+    "The work contributes to advancing coalitional logic model checking by exploring alternative semantic representations that could lead to more efficient verification of multi-agent system properties."
+  ],
+  "limitations": [
+    "Conversion overhead from CGF to effectivity frames may negate performance benefits on large systems",
+    "Limited to specific types of temporal logic formulas and multi-agent system structures"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Improving efficiency of model checking for alternating-time \u03bc-calculus in multi-agent systems through more compact semantic representations",
+  "prerequisites": [
+    "Knowledge of temporal logic",
+    "Multi-agent systems theory",
+    "Model checking frameworks",
+    "Coalgebraic methods"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Multi-agent system verification",
+    "Game-theoretic system analysis",
+    "Coalitional reasoning in distributed systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04255v1",
+  "extraction_timestamp": "2025-06-08 15:45:21.573751",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "HASHIRU introduces a hierarchical multi-agent system with a CEO agent dynamically managing specialized employee agents based on task requirements and resource constraints, achieving 96% accuracy on GSM8K vs 61% for Gemini 2.0 Flash, 80% vs 68.3% on JEEBench, and 92% vs 84% on SVAMP through intelligent resource allocation.",
+    "The system implements a hybrid intelligence approach that prioritizes smaller, local LLMs via Ollama while flexibly scaling to external APIs and larger models when necessary, reducing operational costs while maintaining performance through strategic model selection based on task complexity.",
+    "An economic model with hiring costs (one-time setup overhead), invocation costs (recurring operational load), and expense costs (external API usage) promotes team stability and efficient resource allocation by discouraging frequent agent turnover and optimizing cost-benefit ratios.",
+    "The framework includes autonomous API tool creation capabilities and memory functions, enabling self-improvement and adaptation to new tasks without manual intervention, demonstrated through 58% success rate on academic paper reviews and 100% success on safety assessment benchmarks.",
+    "HASHIRU addresses critical gaps in current multi-agent frameworks by providing resource awareness, model diversity, and autonomous tool creation, offering a practical solution for organizations needing flexible AI systems that can adapt to varying computational budgets and task requirements."
+  ],
+  "limitations": [
+    "Limited evaluation scope with only partial results shown for some benchmarks",
+    "Economic model parameters and optimization strategies not fully detailed"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "multi_agent",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Current multi-agent frameworks lack flexibility, resource awareness, model diversity, and autonomous tool creation capabilities",
+  "prerequisites": [
+    "LLM infrastructure",
+    "Ollama setup",
+    "API access to external models",
+    "Resource monitoring capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Academic paper review systems",
+    "Safety assessment platforms",
+    "Complex reasoning tasks",
+    "Resource-constrained AI deployments"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

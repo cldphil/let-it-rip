@@ -40,6 +40,13 @@ class Config:
     ARXIV_REQUEST_DELAY = 1.0  # Seconds between requests (be respectful)
     ARXIV_TIMEOUT = 30
     
+    # Semantic Scholar API Settings (for author h-index and conference detection)
+    SEMANTIC_SCHOLAR_MIN_INTERVAL = 0.2  # Minimum seconds between API calls
+    SEMANTIC_SCHOLAR_MAX_RETRIES = 3  # Max retries for failed requests
+    SEMANTIC_SCHOLAR_TIMEOUT = 10  # Request timeout in seconds
+    MAX_AUTHORS_PER_PAPER = 5  # Limit authors processed per paper to reduce API calls
+    CONTINUE_ON_API_ERRORS = True  # Continue processing if author lookup fails
+    
     # Text Extraction Settings
     ABSTRACT_MAX_CHARS = 500
     INTRODUCTION_MAX_CHARS = 1000
@@ -284,12 +291,18 @@ class Config:
     @classmethod
     def get_storage_class(cls):
         """Get the appropriate storage class based on configuration."""
-        if cls.USE_CLOUD_STORAGE:
-            from .supabase_storage import SupabaseInsightStorage
-            return SupabaseInsightStorage
-        else:
-            from .insight_storage import InsightStorage
+        # For now, use the existing InsightStorage class for both local and cloud
+        # The InsightStorage class already handles cloud vs local based on config
+        try:
+            from core.insight_storage import InsightStorage
             return InsightStorage
+        except ImportError:
+            # Fallback import path
+            try:
+                from core import InsightStorage
+                return InsightStorage
+            except ImportError:
+                raise ImportError("Could not import InsightStorage class")
     
     @classmethod
     def get_reputation_score_config(cls):

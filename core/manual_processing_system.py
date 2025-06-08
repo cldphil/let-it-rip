@@ -12,127 +12,10 @@ import logging
 from core import SyncBatchProcessor, InsightStorage
 from config import Config
 
-logger = logging.getLogger(__name__)
+from services.semantic_scholar_hidx import SemanticScholarAPI
+from services.arxiv_fetcher import ArxivFetcher
 
-# Enhanced ArxivGenAIFetcher with date range support
-class DateRangeArxivFetcher:
-    """Extended arXiv fetcher with date range capabilities."""
-    
-    def __init__(self):
-        """Initialize with arXiv API base URL."""
-        self.base_url = "http://export.arxiv.org/api/query"
-        self.current_year = datetime.now().year
-    
-    def fetch_papers_date_range(self, start_date: datetime, end_date: datetime,
-                               max_results: int = 100, include_full_text: bool = True) -> List[Dict]:
-        """
-        Fetch papers within a specific date range.
-        
-        Args:
-            start_date: Start date for papers
-            end_date: End date for papers
-            max_results: Maximum papers to fetch
-            include_full_text: Whether to extract full text
-            
-        Returns:
-            List of paper dictionaries
-        """
-        # Format dates for arXiv API
-        start_str = start_date.strftime('%Y%m%d')
-        end_str = end_date.strftime('%Y%m%d')
-        
-        # Build date-specific query
-        query = self._build_date_range_query(start_str, end_str, max_results)
-        url = self.base_url + query
-        
-        logger.info(f"Fetching papers from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
-        
-        return self._fetch_and_process(url, include_full_text)
-    
-    def _build_date_range_query(self, start_date: str, end_date: str, max_results: int) -> str:
-        """Build arXiv query for specific date range."""
-        # Search terms for generative AI research
-        search_terms = [
-            "generative artificial intelligence",
-            "generative AI", 
-            "large language model",
-            "LLM",
-            "GPT",
-            "diffusion model",
-            "generative model",
-            "text generation",
-            "image generation"
-        ]
-        
-        # Build OR query for search terms
-        query_parts = []
-        for term in search_terms:
-            query_parts.append(f'all:"{term}"')
-        
-        search_query = " OR ".join(query_parts)
-        
-        # Add date filter
-        date_filter = f"submittedDate:[{start_date}* TO {end_date}*]"
-        
-        full_query = f"({search_query}) AND {date_filter}"
-        
-        return f"?search_query={self._url_encode(full_query)}&start=0&max_results={max_results}&sortBy=submittedDate&sortOrder=descending"
-    
-    def _url_encode(self, text: str) -> str:
-        """URL encode the query string."""
-        import urllib.parse
-        return urllib.parse.quote(text)
-    
-    def _fetch_and_process(self, url: str, include_full_text: bool) -> List[Dict]:
-        """Fetch and process papers from arXiv API."""
-        try:
-            import requests
-            import xml.etree.ElementTree as ET
-            
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-            
-            # Parse XML response
-            root = ET.fromstring(response.content)
-            entries = root.findall('.//{http://www.w3.org/2005/Atom}entry')
-            
-            papers = []
-            for i, entry in enumerate(entries, 1):
-                logger.info(f"Processing paper {i}/{len(entries)}...")
-                paper = self._parse_arxiv_entry(entry)
-                
-                # Extract full text if requested and PDF URL is available
-                if include_full_text and paper.get('pdf_url'):
-                    paper['full_text'] = self._extract_pdf_text(paper['pdf_url'])
-                    paper['text_length'] = len(paper.get('full_text', ''))
-                
-                papers.append(paper)
-                
-                # Rate limiting
-                if include_full_text and i < len(entries):
-                    import time
-                    time.sleep(1)
-            
-            logger.info(f"Successfully processed {len(papers)} papers")
-            return papers
-            
-        except Exception as e:
-            logger.error(f"Error fetching papers: {e}")
-            return []
-    
-    def _parse_arxiv_entry(self, entry) -> Dict:
-        """Parse a single arXiv entry from XML response."""
-        # Import the original fetcher to reuse its parsing logic
-        from services.arxiv_fetcher import ArxivGenAIFetcher
-        original_fetcher = ArxivGenAIFetcher()
-        return original_fetcher.parse_arxiv_entry(entry)
-    
-    def _extract_pdf_text(self, pdf_url: str) -> str:
-        """Extract text from PDF URL."""
-        # Import the original fetcher to reuse its PDF extraction logic
-        from services.arxiv_fetcher import ArxivGenAIFetcher
-        original_fetcher = ArxivGenAIFetcher()
-        return original_fetcher.extract_pdf_text(pdf_url)
+logger = logging.getLogger(__name__)
 
 class ManualProcessingController:
     """
@@ -153,7 +36,7 @@ class ManualProcessingController:
         self.processor = SyncBatchProcessor(storage=self.storage, batch_size=batch_size)
         
         # Initialize fetcher with date range support
-        self.fetcher = DateRangeArxivFetcher()
+        self.fetcher = ArxivFetcher()
         
         # Processing statistics
         self.last_processing_stats = {}
@@ -490,7 +373,39 @@ class ManualProcessingController:
                     '*'
                 ).order('created_at', desc=True).limit(limit).execute()
                 
-                return result.data
+                # Ensure all numeric fields are properly typed
+                history_data = result.data
+                for record in history_data:
+                    # Convert cost fields to float if they exist
+                    if 'total_cost' in record:
+                        try:
+                            # Remove $ sign if present and convert to float
+                            cost_str = str(record['total_cost']).replace('$', '').strip()
+                            record['total_cost'] = float(cost_str) if cost_str else 0.0
+                        except (ValueError, TypeError):
+                            record['total_cost'] = 0.0
+                    
+                    if 'processing_cost_usd' in record:
+                        try:
+                            cost_str = str(record['processing_cost_usd']).replace('$', '').strip()
+                            record['processing_cost_usd'] = float(cost_str) if cost_str else 0.0
+                        except (ValueError, TypeError):
+                            record['processing_cost_usd'] = 0.0
+                    
+                    # Ensure other numeric fields are properly typed
+                    if 'papers_processed' in record:
+                        try:
+                            record['papers_processed'] = int(record['papers_processed'])
+                        except (ValueError, TypeError):
+                            record['papers_processed'] = 0
+                    
+                    if 'success_rate' in record:
+                        try:
+                            record['success_rate'] = float(record['success_rate'])
+                        except (ValueError, TypeError):
+                            record['success_rate'] = 0.0
+                
+                return history_data
             else:
                 # Local storage fallback
                 return []
@@ -498,6 +413,7 @@ class ManualProcessingController:
         except Exception as e:
             logger.error(f"Failed to get processing history: {e}")
             return []
+        
     def process_date_range_enhanced(self, start_date: datetime, end_date: datetime, 
                                max_papers: Optional[int] = None,
                                skip_existing: bool = True,

@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00924v1",
+  "extraction_timestamp": "2025-06-08 15:55:08.639698",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper introduces a dual-layer QoE assessment framework that combines objective network metrics (packet loss, delay, jitter, throughput) with subjective user feedback from live-streaming platforms, enabling network operators to predict user-perceived video quality without requiring client-side instrumentation or video content analysis.",
+    "A machine learning model was developed using ITU-T P.1203 reference implementation for MOS computation, allowing accurate prediction of user-perceived video quality using only network-side parameters accessible to operators, eliminating dependency on application-level data.",
+    "The research presents a semantic filtering and scoring pipeline using large language models to process user comments from live streams, converting qualitative feedback into quantitative MOS scores in a deterministic and reproducible manner, creating a scalable approach to capture subjective user experience.",
+    "A comprehensive labeled dataset of 47,894 live-stream comments was constructed with approximately 34,000 identified as QoE-relevant through multi-layer semantic filtering, with each comment enriched with simulated ISP attribution and temporal alignment for practical operator-level analysis.",
+    "The framework establishes a three-layer hierarchical QoE model: Access Layer (network metrics), Service Layer (application behavior), and Experience Layer (user perception), providing operators with progressively detailed insights while maintaining operational relevance and measurability at each level."
+  ],
+  "limitations": [
+    "The framework relies on simulated ISP attribution rather than real operator data, which may limit accuracy in real-world deployment scenarios",
+    "The semantic filtering approach may miss nuanced user feedback that doesn't explicitly mention performance issues but still indicates quality problems"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Bridging the gap between objective network performance metrics and subjective user experience for network operators to assess Quality of Experience without client-side access",
+  "prerequisites": [
+    "Network monitoring infrastructure",
+    "Access to live-streaming platform comment data",
+    "Machine learning deployment capabilities",
+    "ITU-T P.1203 implementation"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Network operator QoE monitoring",
+    "Live-streaming service quality assessment",
+    "ISP performance evaluation",
+    "Video service optimization"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

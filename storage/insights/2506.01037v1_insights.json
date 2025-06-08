@@ -1,0 +1,56 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01037v1",
+  "extraction_timestamp": "2025-06-08 15:49:06.956334",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper introduces a novel Video State-Space block with 3D Selective Scan module that provides global spatio-temporal attention for maintaining content consistency across video frames at lower computational cost compared to traditional attention mechanisms.",
+    "A self-supervised ControlNet framework is developed that uses HR features as guidance and employs contrastive learning to extract degradation-insensitive features from low-resolution videos, significantly reducing artifacts in generated high-resolution details.",
+    "The integration of Mamba architecture into pre-trained latent diffusion models addresses the inherent randomness problem in existing diffusion-based video super-resolution methods, making the approach more noise-robust for real-world applications.",
+    "A three-stage training strategy using a mixture of HR-LR video pairs is proposed to stabilize the video super-resolution training process, providing a systematic approach for practitioners to implement the method effectively.",
+    "The framework demonstrates practical applicability for real-world video enhancement scenarios where maintaining temporal consistency and reducing artifacts are critical, particularly for content creation, video restoration, and media processing industries."
+  ],
+  "limitations": [
+    "The paper excerpt does not provide quantitative performance metrics or comparison results with existing methods",
+    "Implementation details regarding computational requirements, training time, and hardware specifications are not fully disclosed in the available content"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "contrastive_learning",
+    "diffusion_models",
+    "self_supervised_learning",
+    "other",
+    "attention_mechanisms"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Reducing complex degradations and artifacts in diffusion-based video super-resolution while maintaining temporal consistency across frames",
+  "prerequisites": [
+    "Pre-trained latent diffusion models",
+    "GPU infrastructure for video processing",
+    "Knowledge of diffusion models and attention mechanisms",
+    "Access to HR-LR video training pairs"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Video content enhancement",
+    "Media processing and restoration",
+    "Real-world video upscaling",
+    "Content creation workflows"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": true,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

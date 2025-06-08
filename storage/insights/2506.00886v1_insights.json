@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00886v1",
+  "extraction_timestamp": "2025-06-08 15:57:02.509661",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The paper proposes treating internal reasoning and external actions as equivalent epistemic tools, enabling systematic coordination between introspection and interaction for more efficient agent decision-making.",
+    "Aligning an agent's tool-use decision-making boundary with its knowledge boundary can minimize unnecessary tool use and maximize epistemic efficiency, shifting focus from action execution to knowledge-driven intelligence systems.",
+    "A cyclical training paradigm of RL\u2192SFT\u2192RL\u2192SFT is proposed where reinforcement learning discovers high-quality trajectories aligned with knowledge boundaries, and supervised fine-tuning consolidates these behaviors for improved stability and generalization.",
+    "The framework advocates for optimizing both outcomes and processes in RL training to produce agents that are accurate, efficient, interpretable, and better aligned with real-world deployment constraints through restraint and self-awareness.",
+    "Prompt engineering can be used to develop task-specific agentic workflows across various domains achieving adaptation without additional fine-tuning, demonstrating practical implementation paths for the theoretical framework."
+  ],
+  "limitations": [
+    "The paper is primarily theoretical with limited empirical validation of the proposed epistemic framework",
+    "Specific implementation details and performance metrics for the cyclical training paradigm are not provided"
+  ],
+  "future_work": [],
+  "study_type": "theoretical",
+  "techniques_used": [
+    "prompt_engineering",
+    "fine_tuning",
+    "reinforcement_learning"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Lack of coherent epistemic framework for autonomous LLM agents to make efficient tool-use decisions and coordinate internal reasoning with external actions",
+  "prerequisites": [
+    "Large Language Models",
+    "Reinforcement Learning infrastructure",
+    "Supervised Fine-tuning capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Autonomous agent deployment",
+    "Task-specific agentic workflows",
+    "Knowledge-driven intelligence systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

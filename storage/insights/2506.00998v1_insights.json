@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00998v1",
+  "extraction_timestamp": "2025-06-08 15:51:01.728209",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "LoRA-BAM introduces a lightweight out-of-distribution (OoD) detection method that monitors LoRA layers using boxed abstraction to identify queries beyond a fine-tuned model's competence, preventing unreliable responses on unfamiliar inputs.",
+    "The method extracts feature vectors from fine-tuning data via the LLM, clusters them, and encloses clusters in geometric boxes - flagging questions as OoD if their feature vectors fall outside all established boxes, providing interpretable decision boundaries.",
+    "A novel regularization loss is introduced during fine-tuning that encourages paraphrased questions to remain close in feature space, improving model robustness and ensuring semantically similar queries are handled consistently.",
+    "The approach enlarges decision boundaries based on feature variance within clusters, making the detection more robust to natural variations in input phrasing while maintaining precision in identifying truly out-of-scope queries.",
+    "LoRA-BAM complements existing defense mechanisms by providing a computationally efficient and interpretable solution to the overfitting problem in domain-specific LLM fine-tuning, with potential applications across specialized AI systems."
+  ],
+  "limitations": [
+    "Limited evaluation details provided in the excerpt, making it difficult to assess quantitative performance improvements",
+    "The method's effectiveness may depend heavily on the quality of initial clustering and box construction from training data"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "fine_tuning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Preventing fine-tuned LLMs from providing unreliable responses to out-of-distribution queries due to overfitting on domain-specific data",
+  "prerequisites": [
+    "LoRA fine-tuning framework",
+    "Feature extraction capabilities",
+    "Clustering algorithms",
+    "Access to training data for box construction"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Domain-specific chatbots that need to recognize when queries exceed their expertise",
+    "Specialized AI assistants in fields like healthcare or legal advice",
+    "Enterprise AI systems requiring reliable competence boundaries"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

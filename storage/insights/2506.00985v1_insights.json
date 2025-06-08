@@ -1,0 +1,55 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00985v1",
+  "extraction_timestamp": "2025-06-08 15:51:59.604257",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "GPT-4o and o1-mini achieved the best performance for extracting diary writing purposes from historical texts, significantly outperforming template-based baseline methods in identifying intentions like documenting life events, self-reflection, and language practice.",
+    "LLMs can effectively analyze large corpora of personal narratives to extract meaningful patterns in writing purposes, demonstrating practical applications for digital humanities research and historical text analysis at scale.",
+    "The method successfully identified and clustered various purposes of diary writing across different demographic variables (gender, age, year), providing a systematic approach for understanding motivations behind personal writing across historical periods.",
+    "Template-based approaches proved significantly less effective than LLM-based methods for purpose extraction, indicating that modern language models provide substantial advantages for analyzing subjective content and implicit intentions in text.",
+    "The research demonstrates that LLMs can be applied to historical document analysis (Soviet-era diaries from 1922-1929), opening possibilities for automated analysis of archival materials and personal narratives in digital humanities projects."
+  ],
+  "limitations": [
+    "The study is limited to Soviet-era diaries from a specific time period (1922-1929), which may not generalize to other cultural contexts or time periods",
+    "The paper mentions model limitations and error types but specific performance metrics and error analysis details are not fully provided in the available excerpt"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "prompt_engineering",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Extracting meaningful information and identifying writing purposes from large corpora of diary texts where traditional methods fail to deliver satisfactory results",
+  "prerequisites": [
+    "Access to LLM APIs (GPT-4o, o1-mini)",
+    "Text preprocessing capabilities",
+    "Clustering algorithms",
+    "Historical text datasets"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Digital humanities research",
+    "Historical document analysis",
+    "Personal narrative analysis",
+    "Archival text processing",
+    "Cultural studies research",
+    "Automated content analysis for large text collections"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00950v1",
+  "extraction_timestamp": "2025-06-08 15:54:07.688015",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "MUSHRA tests can be successfully adapted for crowdsourced evaluation using non-expert listeners from platforms like MTurk and Prolific, providing a cost-effective alternative to expensive expert evaluations for generative speech codec development.",
+    "Traditional objective metrics significantly undervalue generative speech models compared to conventional DSP codecs, creating a critical gap in evaluation methodology that requires codec-aware metrics for accurate assessment.",
+    "Platform-specific biases exist between different crowdsourcing platforms (MTurk vs Prolific), requiring careful consideration of platform selection and potential bias correction when conducting perceptual evaluations.",
+    "The proposed crowdsourcing adaptations maintain sufficient test-retest reliability and alignment with expert listener data, enabling scalable perceptual testing during model development rather than only at final evaluation stages.",
+    "Six objective metrics were systematically evaluated against subjective results, providing guidance for selecting appropriate evaluation metrics for generative speech technologies and highlighting the need for new evaluation frameworks in the age of AI-generated audio."
+  ],
+  "limitations": [
+    "Limited to speech codec evaluation and may not generalize to other audio generation tasks",
+    "Crowdsourced results may still have inherent biases compared to expert evaluations despite statistical alignment"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Making perceptual audio quality evaluation scalable and cost-effective for generative speech codec development by replacing expensive expert listeners with crowdsourced non-expert evaluators",
+  "prerequisites": [
+    "Access to crowdsourcing platforms",
+    "Audio codec samples",
+    "MUSHRA testing framework",
+    "Statistical analysis capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Generative speech codec development",
+    "Audio quality assessment for AI models",
+    "Scalable perceptual testing in industry",
+    "Model development iteration cycles"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

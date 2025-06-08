@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01047v2",
+  "extraction_timestamp": "2025-06-08 15:48:42.889786",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Automatic best-worst scaling with large language models achieves superior performance compared to traditional supervised approaches for embodied emotion classification, demonstrating a more efficient annotation and training paradigm.",
+    "Simplified prompting instructions combined with chain-of-thought reasoning significantly improve emotion recognition accuracy, with simplified 2-step CoT prompts yielding F1-score increases of 6.7 points over complex prompting approaches.",
+    "Smaller models (8B parameters) can achieve competitive performance with larger models (70B parameters) when using optimized prompting strategies - DeepSeek 8B with simple 2-step prompts performed within 6.7 F1-points of its 70B counterpart and 2.7 F1-points of GPT-3.5.",
+    "Three-step chain-of-thought reasoning consistently outperforms 2-step variants across different model architectures, indicating that deeper reasoning processes are more effective for embodied emotion detection tasks.",
+    "The research extends embodied emotion classification from binary classification to Ekman's six basic emotion categories (anger, disgust, fear, happiness, sadness, surprise), providing a more nuanced framework for understanding physical manifestations of emotions in text."
+  ],
+  "limitations": [
+    "Limited evaluation data shown in the provided excerpts, making it difficult to assess generalizability across different domains and text types",
+    "Dependency on large language models for the best-worst scaling approach may introduce computational costs and potential biases from the underlying models"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "chain_of_thought",
+    "prompt_engineering",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Identifying and classifying embodied emotions (physical manifestations of emotions) in text using fine-grained categories rather than binary classification",
+  "prerequisites": [
+    "Access to large language models",
+    "Understanding of prompt engineering techniques",
+    "Knowledge of emotion classification frameworks"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Mental health monitoring through text analysis",
+    "Customer sentiment analysis incorporating physical emotion indicators",
+    "Educational technology for emotion recognition training",
+    "Human-computer interaction systems with embodied emotion understanding"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

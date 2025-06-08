@@ -1,0 +1,55 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01093v1",
+  "extraction_timestamp": "2025-06-08 15:45:10.303670",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "The framework achieves exceptional performance with 98.2% F1-score, 97.8% precision, and 97.0% recall in real-time transaction monitoring by combining graph neural networks with generative AI for compliance explanation.",
+    "Dynamic transaction graphs are constructed to extract both structural and contextual features, enabling the system to identify suspicious behavior patterns that traditional rule-based systems might miss.",
+    "A retrieval-augmented generation (RAG) module generates natural-language explanations aligned with specific regulatory clauses for each flagged transaction, making compliance decisions audit-ready and interpretable.",
+    "The system integrates narrative field embedding to process unstructured transaction data alongside graph-based structural analysis, providing comprehensive transaction context for better decision-making.",
+    "Expert evaluation confirms the quality and interpretability of generated justifications, demonstrating practical viability for high-risk financial environments where explainable AI is crucial for regulatory compliance."
+  ],
+  "limitations": [
+    "Experiments conducted only on simulated financial data rather than real-world transaction streams",
+    "High computational complexity of real-time graph construction and neural network inference may impact scalability"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "transformer_architecture",
+    "retrieval_augmented_generation",
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Real-time transaction monitoring and compliance explanation in banking to detect suspicious behavior while providing audit-ready justifications aligned with regulatory requirements",
+  "prerequisites": [
+    "Graph neural network infrastructure",
+    "Real-time data streaming capabilities",
+    "Regulatory knowledge base",
+    "Natural language processing systems"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Automated financial compliance monitoring",
+    "Anti-money laundering detection",
+    "Suspicious transaction flagging",
+    "Regulatory audit preparation",
+    "Financial crime detection in high-risk environments"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00993v1",
+  "extraction_timestamp": "2025-06-08 15:51:26.021828",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "FlexSelect achieves up to 9x speed-up on LLaVA-Video-7B model while maintaining performance by using a two-component approach: training-free token ranking pipeline that leverages cross-modal attention weights to estimate video token importance, and a rank-supervised lightweight selector trained to replicate rankings and filter redundant tokens.",
+    "The method works as a plug-and-play module that can be seamlessly integrated into various VideoLLM architectures including LLaVA-Video, InternVL, and Qwen-VL without requiring architectural changes, making it broadly applicable across different video understanding systems.",
+    "FlexSelect delivers strong performance gains across multiple long-video benchmarks including VideoMME, MLVU, LongVB, and LVBench, demonstrating its effectiveness in real-world video understanding tasks while significantly reducing computational and memory demands.",
+    "The approach uses cross-modal attention patterns from a reference transformer layer to identify semantically relevant content, providing a principled way to determine which video tokens are most important for understanding without manual feature engineering.",
+    "By extending temporal context length for VideoLLMs while reducing computational overhead, FlexSelect addresses the fundamental scalability challenge in long-form video understanding, enabling practical deployment of video AI systems for extended content analysis."
+  ],
+  "limitations": [
+    "Limited information provided about training requirements and computational overhead of the lightweight selector component",
+    "No details on failure cases or performance degradation scenarios for different types of video content"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other",
+    "attention_mechanisms"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Prohibitively high computational and memory demands in long-form video understanding for video large language models",
+  "prerequisites": [
+    "Existing VideoLLM architecture",
+    "Cross-modal attention mechanisms",
+    "Transformer-based models"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Long-form video content analysis",
+    "Video summarization systems",
+    "Extended video question-answering",
+    "Scalable video understanding platforms"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

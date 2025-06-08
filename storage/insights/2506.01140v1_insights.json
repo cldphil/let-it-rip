@@ -1,0 +1,50 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01140v1",
+  "extraction_timestamp": "2025-06-08 15:42:59.583740",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "ReTern technique achieves 35% reduction in perplexity on Wikitext dataset for BitNet b1.58 700M and 3B ternary LLMs by combining fault-aware sign transformations (FAST) with TCiM bit-cell reprogramming, demonstrating significant fault tolerance improvement in compute-in-memory accelerators.",
+    "Ternary LLMs using ternary precision weights and 8-bit activations provide competitive performance while significantly reducing computational and memory requirements compared to full-precision LLMs, making them practical for resource-constrained deployments.",
+    "The dual-approach methodology uses FAST to minimize computation errors in +1/-1 weights while exploiting natural bit-cell redundancy to target stuck-at faults (SAFs) in zero weights through zero-fix technique, addressing different fault types with specialized solutions.",
+    "Ternary computing-in-memory (TCiM) accelerators can alleviate the von-Neumann bottleneck for LLM deployment but are particularly vulnerable to memory stuck-at faults due to LLMs' low weight sparsity, requiring specialized fault tolerance mechanisms.",
+    "The research demonstrates that hardware-software co-design approaches can effectively address reliability challenges in emerging computing paradigms, with implications for deploying quantized neural networks on fault-prone but energy-efficient accelerators."
+  ],
+  "limitations": [
+    "Limited evaluation to only BitNet b1.58 models with 700M and 3B parameters, lacking broader model architecture validation",
+    "Technique specifically designed for ternary precision, limiting applicability to other quantization schemes or full-precision models"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Memory stuck-at faults in ternary compute-in-memory accelerators that degrade LLM accuracy due to low weight sparsity",
+  "prerequisites": [
+    "Ternary computing-in-memory hardware",
+    "BitNet or similar ternary LLM architecture",
+    "Fault detection and mapping capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Edge AI deployment with fault-tolerant ternary LLMs",
+    "Energy-efficient LLM inference in unreliable memory environments",
+    "Robust AI accelerators for mission-critical applications"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

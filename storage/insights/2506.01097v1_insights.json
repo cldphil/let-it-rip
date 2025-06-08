@@ -1,0 +1,52 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01097v1",
+  "extraction_timestamp": "2025-06-08 15:44:49.107928",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Token compression can be effectively applied at the input stage of multimodal LLMs rather than intermediate layers, achieving negligible performance loss while significantly reducing computational costs. This challenges the conventional assumption that all visual tokens are necessary in shallow layers.",
+    "Explainability methods can effectively evaluate the importance of visual tokens with respect to given instructions, providing a principled approach to guide token compression decisions. This enables more intelligent token selection rather than arbitrary compression.",
+    "A lightweight convolutional network can learn to map attention patterns from the first LLM layer to explanation results, eliminating the need for full inference passes during token selection. This mapping approach is training-efficient and independent of the underlying MLLM architecture.",
+    "The approach demonstrates effectiveness across three leading MLLMs (Qwen2-VL, LLaVA-OneVision, and VILA1.5) and 10 benchmarks covering both image and video tasks, showing broad applicability and generalizability across different model architectures and modalities.",
+    "The method provides computational efficiency gains by reducing FLOPs in multihead attention and feed-forward network modules, with the efficiency calculated as FLOPs = NL(4nd\u00b2 + 2n\u00b2d + lnm) where n is visual tokens, d is hidden state size, and NL is number of layers."
+  ],
+  "limitations": [
+    "The method introduces additional computation overhead at the input stage through first-layer attention map processing",
+    "Performance evaluation is limited to specific benchmark datasets and may not generalize to all multimodal tasks"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other",
+    "attention_mechanisms"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Reducing computational costs and inefficiency in Multimodal Large Language Models caused by processing large numbers of visual tokens",
+  "prerequisites": [
+    "Access to multimodal LLMs",
+    "Understanding of attention mechanisms",
+    "Capability to implement lightweight convolutional networks"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Efficient deployment of multimodal AI systems",
+    "Real-time visual question answering",
+    "Resource-constrained multimodal inference",
+    "Video processing applications"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": true
+}

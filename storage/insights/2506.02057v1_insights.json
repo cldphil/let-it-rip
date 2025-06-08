@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.02057v1",
+  "extraction_timestamp": "2025-06-08 15:50:03.992101",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Novel approach leverages speech prosody (tone, rhythm, stress patterns) directly to disambiguate robot instruction intent, achieving 95.79% accuracy in detecting referent intents within utterances compared to traditional text-only methods that discard these crucial cues.",
+    "Integration of prosodic features with large language models via in-context learning enables robots to select appropriate task plans from ambiguous instructions with 71.96% accuracy, significantly improving human-robot communication effectiveness.",
+    "First ambiguous speech dataset for robotics created to advance research in speech disambiguation, providing a standardized benchmark for evaluating prosody-based instruction understanding systems.",
+    "Method bypasses traditional speech-to-text transcription bottlenecks by processing audio features directly, reducing information loss and enabling real-time intent inference for robotic systems.",
+    "Demonstrates potential for widespread application in human-robot collaboration scenarios where verbal instruction clarity is critical, opening new research directions in computational paralinguistics for robotics."
+  ],
+  "limitations": [
+    "Limited evaluation scope with only partial paper content available for analysis",
+    "Performance on task plan selection (71.96%) indicates room for improvement in complex disambiguation scenarios"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "in_context_learning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Ambiguous speech instruction interpretation in human-robot collaboration where traditional text-based methods fail to capture prosodic cues essential for understanding speaker intent",
+  "prerequisites": [
+    "Speech processing capabilities",
+    "Large language model integration",
+    "Prosodic feature extraction systems",
+    "Real-time audio processing infrastructure"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Human-robot collaboration in manufacturing",
+    "Service robots responding to verbal commands",
+    "Assistive robotics for elderly or disabled users",
+    "Interactive robotic systems in public spaces"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

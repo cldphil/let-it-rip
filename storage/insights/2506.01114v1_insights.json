@@ -1,0 +1,50 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01114v1",
+  "extraction_timestamp": "2025-06-08 15:44:10.954040",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Most LLM uncertainty estimation methods are highly sensitive to decision threshold selection when there is distribution shift in calibration datasets, making real-world deployment challenging as thresholds calibrated on one dataset may not perform well on different data distributions.",
+    "UE methods show significant vulnerability to adversarial prompts while maintaining robustness against previous chat history and typos, indicating that input transformation robustness varies greatly depending on the type of transformation applied.",
+    "Existing UE methods face substantial challenges when applied to long-form text generation compared to their typical evaluation in short-form QA settings, suggesting current methods may not scale effectively to complex generation tasks.",
+    "The study systematically evaluates 19 different UE methods across four critical deployment aspects: threshold sensitivity, input transformation robustness, long-form applicability, and multi-score aggregation strategies for practical implementation.",
+    "Current evaluation practices using threshold-independent metrics like AUROC and PRR in isolated settings do not adequately reflect real-world deployment challenges, highlighting the need for more comprehensive evaluation frameworks that consider practical constraints."
+  ],
+  "limitations": [
+    "The paper appears to be incomplete as only the first page and partial content are provided, limiting comprehensive analysis of results and conclusions",
+    "Evaluation focuses primarily on detection tasks rather than broader uncertainty estimation applications in generative AI systems"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating the practical deployment challenges of LLM uncertainty estimation methods for hallucination detection in real-world settings beyond controlled laboratory conditions",
+  "prerequisites": [
+    "Understanding of uncertainty estimation methods",
+    "Access to LLM inference capabilities",
+    "Knowledge of threshold calibration techniques"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Hallucination detection in production LLM systems",
+    "Quality control for AI-generated content",
+    "Reliability assessment for conversational AI systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

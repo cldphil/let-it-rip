@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.01074v1",
+  "extraction_timestamp": "2025-06-08 15:46:47.503399",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Code language models internally represent programming languages through a hierarchical neuron structure where language-specific neurons concentrate in bottom layers while language-exclusive neurons appear in top layers, enabling better understanding of model architecture for code generation optimization.",
+    "During few-shot translation tasks across 21 programming language pairs using Llama-based models, the concept space converges toward English representations in the second half of intermediate layers, assigning high probabilities to English tokens which can inform prompt engineering strategies.",
+    "Programming languages with larger keyword sets and high alignment with multiple other languages are positioned closer to the model's core concept space regardless of input/output language pairs, suggesting these languages serve as better intermediary representations for cross-language code translation.",
+    "The study demonstrates that neuron activation analysis across 11 programming languages reveals distinct patterns where highly-aligned languages make language-specific neuron identification infeasible, indicating shared computational pathways that can be leveraged for multi-language code understanding.",
+    "The research provides a framework for analyzing how LLMs internally represent programming languages through embedding decoding and neuron activation analysis, offering insights for improving code model training and fine-tuning strategies for specific programming language tasks."
+  ],
+  "limitations": [
+    "Study limited to Llama-based models which may not generalize to other code language model architectures",
+    "Analysis restricted to 21 programming language pairs and 11 languages for neuron analysis, potentially missing insights from other language combinations"
+  ],
+  "future_work": [],
+  "study_type": "theoretical",
+  "techniques_used": [
+    "few_shot_learning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Understanding how large language models internally represent and process multiple programming languages and their relationship to English in cross-language code translation tasks",
+  "prerequisites": [
+    "Access to Llama-based models",
+    "Programming language datasets",
+    "Neuron activation analysis tools",
+    "Embedding visualization capabilities"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Cross-language code translation systems",
+    "Programming language model optimization",
+    "Code generation tool improvement",
+    "Multi-language IDE development"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

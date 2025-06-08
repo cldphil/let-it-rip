@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00900v1",
+  "extraction_timestamp": "2025-06-08 15:56:06.878770",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "SocialEval introduces a novel dual evaluation paradigm for Large Language Models' social intelligence, combining outcome-oriented goal achievement evaluation with process-oriented interpersonal ability assessment through script-based narrative scenarios.",
+    "The benchmark uses a world tree structure for each script that contains plot lines driven by interpersonal abilities, providing comprehensive evaluation of how LLMs navigate complex social interactions in realistic scenarios.",
+    "Experimental results demonstrate that current LLMs significantly underperform compared to humans on both outcome-oriented and process-oriented social intelligence evaluations, revealing substantial gaps in AI social reasoning capabilities.",
+    "The framework is implemented as a bilingual benchmark, enabling cross-cultural evaluation of social intelligence and addressing the need for culturally-aware AI systems in global deployment scenarios.",
+    "The research establishes a new standard for evaluating AI social capabilities beyond traditional NLP metrics, focusing on practical social goal achievement and interpersonal skill demonstration that directly impacts real-world AI deployment."
+  ],
+  "limitations": [
+    "Limited details provided about the specific quantitative performance gaps between LLMs and humans",
+    "Incomplete information about the scale and diversity of the evaluation dataset and script scenarios"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Evaluating and measuring social intelligence capabilities of Large Language Models through comprehensive outcome and process-oriented assessment frameworks",
+  "prerequisites": [
+    "Access to multiple LLMs for evaluation",
+    "Bilingual language processing capabilities",
+    "Social scenario modeling expertise"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "AI customer service systems requiring social awareness",
+    "Educational AI tutors needing interpersonal skills",
+    "Social robotics and human-AI interaction systems",
+    "Cross-cultural AI deployment validation"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

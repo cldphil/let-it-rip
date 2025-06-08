@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00875v1",
+  "extraction_timestamp": "2025-06-08 15:58:26.077882",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "CC-Tuning introduces a novel cross-lingual connection mechanism that operates at the latent level by fusing feed-forward activations from both English and non-English inputs during training, addressing the fundamental issue of imbalanced multilingual capabilities in LLMs caused by English-centric training data.",
+    "The method employs a trainable Decision Maker component that intelligently identifies beneficial activations from cross-lingual interactions, enabling selective fusion of linguistic resources rather than naive combination of all cross-lingual features.",
+    "During inference, CC-Tuning utilizes a Transform Matrix to simulate cross-lingual connections in monolingual settings, allowing the model to leverage cross-lingual knowledge even when processing single-language inputs without requiring paired multilingual data at inference time.",
+    "The approach operates beyond traditional data-level techniques like data augmentation or distillation by establishing explicit latent-level cross-lingual interactions, representing a paradigm shift from implicit to explicit cross-lingual alignment in multilingual fine-tuning.",
+    "CC-Tuning provides a systematic framework for improving joint multilingual supervised fine-tuning that can potentially be applied across different language pairs and tasks, offering a scalable solution for enhancing multilingual model performance without extensive data preprocessing."
+  ],
+  "limitations": [
+    "The paper excerpt does not provide quantitative performance metrics or experimental results to validate the effectiveness of the proposed method",
+    "Implementation details regarding computational overhead and training complexity of the Decision Maker and Transform Matrix components are not fully specified"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "fine_tuning",
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Imbalanced multilingual capabilities in large language models due to English-centric training corpora and insufficient cross-lingual knowledge transfer",
+  "prerequisites": [
+    "Access to multilingual training data",
+    "Understanding of transformer architectures",
+    "Knowledge of feed-forward network modifications",
+    "Multilingual fine-tuning infrastructure"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Multilingual chatbots and virtual assistants",
+    "Cross-lingual information retrieval systems",
+    "International customer support automation",
+    "Global content localization and translation services"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

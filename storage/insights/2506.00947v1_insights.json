@@ -1,0 +1,53 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.00947v1",
+  "extraction_timestamp": "2025-06-08 15:54:18.595617",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "AD-SVFD introduces a novel deep learning approach combining auto-decoders with Neural ODEs for deformable registration of vascular anatomies, representing geometries as weighted point clouds and modeling deformations as ODE solutions with neural network-defined right-hand sides.",
+    "The method enables both registration of existing vascular shapes to predefined references and generation of synthetic anatomies through its auto-decoder structure, providing dual functionality for medical imaging applications.",
+    "Deformations are modeled as solutions at unit time of ODEs with time-independent right-hand sides expressed through artificial neural networks, with backward integration defining inverse transformations for bidirectional shape manipulation.",
+    "Model optimization uses Chamfer Distance minimization between deformed and reference point clouds, providing a geometrically meaningful loss function for vascular shape alignment and registration tasks.",
+    "The auto-decoder architecture enables generalization across different vascular shapes without requiring separate training for each anatomy type, making it scalable for diverse cardiovascular applications and synthetic data generation."
+  ],
+  "limitations": [
+    "Limited information provided about computational requirements and training time for the Neural ODE components",
+    "No quantitative performance metrics or comparison with existing vascular registration methods mentioned in the available content"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Deformable registration of vascular anatomies to reference shapes and generation of synthetic cardiovascular geometries for medical applications",
+  "prerequisites": [
+    "Deep learning frameworks supporting Neural ODEs",
+    "Point cloud processing capabilities",
+    "Medical imaging data preprocessing",
+    "Computational resources for ODE solving"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Medical imaging registration",
+    "Cardiovascular anatomy modeling",
+    "Synthetic medical data generation",
+    "Vascular shape analysis",
+    "Clinical decision support systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null,
+  "industry_validation": false
+}

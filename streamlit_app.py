@@ -17,7 +17,6 @@ from core import (
     SynthesisEngine,
     UserContext
 )
-from services.arxiv_fetcher import ArxivGenAIFetcher
 from config import Config
 
 # Import manual processing if available
@@ -382,30 +381,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
     # Get available date ranges
     available_ranges = st.session_state.manual_controller.get_available_date_ranges()
     
-    # Quick presets
-    st.markdown("**Quick Presets:**")
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        if st.button("Last 24 Hours", use_container_width=True):
-            st.session_state.selected_start = available_ranges['last_24_hours']['start_date']
-            st.session_state.selected_end = available_ranges['last_24_hours']['end_date']
-    
-    with col2:
-        if st.button("Last Week", use_container_width=True):
-            st.session_state.selected_start = available_ranges['last_week']['start_date']
-            st.session_state.selected_end = available_ranges['last_week']['end_date']
-    
-    with col3:
-        if st.button("Last Month", use_container_width=True):
-            st.session_state.selected_start = available_ranges['last_month']['start_date']
-            st.session_state.selected_end = available_ranges['last_month']['end_date']
-    
-    with col4:
-        if st.button("This Year", use_container_width=True):
-            st.session_state.selected_start = available_ranges['this_year']['start_date']
-            st.session_state.selected_end = available_ranges['this_year']['end_date']
-    
     # Custom date selection
     st.markdown("**Custom Date Range:**")
     col1, col2 = st.columns(2)
@@ -420,7 +395,7 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
     with col2:
         end_date = st.date_input(
             "End Date",
-            value=st.session_state.get('selected_end', datetime.now()).date(),
+            value=st.session_state.get('selected_end', datetime.now() - timedelta(days=1)).date(),
             max_value=datetime.now().date()
         )
     
@@ -460,9 +435,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
         estimate = st.session_state.manual_controller.estimate_processing_cost(
             start_datetime, end_datetime, max_papers
         )
-        
-        # Display estimate
-        st.markdown('<div class="cost-estimate">', unsafe_allow_html=True)
         
         col1, col2, col3, col4 = st.columns(4)
         
@@ -843,10 +815,18 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                     st.metric("Papers Processed", batch.get('papers_processed', 0))
                 
                 with col2:
-                    st.metric("Success Rate", f"{batch.get('success_rate', 0):.0%}")
+                    success_rate = batch.get('success_rate', 0)
+                    if isinstance(success_rate, (int, float)):
+                        st.metric("Success Rate", f"{success_rate:.0%}")
+                    else:
+                        st.metric("Success Rate", "N/A")
                 
                 with col3:
-                    st.metric("Cost", f"${batch.get('total_cost', 0):.2f}")
+                    total_cost = batch.get('total_cost', 0)
+                    if isinstance(total_cost, (int, float)):
+                        st.metric("Cost", f"${total_cost:.2f}")
+                    else:
+                        st.metric("Cost", "$0.00")
                 
                 if batch.get('notes'):
                     st.write(f"**Notes:** {batch['notes']}")
