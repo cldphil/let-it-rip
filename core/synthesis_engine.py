@@ -108,17 +108,7 @@ class SynthesisEngine:
             # Case study bonus - significant weight for real-world implementations
             case_study_score = 0.0
             if insights.study_type == StudyType.CASE_STUDY:
-                case_study_score = 0.7  # Base score for case studies
-                if insights.industry_validation:
-                    case_study_score = 1.0  # Full score for validated case studies
-            
-            # Industry validation bonus (separate from case study bonus)
-            validation_score = 0.0
-            if insights.industry_validation:
-                validation_score = 0.8
-                # Extra bonus for validated case studies with substantial findings
-                if insights.study_type == StudyType.CASE_STUDY and len(insights.key_findings) >= 5:
-                    validation_score = 1.0
+                case_study_score = 1
             
             # Reputation score from insights (already includes author h-index and conference validation)
             reputation_score = insights.get_reputation_score()
@@ -230,7 +220,6 @@ class SynthesisEngine:
                 'complexity': insights.implementation_complexity.value,
                 'published_year': self._extract_year(paper_info),
                 'is_case_study': insights.study_type == StudyType.CASE_STUDY,
-                'industry_validated': insights.industry_validation,
                 'has_code': insights.has_code_available,
                 'key_findings_count': len(insights.key_findings),
                 'study_type': insights.study_type.value
@@ -284,8 +273,6 @@ class SynthesisEngine:
         prefix = ""
         if insights.study_type == StudyType.CASE_STUDY:
             prefix = "[CASE STUDY] "
-            if insights.industry_validation:
-                prefix = "[INDUSTRY VALIDATED CASE STUDY] "
         
         findings_text = prefix + findings_text
         
@@ -324,15 +311,15 @@ class SynthesisEngine:
         if case_studies:
             case_studies_text = "\n### Real-World Case Studies (Highest Priority)\n"
             for summary in case_studies[:5]:  # Top 5 case studies
-                validation_tag = "✓ Industry Validated" if summary['industry_validated'] else "Case Study"
+                validation_tag = "Case Study"
                 case_studies_text += f"""
-{summary['rank']}. [{validation_tag}] {summary['title']}
-   Approach: {summary['approach']}
-   Key Findings: {summary['findings']}
-   Limitations: {summary['limitations']}
-   Reputation Score: {summary['reputation_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
-   Key Findings Count: {summary['key_findings_count']} | Study Type: {summary['study_type']}
-"""
+                    {summary['rank']}. [{validation_tag}] {summary['title']}
+                    Approach: {summary['approach']}
+                    Key Findings: {summary['findings']}
+                    Limitations: {summary['limitations']}
+                    Reputation Score: {summary['reputation_score']:.2f} | Complexity: {summary['complexity']} | Year: {summary['published_year']}
+                    Key Findings Count: {summary['key_findings_count']} | Study Type: {summary['study_type']}
+                    """
 
         # Format other research
         other_studies_text = ""
@@ -581,11 +568,6 @@ Format as a comparison matrix that helps the client make an informed decision.""
                 
                 if insights.study_type == StudyType.CASE_STUDY:
                     approaches[technique.value]['case_studies'] += 1
-                    if insights.industry_validation:
-                        paper_info = self.storage.load_paper(paper['paper_id'])
-                        approaches[technique.value]['validated_cases'].append(
-                            paper_info.get('title', 'Unknown')[:80]
-                        )
         
         # Calculate averages
         for approach_data in approaches.values():

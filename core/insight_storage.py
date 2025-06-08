@@ -1,6 +1,7 @@
 """
 Storage layer for paper insights with vector embeddings and local persistence.
 Uses ChromaDB for vector search and JSON for full data storage.
+Enhanced with Supabase cloud storage support.
 """
 
 import json
@@ -15,6 +16,7 @@ from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
 from .insight_schema import PaperInsights, UserContext, ExtractionMetadata
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,7 @@ logger = logging.getLogger(__name__)
 class InsightStorage:
     """
     Manages storage and retrieval of paper insights.
+    Supports both local and cloud (Supabase) storage.
     
     Storage structure:
     - storage/papers/: Raw paper data
@@ -43,7 +46,32 @@ class InsightStorage:
         self._connections = {}
         self._setup_database()
         
-        logger.info(f"Initialized storage at {self.storage_root}")
+        # Initialize Supabase if cloud storage is enabled
+        self.supabase = None
+        if Config.USE_CLOUD_STORAGE:
+            self._init_supabase()
+        
+        logger.info(f"Initialized storage at {self.storage_root} (Cloud: {Config.USE_CLOUD_STORAGE})")
+    
+    def _init_supabase(self):
+        """Initialize Supabase client for cloud storage."""
+        try:
+            from supabase import create_client, Client
+            
+            url = Config.SUPABASE_URL
+            key = Config.SUPABASE_ANON_KEY or Config.SUPABASE_SERVICE_ROLE_KEY
+            
+            if not url or not key:
+                logger.warning("Supabase credentials not found, falling back to local storage")
+                return
+            
+            self.supabase: Client = create_client(url, key)
+            logger.info("Initialized Supabase client for cloud storage")
+            
+        except ImportError:
+            logger.warning("Supabase library not installed, falling back to local storage")
+        except Exception as e:
+            logger.error(f"Failed to initialize Supabase: {e}")
     
     def _setup_directories(self):
         """Create storage directory structure."""
@@ -122,7 +150,6 @@ class InsightStorage:
                 has_code BOOLEAN,
                 has_dataset BOOLEAN,
                 key_findings_count INTEGER,
-                industry_validation BOOLEAN DEFAULT FALSE,
                 extraction_timestamp TIMESTAMP,
                 FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
             );
@@ -142,7 +169,6 @@ class InsightStorage:
             CREATE INDEX IF NOT EXISTS idx_insights_reputation ON insights(reputation_score DESC);
             CREATE INDEX IF NOT EXISTS idx_insights_complexity ON insights(complexity);
             CREATE INDEX IF NOT EXISTS idx_insights_study_type ON insights(study_type);
-            CREATE INDEX IF NOT EXISTS idx_insights_industry_validation ON insights(industry_validation);
             CREATE INDEX IF NOT EXISTS idx_papers_published ON papers(published_date DESC);
         """)
         conn.commit()
@@ -163,7 +189,7 @@ class InsightStorage:
     
     def store_paper(self, paper_data: Dict) -> str:
         """
-        Store raw paper data.
+        Store raw paper data in both local and cloud storage.
         
         Args:
             paper_data: Paper metadata from arXiv
@@ -178,17 +204,43 @@ class InsightStorage:
         # Sanitize Unicode in paper data
         sanitized_paper = self._sanitize_unicode(paper_data)
         
-        # Store JSON file
-        paper_path = self.storage_root / "papers" / f"{paper_id}.json"
-        try:
-            with open(paper_path, 'w', encoding='utf-8') as f:
-                json.dump(sanitized_paper, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            logger.error(f"Failed to store paper {paper_id}: {e}")
-            # Try again with more aggressive sanitization
-            sanitized_paper = self._sanitize_unicode(paper_data, aggressive=True)
-            with open(paper_path, 'w', encoding='utf-8') as f:
-                json.dump(sanitized_paper, f, indent=2, ensure_ascii=True)
+        # Store in Supabase if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                # Prepare data for Supabase
+                supabase_data = {
+                    'id': paper_id,
+                    'title': sanitized_paper.get('title', ''),
+                    'authors': sanitized_paper.get('authors', []),
+                    'summary': sanitized_paper.get('summary', ''),
+                    'published_date': sanitized_paper.get('published', ''),
+                    'categories': sanitized_paper.get('categories', []),
+                    'pdf_url': sanitized_paper.get('pdf_url', ''),
+                    'full_text': sanitized_paper.get('full_text', ''),
+                    'comments': sanitized_paper.get('comments', ''),
+                    'metadata': sanitized_paper  # Store full data as JSON
+                }
+                
+                # Upsert to Supabase
+                result = self.supabase.table('papers').upsert(supabase_data).execute()
+                logger.info(f"Stored paper {paper_id} in Supabase")
+                
+            except Exception as e:
+                logger.error(f"Failed to store paper in Supabase: {e}")
+                # Continue with local storage
+        
+        # Always store locally (for backup or if cloud storage fails)
+        if Config.ENABLE_LOCAL_BACKUP or not self.supabase:
+            paper_path = self.storage_root / "papers" / f"{paper_id}.json"
+            try:
+                with open(paper_path, 'w', encoding='utf-8') as f:
+                    json.dump(sanitized_paper, f, indent=2, ensure_ascii=False)
+            except Exception as e:
+                logger.error(f"Failed to store paper {paper_id}: {e}")
+                # Try again with more aggressive sanitization
+                sanitized_paper = self._sanitize_unicode(paper_data, aggressive=True)
+                with open(paper_path, 'w', encoding='utf-8') as f:
+                    json.dump(sanitized_paper, f, indent=2, ensure_ascii=True)
         
         # Store metadata in SQLite
         self.metadata_conn.execute("""
@@ -245,7 +297,7 @@ class InsightStorage:
     def store_insights(self, paper_id: str, insights: PaperInsights, 
                       extraction_metadata: Optional[ExtractionMetadata] = None):
         """
-        Store extracted insights with embeddings.
+        Store extracted insights with embeddings in both local and cloud storage.
         
         Args:
             paper_id: Paper identifier
@@ -256,17 +308,68 @@ class InsightStorage:
         insights_dict = insights.dict()
         sanitized_insights = self._sanitize_unicode(insights_dict)
         
-        # Store insights JSON
-        insights_path = self.storage_root / "insights" / f"{paper_id}_insights.json"
-        try:
-            with open(insights_path, 'w', encoding='utf-8') as f:
-                json.dump(sanitized_insights, f, indent=2, default=str)
-        except Exception as e:
-            logger.error(f"Failed to store insights for {paper_id}: {e}")
-            # Try with aggressive sanitization
-            sanitized_insights = self._sanitize_unicode(insights_dict, aggressive=True)
-            with open(insights_path, 'w', encoding='utf-8') as f:
-                json.dump(sanitized_insights, f, indent=2, default=str, ensure_ascii=True)
+        # Store in Supabase if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                # Prepare insights data for Supabase
+                supabase_insights = {
+                    'id': paper_id,
+                    'paper_id': paper_id,
+                    'study_type': insights.study_type.value,
+                    'techniques_used': [t.value for t in insights.techniques_used],
+                    'implementation_complexity': insights.implementation_complexity.value,
+                    'reputation_score': insights.get_reputation_score(),
+                    'extraction_confidence': insights.extraction_confidence,
+                    'has_code': insights.has_code_available,
+                    'has_dataset': insights.has_dataset_available,
+                    'key_findings_count': len(insights.key_findings),
+                    'extraction_timestamp': insights.extraction_timestamp.isoformat(),
+                    'total_author_hindex': insights.total_author_hindex,
+                    'has_conference_mention': insights.has_conference_mention,
+                    'key_findings': insights.key_findings,
+                    'limitations': insights.limitations,
+                    'problem_addressed': insights.problem_addressed,
+                    'prerequisites': insights.prerequisites,
+                    'real_world_applications': insights.real_world_applications,
+                    'full_insights': sanitized_insights  # Store complete insights as JSON
+                }
+                
+                # Upsert to Supabase
+                result = self.supabase.table('insights').upsert(supabase_insights).execute()
+                logger.info(f"Stored insights for {paper_id} in Supabase")
+                
+                # Store extraction metadata if provided
+                if extraction_metadata:
+                    metadata_data = {
+                        'id': extraction_metadata.extraction_id,
+                        'paper_id': paper_id,
+                        'extraction_time_seconds': extraction_metadata.extraction_time_seconds,
+                        'api_calls_made': extraction_metadata.api_calls_made,
+                        'estimated_cost_usd': extraction_metadata.estimated_cost_usd,
+                        'extractor_version': extraction_metadata.extractor_version,
+                        'llm_model': extraction_metadata.llm_model,
+                        'extraction_timestamp': extraction_metadata.extraction_timestamp.isoformat()
+                    }
+                    
+                    self.supabase.table('extraction_metadata').upsert(metadata_data).execute()
+                    logger.info(f"Stored extraction metadata for {paper_id} in Supabase")
+                
+            except Exception as e:
+                logger.error(f"Failed to store insights in Supabase: {e}")
+                # Continue with local storage
+        
+        # Always store locally for backup
+        if Config.ENABLE_LOCAL_BACKUP or not self.supabase:
+            insights_path = self.storage_root / "insights" / f"{paper_id}_insights.json"
+            try:
+                with open(insights_path, 'w', encoding='utf-8') as f:
+                    json.dump(sanitized_insights, f, indent=2, default=str)
+            except Exception as e:
+                logger.error(f"Failed to store insights for {paper_id}: {e}")
+                # Try with aggressive sanitization
+                sanitized_insights = self._sanitize_unicode(insights_dict, aggressive=True)
+                with open(insights_path, 'w', encoding='utf-8') as f:
+                    json.dump(sanitized_insights, f, indent=2, default=str, ensure_ascii=True)
         
         # Generate embedding from abstract and key findings for enhanced RAG
         paper_data = self.load_paper(paper_id)
@@ -298,7 +401,6 @@ class InsightStorage:
                 "key_findings_count": len(insights.key_findings),
                 "has_code": insights.has_code_available,
                 "has_dataset": insights.has_dataset_available,
-                "industry_validation": insights.industry_validation,
                 "published_year": self._extract_year(paper_data) if paper_data else 2020
             }],
             ids=[paper_id]
@@ -309,7 +411,7 @@ class InsightStorage:
             INSERT OR REPLACE INTO insights 
             (paper_id, study_type, complexity, techniques, 
              reputation_score, extraction_confidence, 
-             has_code, has_dataset, key_findings_count, industry_validation, extraction_timestamp)
+             has_code, has_dataset, key_findings_count, extraction_timestamp)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             paper_id,
@@ -321,7 +423,6 @@ class InsightStorage:
             insights.has_code_available,
             insights.has_dataset_available,
             len(insights.key_findings),
-            insights.industry_validation,
             insights.extraction_timestamp.isoformat()
         ))
         
@@ -467,8 +568,8 @@ class InsightStorage:
         # Risk tolerance alignment
         risk_bonus = 0.0
         if user_context.risk_tolerance == "conservative":
-            # Prioritize case studies and industry validation for conservative users
-            if insights.study_type.value == "case_study" and insights.industry_validation:
+            # Prioritize case studies for conservative users
+            if insights.study_type.value == "case_study":
                 risk_bonus = 0.1
             elif reputation_score > 0.7:  # High reputation papers
                 risk_bonus = 0.05
@@ -479,10 +580,8 @@ class InsightStorage:
         
         # Industry validation bonus (especially for case studies)
         validation_bonus = 0.0
-        if insights.industry_validation:
-            validation_bonus = 0.05
-            if insights.study_type.value == "case_study":
-                validation_bonus = 0.1
+        if insights.study_type.value == "case_study":
+            validation_bonus = 0.1
         
         # Updated weighted combination
         final_score = (
@@ -509,7 +608,7 @@ class InsightStorage:
         # Risk tolerance constraints
         if user_context.risk_tolerance == "conservative":
             # For conservative users, prefer validated studies or high reputation
-            if not insights.industry_validation and insights.get_reputation_score() < 0.5:
+            if insights.get_reputation_score() < 0.5:
                 return False
         
         # Budget constraint via complexity
@@ -520,7 +619,29 @@ class InsightStorage:
         return True
     
     def load_insights(self, paper_id: str) -> Optional[PaperInsights]:
-        """Load insights for a specific paper."""
+        """Load insights for a specific paper from cloud or local storage."""
+        # Try Supabase first if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                result = self.supabase.table('insights').select('*').eq('id', paper_id).execute()
+                
+                if result.data and len(result.data) > 0:
+                    # Convert from Supabase format back to PaperInsights
+                    insights_data = result.data[0]
+                    
+                    # Use full_insights if available, otherwise reconstruct
+                    if 'full_insights' in insights_data and insights_data['full_insights']:
+                        return PaperInsights(**insights_data['full_insights'])
+                    else:
+                        # Fallback: reconstruct from individual fields
+                        logger.warning(f"Reconstructing insights for {paper_id} from individual fields")
+                        # This would need proper reconstruction logic
+                        return None
+                        
+            except Exception as e:
+                logger.error(f"Failed to load insights from Supabase: {e}")
+        
+        # Fallback to local storage
         insights_path = self.storage_root / "insights" / f"{paper_id}_insights.json"
         if not insights_path.exists():
             return None
@@ -531,7 +652,36 @@ class InsightStorage:
         return PaperInsights(**data)
     
     def load_paper(self, paper_id: str) -> Optional[Dict]:
-        """Load raw paper data."""
+        """Load raw paper data from cloud or local storage."""
+        # Try Supabase first if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                result = self.supabase.table('papers').select('*').eq('id', paper_id).execute()
+                
+                if result.data and len(result.data) > 0:
+                    paper_data = result.data[0]
+                    
+                    # Use metadata field if available, otherwise use individual fields
+                    if 'metadata' in paper_data and paper_data['metadata']:
+                        return paper_data['metadata']
+                    else:
+                        # Reconstruct paper data from individual fields
+                        return {
+                            'id': paper_data.get('id'),
+                            'title': paper_data.get('title'),
+                            'authors': paper_data.get('authors', []),
+                            'summary': paper_data.get('summary', ''),
+                            'published': paper_data.get('published_date', ''),
+                            'categories': paper_data.get('categories', []),
+                            'pdf_url': paper_data.get('pdf_url', ''),
+                            'full_text': paper_data.get('full_text', ''),
+                            'comments': paper_data.get('comments', '')
+                        }
+                        
+            except Exception as e:
+                logger.error(f"Failed to load paper from Supabase: {e}")
+        
+        # Fallback to local storage
         paper_path = self.storage_root / "papers" / f"{paper_id}.json"
         if not paper_path.exists():
             return None
@@ -541,7 +691,7 @@ class InsightStorage:
     
     def get_statistics(self) -> Dict:
         """
-        Get enhanced storage statistics by reading directly from JSON files.
+        Get enhanced storage statistics from cloud or local storage.
         """
         stats = {
             'total_papers': 0,
@@ -552,10 +702,71 @@ class InsightStorage:
             'average_reputation_score': 0.0,
             'average_key_findings_count': 0.0,
             'recent_papers_count': 0,  # Papers from last 2 years
-            'industry_validated_count': 0,  # Count of industry validated papers
             'case_studies_count': 0  # Count of case studies
         }
         
+        # Try Supabase first if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                # Get counts from Supabase
+                papers_result = self.supabase.table('papers').select('id', count='exact').execute()
+                stats['total_papers'] = papers_result.count
+                
+                insights_result = self.supabase.table('insights').select('*').execute()
+                insights_data = insights_result.data
+                stats['total_insights'] = len(insights_data)
+                
+                if insights_data:
+                    # Process insights for statistics
+                    total_reputation = 0.0
+                    total_findings = 0
+                    complexity_counts = {}
+                    study_type_counts = {}
+                    current_year = datetime.now().year
+                    
+                    for insight in insights_data:
+                        # Reputation score
+                        reputation = insight.get('reputation_score', 0)
+                        total_reputation += reputation
+                        
+                        # Key findings count
+                        findings_count = insight.get('key_findings_count', 0)
+                        total_findings += findings_count
+                        
+                        # Code availability
+                        if insight.get('has_code'):
+                            stats['papers_with_code'] += 1
+                        
+                        # Case studies
+                        if insight.get('study_type') == 'case_study':
+                            stats['case_studies_count'] += 1
+                        
+                        # Complexity distribution
+                        complexity = insight.get('implementation_complexity', 'unknown')
+                        complexity_counts[complexity] = complexity_counts.get(complexity, 0) + 1
+                        
+                        # Study type distribution
+                        study_type = insight.get('study_type', 'unknown')
+                        study_type_counts[study_type] = study_type_counts.get(study_type, 0) + 1
+                    
+                    # Calculate averages
+                    if stats['total_insights'] > 0:
+                        stats['average_reputation_score'] = round(total_reputation / stats['total_insights'], 2)
+                        stats['average_key_findings_count'] = round(total_findings / stats['total_insights'], 1)
+                    
+                    stats['complexity_distribution'] = complexity_counts
+                    stats['study_type_distribution'] = study_type_counts
+                
+                # Get recent papers count (would need to query papers table with date filter)
+                # For now, this is a simplified version
+                
+                return stats
+                
+            except Exception as e:
+                logger.error(f"Failed to get statistics from Supabase: {e}")
+                # Fall through to local storage
+        
+        # Fallback to local storage statistics
         # Count paper files
         paper_files = list((self.storage_root / "papers").glob("*.json"))
         stats['total_papers'] = len(paper_files)
@@ -593,11 +804,7 @@ class InsightStorage:
                 # Count code availability
                 if insights.has_code_available:
                     stats['papers_with_code'] += 1
-                
-                # Count industry validation
-                if insights.industry_validation:
-                    stats['industry_validated_count'] += 1
-                
+
                 # Count case studies
                 if insights.study_type.value == "case_study":
                     stats['case_studies_count'] += 1
@@ -653,6 +860,18 @@ class InsightStorage:
         for directory in ["papers", "insights", "checkpoints"]:
             for file in (self.storage_root / directory).glob("*.json"):
                 file.unlink()
+        
+        # Clear Supabase if enabled
+        if self.supabase and Config.USE_CLOUD_STORAGE:
+            try:
+                # Delete all records from Supabase tables
+                # Note: This is a destructive operation - use with caution
+                self.supabase.table('extraction_metadata').delete().neq('id', '').execute()
+                self.supabase.table('insights').delete().neq('id', '').execute()
+                self.supabase.table('papers').delete().neq('id', '').execute()
+                logger.info("Cleared all data from Supabase")
+            except Exception as e:
+                logger.error(f"Failed to clear Supabase data: {e}")
         
         logger.info("Cleared all storage")
     

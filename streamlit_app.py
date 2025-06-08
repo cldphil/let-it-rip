@@ -231,7 +231,7 @@ if page == "📊 Dashboard":
     current_stats = st.session_state.storage.get_statistics()
     
     # Key metrics - updated to remove deprecated fields
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.metric(
@@ -253,24 +253,8 @@ if page == "📊 Dashboard":
                 "N/A",
                 help="Process papers to see reputation scores"
             )
-
-    with col3:
-        # Industry validated papers
-        if current_stats.get('total_insights', 0) > 0:
-            validation_rate = current_stats.get('industry_validated_count', 0) / current_stats['total_insights']
-            st.metric(
-                "Industry Validated",
-                f"{current_stats.get('industry_validated_count', 0)} ({validation_rate:.0%})",
-                help="Papers with real-world validation"
-            )
-        else:
-            st.metric(
-                "Industry Validated",
-                "N/A",
-                help="Process papers to see validation status"
-            )
     
-    with col4:
+    with col3:
         # Case studies metric
         if current_stats.get('total_insights', 0) > 0:
             case_study_rate = current_stats.get('case_studies_count', 0) / current_stats['total_insights']
@@ -468,14 +452,16 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
         # Processing button
         if st.button("🔄 Process Papers", use_container_width=True, type="primary", disabled=not is_valid):
             
-            # Create enhanced progress tracking UI
+            # Create progress tracking UI containers (created once)
             st.markdown("### Processing Progress")
             
-            # Create containers for different parts of the progress display
-            phase_container = st.container()
-            progress_container = st.container()
-            stats_container = st.container()
-            details_container = st.container()
+            # Create empty containers that will be updated
+            phase_container = st.empty()
+            progress_bar = st.empty()
+            progress_text = st.empty()
+            stats_container = st.empty()
+            current_activity = st.empty()
+            error_container = st.empty()
             
             # Initialize progress tracking state
             progress_state = {
@@ -492,115 +478,91 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
             def update_progress_display(state):
                 """Update the progress display with current state."""
                 
-                with phase_container:
-                    # Phase indicator with emoji
-                    phase_emojis = {
-                        'initializing': '🔧',
-                        'fetching': '📡',
-                        'processing': '⚙️',
-                        'completed': '✅',
-                        'error': '❌'
-                    }
-                    
-                    phase_names = {
-                        'initializing': 'Initializing',
-                        'fetching': 'Fetching Papers',
-                        'processing': 'Extracting Insights',
-                        'completed': 'Processing Complete',
-                        'error': 'Error Occurred'
-                    }
-                    
-                    emoji = phase_emojis.get(state['phase'], '⚙️')
-                    name = phase_names.get(state['phase'], 'Processing')
-                    
-                    st.markdown(f"""
-                    <div style="background: linear-gradient(90deg, #0066FF 0%, #00D4FF 100%); 
-                                padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
-                        <h3 style="color: white; margin: 0;">{emoji} {name}</h3>
-                    </div>
-                    """, unsafe_allow_html=True)
+                # Phase indicator
+                phase_emojis = {
+                    'initializing': '🔧',
+                    'fetching': '📡',
+                    'processing': '⚙️',
+                    'completed': '✅',
+                    'error': '❌'
+                }
                 
-                with progress_container:
-                    # Overall progress bar
-                    st.progress(state['overall_progress'] / 100)
-                    
-                    # Progress percentage
-                    st.markdown(f"""
-                    <div style="text-align: center; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0;">
-                        {state['overall_progress']:.1f}% Complete
-                    </div>
-                    """, unsafe_allow_html=True)
+                phase_names = {
+                    'initializing': 'Initializing',
+                    'fetching': 'Fetching Papers',
+                    'processing': 'Extracting Insights',
+                    'completed': 'Processing Complete',
+                    'error': 'Error Occurred'
+                }
                 
-                with stats_container:
-                    # Real-time statistics
+                phase_colors = {
+                    'initializing': '#0066FF',
+                    'fetching': '#17A2B8',
+                    'processing': '#FFC107',
+                    'completed': '#28A745',
+                    'error': '#DC3545'
+                }
+                
+                emoji = phase_emojis.get(state['phase'], '⚙️')
+                name = phase_names.get(state['phase'], 'Processing')
+                color = phase_colors.get(state['phase'], '#0066FF')
+                
+                # Update phase indicator
+                phase_container.markdown(f"""
+                <div style="background: linear-gradient(135deg, {color} 0%, {color}AA 100%); 
+                            padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h2 style="color: white; margin: 0; font-size: 1.8rem;">{emoji} {name}</h2>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Update progress bar
+                progress_bar.progress(state['overall_progress'] / 100)
+                
+                # Update progress text
+                elapsed = (datetime.now() - state['start_time']).total_seconds()
+                if elapsed < 60:
+                    time_str = f"{elapsed:.0f}s"
+                else:
+                    time_str = f"{elapsed/60:.1f}m"
+                
+                progress_text.markdown(f"""
+                **Progress:** {state['overall_progress']:.1f}% | **Elapsed:** {time_str}
+                """)
+                
+                # Update statistics
+                with stats_container.container():
                     col1, col2, col3, col4 = st.columns(4)
                     
                     with col1:
-                        st.metric(
-                            "Papers Found", 
-                            state['papers_found'],
-                            help="Total papers discovered in date range"
-                        )
+                        st.metric("Papers Found", state['papers_found'])
                     
                     with col2:
-                        st.metric(
-                            "Papers Processed", 
-                            state['papers_processed'],
-                            delta=f"{state['papers_processed'] - state.get('last_processed', 0)}" if state.get('last_processed') else None,
-                            help="Papers that have been analyzed"
-                        )
+                        st.metric("Papers Processed", state['papers_processed'])
                     
                     with col3:
-                        st.metric(
-                            "Insights Generated", 
-                            state['insights_generated'],
-                            delta=f"{state['insights_generated'] - state.get('last_insights', 0)}" if state.get('last_insights') else None,
-                            help="Successful insight extractions"
-                        )
+                        st.metric("Insights Generated", state['insights_generated'])
                     
                     with col4:
-                        # Calculate processing rate
-                        elapsed = (datetime.now() - state['start_time']).total_seconds()
-                        if elapsed > 0 and state['papers_processed'] > 0:
-                            rate = state['papers_processed'] / (elapsed / 60)  # papers per minute
-                            st.metric(
-                                "Processing Rate",
-                                f"{rate:.1f}/min",
-                                help="Papers processed per minute"
-                            )
+                        if state['papers_processed'] > 0:
+                            rate = state['papers_processed'] / (elapsed / 60)
+                            st.metric("Rate", f"{rate:.1f}/min")
                         else:
-                            st.metric("Processing Rate", "Calculating...", help="Papers processed per minute")
+                            st.metric("Rate", "Calculating...")
                 
-                with details_container:
-                    # Current activity and estimated time
-                    if state['current_paper']:
-                        st.markdown(f"""
-                        <div style="background-color: #F8F9FA; padding: 1rem; border-radius: 6px; margin: 1rem 0;">
-                            <strong>Currently Processing:</strong><br>
-                            📄 {state['current_paper'][:100]}{'...' if len(state['current_paper']) > 100 else ''}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    # Estimated time remaining
-                    if state['papers_processed'] > 0 and state['papers_found'] > 0:
-                        elapsed = (datetime.now() - state['start_time']).total_seconds()
-                        papers_remaining = state['papers_found'] - state['papers_processed']
-                        if papers_remaining > 0:
-                            avg_time_per_paper = elapsed / state['papers_processed']
-                            estimated_remaining = papers_remaining * avg_time_per_paper
-                            
-                            if estimated_remaining < 60:
-                                time_str = f"{estimated_remaining:.0f} seconds"
-                            else:
-                                time_str = f"{estimated_remaining/60:.1f} minutes"
-                            
-                            st.info(f"⏱️ Estimated time remaining: {time_str}")
-                    
-                    # Show errors if any
-                    if state['errors']:
-                        with st.expander(f"⚠️ Errors ({len(state['errors'])})"):
-                            for error in state['errors'][-5:]:  # Show last 5 errors
-                                st.error(f"• {error}")
+                # Update current activity
+                if state['current_paper']:
+                    current_activity.info(f"📄 Processing: {state['current_paper'][:100]}...")
+                else:
+                    current_activity.empty()
+                
+                # Update errors if any
+                if state['errors']:
+                    with error_container.expander(f"⚠️ Errors ({len(state['errors'])})"):
+                        for error in state['errors'][-3:]:
+                            st.error(f"• {error}")
+                else:
+                    error_container.empty()
             
             # Enhanced progress callback function
             def enhanced_progress_callback(message, progress, **kwargs):
@@ -609,34 +571,29 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                 # Update progress state based on message and additional info
                 if "Fetching papers" in message:
                     progress_state['phase'] = 'fetching'
-                    progress_state['overall_progress'] = min(progress, 15)  # Fetching is 0-15%
+                    progress_state['overall_progress'] = min(progress, 15)
                     
                 elif "Found" in message and "papers" in message:
-                    # Extract number of papers found
                     import re
                     match = re.search(r'(\d+)', message)
                     if match:
                         progress_state['papers_found'] = int(match.group(1))
                     progress_state['phase'] = 'processing'
-                    progress_state['overall_progress'] = 15  # Start of processing phase
+                    progress_state['overall_progress'] = 15
                     
                 elif "Processing paper" in message:
-                    # Extract current paper number and total
                     import re
                     match = re.search(r'Processing paper (\d+)/(\d+)', message)
                     if match:
                         current, total = int(match.group(1)), int(match.group(2))
-                        progress_state['papers_processed'] = current - 1  # Currently processing, so -1 completed
-                        progress_state['overall_progress'] = 15 + (current / total) * 70  # 15-85% for processing
+                        progress_state['papers_processed'] = current - 1
+                        progress_state['overall_progress'] = 15 + (current / total) * 70
                         
-                        # Get current paper title if provided
                         if kwargs.get('current_paper_title'):
                             progress_state['current_paper'] = kwargs['current_paper_title']
                     
                 elif "Extracting insights" in message:
-                    # Update insights generated count
                     if kwargs.get('insights_generated'):
-                        progress_state['last_insights'] = progress_state['insights_generated']
                         progress_state['insights_generated'] = kwargs['insights_generated']
                 
                 elif "Processing complete" in message or progress >= 100:
@@ -677,7 +634,7 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                     progress_state['phase'] = 'completed'
                     progress_state['overall_progress'] = 100
                     progress_state['papers_processed'] = results['papers_processed']
-                    progress_state['insights_generated'] = results['papers_processed']  # Assuming 1:1 ratio
+                    progress_state['insights_generated'] = results['papers_processed']
                     update_progress_display(progress_state)
                     
                     st.success("✅ Processing completed successfully!")
@@ -760,42 +717,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                 progress_state['errors'].append(str(e))
                 update_progress_display(progress_state)
                 st.error(f"❌ Unexpected error: {str(e)}")
-
-        # CSS for enhanced styling
-        st.markdown("""
-        <style>
-        .metric-container {
-            background-color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #E5E7EB;
-            text-align: center;
-        }
-
-        .progress-phase {
-            background: linear-gradient(90deg, #0066FF 0%, #00D4FF 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .current-activity {
-            background-color: #F8F9FA;
-            padding: 1rem;
-            border-radius: 6px;
-            margin: 1rem 0;
-            border-left: 4px solid #0066FF;
-        }
-
-        .progress-stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 1rem 0;
-        }
-        </style>
-        """, unsafe_allow_html=True)
     
     # Processing History
     st.subheader("📋 Processing History")
@@ -907,10 +828,6 @@ elif page == "📚 Browse Insights":
                                 if show_case_studies_only and insights.study_type.value != 'case_study':
                                     continue
                                 
-                                # Apply validation filter if checked
-                                if show_validated_only and not insights.industry_validation:
-                                    continue
-                                
                                 # Apply code availability filter if checked
                                 if show_with_code_only and not insights.has_code_available:
                                     continue
@@ -951,8 +868,6 @@ elif page == "📚 Browse Insights":
                     badges_html = ""
                     if paper['insights'].study_type.value == 'case_study':
                         badges_html += '<span class="case-study-badge">CASE STUDY</span> '
-                    if paper['insights'].industry_validation:
-                        badges_html += '<span class="validation-badge">INDUSTRY VALIDATED</span>'
                     
                     if badges_html:
                         st.markdown(badges_html, unsafe_allow_html=True)
@@ -1014,8 +929,6 @@ elif page == "📚 Browse Insights":
                             st.success("✅ Code Available")
                         if paper['insights'].has_dataset_available:
                             st.success("✅ Dataset Available")
-                        if paper['insights'].industry_validation:
-                            st.success("✅ Industry Validated")
                             
     except Exception as e:
         st.error(f"Error loading papers: {str(e)}")
@@ -1245,7 +1158,6 @@ elif page == "⚙️ Settings":
             f"{current_stats.get('average_reputation_score', 0):.2f}",
             f"{current_stats.get('average_key_findings_count', 0):.1f}",
             current_stats.get('papers_with_code', 0),
-            current_stats.get('industry_validated_count', 0),
             current_stats.get('case_studies_count', 0),
             current_stats.get('recent_papers_count', 0)
         ]

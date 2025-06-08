@@ -195,10 +195,6 @@ class PaperInsights(BaseModel):
     has_code_available: bool = False
     has_dataset_available: bool = False
     reproducibility_score: Optional[float] = Field(None, ge=0.0, le=1.0)
-    industry_validation: bool = Field(
-        default=False,
-        description="Whether results were validated in industry setting"
-    )
     
     @validator('key_findings')
     def limit_key_findings(cls, v):

@@ -645,11 +645,11 @@ Paper Type: {'Case Study' if is_case_study else 'Research Paper'}
 Extract comprehensive insights and return ONLY a JSON object with this exact format (no markdown, no extra text):
 {{
     "key_findings": [
-        "Detailed finding 1 - Be specific about methods, results, and implications. Include quantitative improvements where mentioned.",
-        "Detailed finding 2 - Focus on practical applications and real-world impact. Mention specific techniques or innovations.",
-        "Detailed finding 3 - Highlight unique contributions or novel approaches. Include performance metrics if available.",
-        "Detailed finding 4 - Discuss implementation details, requirements, or deployment considerations.",
-        "Detailed finding 5 - Cover broader implications, lessons learned, or future directions."
+        "Detailed finding 1 - Be specific about methods, results, and implications. Include quantitative improvements where mentioned. At least 25 words",
+        "Detailed finding 2 - Focus on practical applications and real-world impact. Mention specific techniques or innovations. At least 25 words.",
+        "Detailed finding 3 - Highlight unique contributions or novel approaches. Include performance metrics if available. At least 50 words.",
+        "Detailed finding 4 - Discuss implementation details, requirements, or deployment considerations. At least 75 words.",
+        "Detailed finding 5 - Cover broader implications, lessons learned, or future directions. At least 25 words."
     ],
     "limitations": ["Key limitation 1", "Key limitation 2"],
     "study_type": "{self._infer_study_type(is_case_study, sections)}",
@@ -660,7 +660,6 @@ Extract comprehensive insights and return ONLY a JSON object with this exact for
     "real_world_applications": ["Specific use cases mentioned"],
     "has_code_available": false,
     "has_dataset_available": false,
-    "industry_validation": {str(is_case_study).lower()}
 }}
 
 {self._get_case_study_instructions() if is_case_study else ''}
@@ -669,7 +668,9 @@ IMPORTANT:
 1. Focus on extracting PRACTICAL, IMPLEMENTABLE insights that practitioners can use.
 2. Return ONLY the JSON object, no markdown formatting, no explanations.
 3. Ensure all JSON values are properly formatted (strings in quotes, numbers without quotes).
-4. For implementation_complexity use one of: "low", "medium", "high", "very_high"."""
+4. For implementation_complexity use one of: "low", "medium", "high", "very_high".
+5. Write 25-100 words for each Key Finding, ensuring that every pracitcal, applicable detail is summarized from the text.
+"""
 
         try:
             response = self.client.messages.create(
@@ -800,8 +801,8 @@ IMPORTANT:
         if not key_findings:
             key_findings = ["Analysis of " + paper.get('title', 'research paper')]
         
-        # Ensure we have at least 5 findings (pad with generic ones if needed)
-        while len(key_findings) < 5:
+        # Ensure we have at least 10 findings (pad with generic ones if needed)
+        while len(key_findings) < 10:
             key_findings.append(f"Additional analysis needed for finding {len(key_findings) + 1}")
         
         return {
@@ -815,7 +816,6 @@ IMPORTANT:
             "real_world_applications": [],
             "has_code_available": False,
             "has_dataset_available": False,
-            "industry_validation": is_case_study
         }
     
     def _infer_techniques_from_text(self, paper: Dict, sections: Dict) -> List[str]:
@@ -919,7 +919,6 @@ IMPORTANT:
             
             has_code_available=bool(raw_insights.get('has_code_available', False)),
             has_dataset_available=bool(raw_insights.get('has_dataset_available', False)),
-            industry_validation=bool(raw_insights.get('industry_validation', False))
         )
         
         return insights
