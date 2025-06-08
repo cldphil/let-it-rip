@@ -346,24 +346,22 @@ class Config:
             'enable_monitoring': True
         }
     
-    @classmethod
+    @classmethod 
     def print_current_config(cls):
-        """Print current configuration summary."""
+        """Enhanced configuration summary including rate limiting."""
         print("\n" + "=" * 60)
         print("Current Configuration Summary")
         print("=" * 60)
         
         print(f"📊 Storage: {'☁️  Supabase Cloud' if cls.USE_CLOUD_STORAGE else '💾 Local SQLite'}")
         print(f"🔍 Min Reputation Score: {cls.MINIMUM_REPUTATION_SCORE}")
-        print(f"💾 Local Backup: {'✅' if cls.ENABLE_LOCAL_BACKUP else '❌'}")
         print(f"🤖 LLM Model: {cls.LLM_MODEL}")
         print(f"📈 Author Lookup: {'✅' if cls.ENABLE_AUTHOR_LOOKUP else '❌'}")
-        print(f"⏰ Manual Processing: {'✅' if cls.ENABLE_DATE_RANGE_PROCESSING else '❌'}")
-        print(f"📅 Default Days: {cls.DEFAULT_PROCESSING_DAYS}")
-        
-        if cls.USE_CLOUD_STORAGE:
-            print(f"🌐 Supabase URL: {cls.SUPABASE_URL[:30]}..." if cls.SUPABASE_URL else "❌ Not set")
-            print(f"🔑 Supabase Key: {'✅ Set' if cls.SUPABASE_ANON_KEY else '❌ Not set'}")
+        print(f"👥 Max Authors per Paper: {cls.MAX_AUTHORS_PER_PAPER}")
+        print(f"⏰ API Request Interval: {cls.SEMANTIC_SCHOLAR_MIN_INTERVAL}s")
+        print(f"🔄 Max API Retries: {cls.SEMANTIC_SCHOLAR_MAX_RETRIES}")
+        print(f"📦 Batch Size: {cls.BATCH_SIZE}")
+        print(f"🛡️  Continue on API Errors: {'✅' if cls.CONTINUE_ON_API_ERRORS else '❌'}")
         
         print("=" * 60)
 

@@ -280,7 +280,7 @@ class InsightExtractor:
         metadata = ExtractionMetadata(
             extraction_id=f"{paper.get('id', 'unknown')}_{start_time.timestamp()}",
             paper_id=paper.get('id', 'unknown'),
-            extractor_version="2.0",
+            extractor_version="2.1",  # Updated version
             llm_model=Config.LLM_MODEL,
             llm_temperature=Config.LLM_TEMPERATURE,
             extraction_time_seconds=0.0,
@@ -326,28 +326,60 @@ class InsightExtractor:
             # Create insights object
             insights = self._create_insights_object(insights_data, paper.get('id', ''))
             
-            # Fetch author h-indices and detect conference
+            # Fetch author h-indices and detect conference with improved error handling
             logger.info("Fetching author metrics and conference detection...")
             try:
-                # Get author h-indices
-                total_hindex, individual_hindices = self.semantic_scholar.get_paper_total_hindex(paper.get('authors', []))
-                logger.info(f"Total author h-index: {total_hindex}")
+                # Check if we should skip author lookup due to rate limits
+                api_status = self.semantic_scholar.get_api_status()
                 
-                # Detect conference/workshop
-                is_conference = self.semantic_scholar.detect_conference_mention(paper)
-                conference_multiplier = 1.5 if is_conference else 1.0
-                logger.info(f"Conference detected: {is_conference}, multiplier: {conference_multiplier}")
+                if api_status['consecutive_failures'] >= api_status['max_consecutive_failures']:
+                    logger.warning("Skipping author lookup due to API rate limit issues")
+                    insights.total_author_hindex = 0
+                    insights.has_conference_mention = False
+                    
+                    # Add note about skipped lookup
+                    metadata.extraction_errors.append("Author h-index lookup skipped due to API rate limits")
+                    
+                else:
+                    # Proceed with author lookup but with limited authors to reduce API calls
+                    authors_to_process = paper.get('authors', [])[:5]  # Limit to first 5 authors
+                    
+                    if len(paper.get('authors', [])) > 5:
+                        logger.info(f"Limiting author lookup to first 5 of {len(paper.get('authors', []))} authors")
+                    
+                    # Get author h-indices with error handling
+                    try:
+                        total_hindex, individual_hindices = self.semantic_scholar.get_paper_total_hindex(authors_to_process)
+                        insights.total_author_hindex = total_hindex
+                        insights.author_hindices = individual_hindices
+                        logger.info(f"Total author h-index: {total_hindex}")
+                    except Exception as e:
+                        logger.warning(f"Author h-index lookup failed: {e}")
+                        insights.total_author_hindex = 0
+                        insights.author_hindices = {}
+                        metadata.extraction_errors.append(f"Author lookup failed: {str(e)}")
+                    
+                    # Detect conference/workshop with error handling
+                    try:
+                        is_conference = self.semantic_scholar.detect_conference_mention(paper)
+                        insights.has_conference_mention = is_conference
+                        logger.info(f"Conference detected: {is_conference}")
+                    except Exception as e:
+                        logger.warning(f"Conference detection failed: {e}")
+                        insights.has_conference_mention = False
+                        metadata.extraction_errors.append(f"Conference detection failed: {str(e)}")
                 
-                # Set author metrics and conference flag
-                insights.total_author_hindex = total_hindex
-                insights.has_conference_mention = is_conference
-                
-                # Reputation score is automatically calculated by the schema
-                logger.info(f"Calculated reputation score: {insights.get_reputation_score()}")
+                # Log the final reputation score
+                reputation_score = insights.get_reputation_score()
+                logger.info(f"Calculated reputation score: {reputation_score:.3f}")
                 
             except Exception as e:
-                logger.warning(f"Failed to fetch author metrics or conference detection: {e}")
-                # Schema will use default values (0 h-index, False for conference)
+                logger.error(f"Failed to fetch author metrics or conference detection: {e}")
+                # Set defaults and continue
+                insights.total_author_hindex = 0
+                insights.has_conference_mention = False
+                insights.author_hindices = {}
+                metadata.extraction_errors.append(f"Author metrics extraction failed: {str(e)}")
             
             # Set extraction confidence based on sections found
             if has_full_text:

@@ -498,6 +498,303 @@ class ManualProcessingController:
         except Exception as e:
             logger.error(f"Failed to get processing history: {e}")
             return []
+    def process_date_range_enhanced(self, start_date: datetime, end_date: datetime, 
+                               max_papers: Optional[int] = None,
+                               skip_existing: bool = True,
+                               progress_callback=None) -> Dict:
+        """
+        Enhanced process papers from a specific date range with detailed progress tracking.
+        
+        Args:
+            start_date: Start date for papers
+            end_date: End date for papers
+            max_papers: Maximum papers to process
+            skip_existing: Whether to skip already processed papers
+            progress_callback: Function to call with detailed progress updates
+            
+        Returns:
+            Dict with processing results and statistics
+        """
+        # Validate date range
+        is_valid, error_msg = self.validate_date_range(start_date, end_date)
+        if not is_valid:
+            return {'error': error_msg, 'success': False}
+        
+        if progress_callback:
+            progress_callback("Validating date range and preparing...", 0, phase='initializing')
+        
+        # Get cost estimate
+        estimate = self.estimate_processing_cost(start_date, end_date, max_papers)
+        
+        if progress_callback:
+            progress_callback(
+                f"Fetching papers from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}...", 
+                5, 
+                phase='fetching',
+                progress_papers_found=0
+            )
+        
+        try:
+            # Fetch papers with date range
+            papers = self.fetcher.fetch_papers_date_range(
+                start_date=start_date,
+                end_date=end_date,
+                max_results=max_papers or 1000,  # Default max
+                include_full_text=True
+            )
+            
+            if not papers:
+                return {
+                    'error': 'No papers found in the specified date range',
+                    'success': False,
+                    'estimate': estimate
+                }
+            
+            if progress_callback:
+                progress_callback(
+                    f"Found {len(papers)} papers. Preparing for processing...", 
+                    10, 
+                    phase='processing',
+                    progress_papers_found=len(papers)
+                )
+            
+            # Filter existing papers if requested
+            original_count = len(papers)
+            if skip_existing:
+                papers = self._filter_existing_papers(papers)
+                if progress_callback:
+                    filtered_count = original_count - len(papers)
+                    progress_callback(
+                        f"Filtered {filtered_count} existing papers. Processing {len(papers)} new papers...", 
+                        15,
+                        progress_papers_found=len(papers)
+                    )
+            
+            if not papers:
+                return {
+                    'error': 'All papers in the date range have already been processed',
+                    'success': True,
+                    'papers_found': original_count,
+                    'papers_processed': 0,
+                    'estimate': estimate
+                }
+            
+            # Process papers with enhanced progress tracking
+            checkpoint_name = f"manual_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}"
+            
+            # Enhanced processing with detailed callbacks
+            stats = self._process_papers_with_detailed_progress(
+                papers,
+                checkpoint_name,
+                progress_callback
+            )
+            
+            if progress_callback:
+                progress_callback("Processing complete! Calculating final statistics...", 95)
+            
+            # Enhanced results
+            results = {
+                'success': True,
+                'papers_found': len(papers),
+                'papers_processed': stats.get('successful', 0),
+                'papers_failed': stats.get('failed', 0),
+                'processing_time_seconds': stats.get('total_time', 0),
+                'processing_cost_usd': stats.get('total_cost', 0),
+                'date_range': {
+                    'start': start_date.strftime('%Y-%m-%d'),
+                    'end': end_date.strftime('%Y-%m-%d'),
+                    'days': (end_date - start_date).days
+                },
+                'estimate_vs_actual': {
+                    'estimated_papers': estimate['estimated_papers'],
+                    'actual_papers': len(papers),
+                    'estimated_cost': estimate['estimated_cost_usd'],
+                    'actual_cost': stats.get('total_cost', 0)
+                },
+                'reputation_filtering': {
+                    'active': Config.MINIMUM_REPUTATION_SCORE > 0,
+                    'threshold': Config.MINIMUM_REPUTATION_SCORE,
+                    'papers_stored': stats.get('successful', 0)
+                },
+                'detailed_stats': stats
+            }
+            
+            # Store results for future reference
+            self.last_processing_stats = results
+            
+            if progress_callback:
+                progress_callback("Processing complete!", 100, phase='completed')
+            
+            return results
+            
+        except Exception as e:
+            error_msg = f"Processing failed: {str(e)}"
+            logger.error(error_msg)
+            
+            if progress_callback:
+                progress_callback(f"Error: {error_msg}", 0, phase='error', error_details=error_msg)
+            
+            return {
+                'error': error_msg,
+                'success': False,
+                'estimate': estimate
+            }
+
+    def _process_papers_with_detailed_progress(self, papers: List[Dict], 
+                                            checkpoint_name: str,
+                                            progress_callback=None) -> Dict:
+        """
+        Process papers with detailed progress tracking for enhanced UI feedback.
+        
+        Args:
+            papers: List of paper dictionaries to process
+            checkpoint_name: Name for the processing checkpoint
+            progress_callback: Callback function for progress updates
+            
+        Returns:
+            Processing statistics dictionary
+        """
+        from datetime import datetime
+        import time
+        
+        start_time = datetime.utcnow()
+        
+        # Initialize statistics
+        stats = {
+            'total_processed': 0,
+            'successful': 0,
+            'failed': 0,
+            'skipped': 0,
+            'total_time': 0.0,
+            'total_cost': 0.0,
+            'errors': []
+        }
+        
+        total_papers = len(papers)
+        processed_papers = 0
+        insights_generated = 0
+        
+        logger.info(f"Starting enhanced processing of {total_papers} papers")
+        
+        # Process papers one by one for detailed progress tracking
+        for i, paper in enumerate(papers, 1):
+            paper_start_time = time.time()
+            
+            # Get paper title for progress display
+            paper_title = paper.get('title', f"Paper {i}")
+            
+            if progress_callback:
+                base_progress = 15 + (i - 1) / total_papers * 80  # 15-95% range for processing
+                progress_callback(
+                    f"Processing paper {i}/{total_papers}",
+                    base_progress,
+                    current_paper_title=paper_title,
+                    progress_papers_processed=processed_papers,
+                    progress_insights_generated=insights_generated
+                )
+            
+            try:
+                # Store raw paper data
+                paper_id = paper.get('id', '').split('/')[-1]
+                if not paper_id:
+                    paper_id = f"unknown_{datetime.utcnow().timestamp()}"
+                
+                stored_id = self.storage.store_paper(paper)
+                
+                # Extract insights
+                insights, metadata = self.processor.extractor.extract_insights(paper)
+                
+                # Store insights
+                self.storage.store_insights(stored_id, insights, metadata)
+                
+                # Update statistics
+                stats['successful'] += 1
+                insights_generated += 1
+                processed_papers += 1
+                
+                if metadata.estimated_cost_usd:
+                    stats['total_cost'] += metadata.estimated_cost_usd
+                
+                # Progress update after successful processing
+                if progress_callback:
+                    current_progress = 15 + i / total_papers * 80
+                    progress_callback(
+                        f"Successfully processed: {paper_title[:60]}...",
+                        current_progress,
+                        progress_papers_processed=processed_papers,
+                        progress_insights_generated=insights_generated
+                    )
+                
+                logger.info(f"Successfully processed paper {i}/{total_papers}: {paper_title[:50]}...")
+                
+            except Exception as e:
+                stats['failed'] += 1
+                processed_papers += 1
+                error_msg = f"Failed to process {paper_title[:50]}: {str(e)}"
+                stats['errors'].append(error_msg)
+                
+                logger.error(error_msg)
+                
+                # Progress update after failed processing
+                if progress_callback:
+                    current_progress = 15 + i / total_papers * 80
+                    progress_callback(
+                        f"Failed to process: {paper_title[:60]}...",
+                        current_progress,
+                        progress_papers_processed=processed_papers,
+                        progress_insights_generated=insights_generated,
+                        error_details=error_msg
+                    )
+            
+            # Small delay between papers to avoid overwhelming the system
+            paper_processing_time = time.time() - paper_start_time
+            if paper_processing_time < 1.0:  # Minimum 1 second per paper for UI responsiveness
+                time.sleep(1.0 - paper_processing_time)
+        
+        # Calculate final statistics
+        stats['total_processed'] = len(papers)
+        stats['total_time'] = (datetime.utcnow() - start_time).total_seconds()
+        
+        logger.info(f"Enhanced processing complete: {stats}")
+        return stats
+
+    # Also add this helper method to provide real-time status
+    def get_processing_status(self) -> Dict:
+        """
+        Get current processing status for real-time monitoring.
+        
+        Returns:
+            Dict with current processing status
+        """
+        try:
+            # Get current storage statistics
+            storage_stats = self.storage.get_statistics()
+            
+            # Get latest processing batch info if available
+            latest_batch = None
+            if hasattr(self, 'last_processing_stats') and self.last_processing_stats:
+                latest_batch = self.last_processing_stats
+            
+            status = {
+                'storage_stats': storage_stats,
+                'latest_batch': latest_batch,
+                'timestamp': datetime.now().isoformat(),
+                'system_healthy': True
+            }
+            
+            # Check if any processing is currently running
+            # This would need to be implemented based on your processing architecture
+            status['processing_active'] = False
+            
+            return status
+            
+        except Exception as e:
+            logger.error(f"Failed to get processing status: {e}")
+            return {
+                'error': str(e),
+                'system_healthy': False,
+                'timestamp': datetime.now().isoformat()
+            }
     
     def get_storage_usage(self) -> Dict:
         """Get current storage usage statistics."""
