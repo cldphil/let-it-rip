@@ -1,0 +1,57 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.05332v1",
+  "extraction_timestamp": "2025-06-08 03:13:22.492772",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "VideoMarathon dataset introduces the first large-scale hour-long video instruction-following dataset with 9,700 hours of videos (3-60 minutes each) and 3.3M QA pairs across 22 tasks, addressing the critical scarcity of well-annotated long video training data for Video-LMMs.",
+    "Hour-LLaVA model enables efficient hour-scale video processing at 1 FPS sampling rate during both training and inference through a novel Memory Augmentation (MemAug) mechanism that adaptively integrates question-relevant and spatiotemporal-informative semantics from cached video representations.",
+    "The MemAug mechanism provides learnable compression directly supervised by next-token prediction loss, outperforming explicit token compression methods that rely on hand-crafted heuristics, effectively mitigating information loss in sparse sampling scenarios for long videos.",
+    "The dataset spans six fundamental video understanding topics (temporality, spatiality, object, action, scene, and event) with support for both short-term and long-term video comprehension tasks, significantly extending training video durations compared to existing datasets.",
+    "Hour-LLaVA achieves state-of-the-art performance on long video understanding benchmarks, demonstrating that hour-scale video training can be practically implemented with appropriate memory management and sampling strategies, opening new possibilities for extended video analysis applications."
+  ],
+  "limitations": [
+    "Limited information provided about computational requirements and hardware specifications needed for hour-scale video processing",
+    "Incomplete performance metrics and comparison details with existing methods not fully disclosed in the provided excerpt"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "dynamic_sparsification",
+    "memory_augmentation",
+    "other",
+    "multimodal_learning"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Scarcity of well-annotated long videos for training hour-long Video-LMMs and the challenge of processing extended video content efficiently",
+  "prerequisites": [
+    "Large-scale video processing infrastructure",
+    "Multimodal model training capabilities",
+    "Memory management systems",
+    "GPU resources for hour-scale video training"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Long-form video content analysis",
+    "Educational video understanding",
+    "Surveillance video processing",
+    "Documentary and film analysis",
+    "Extended video summarization",
+    "Multi-hour video question answering"
+  ],
+  "total_author_hindex": 41,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": true,
+  "has_dataset_available": true,
+  "reproducibility_score": null,
+  "industry_validation": false
+}
