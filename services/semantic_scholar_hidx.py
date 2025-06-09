@@ -87,6 +87,38 @@ class SemanticScholarAPI:
                 json.dump(cache_data, f, indent=2)
         except Exception as e:
             logger.warning(f"Failed to cache data for {author_name}: {e}")
+
+    def get_api_status(self) -> Dict:
+        """
+        Get current API status including rate limit tracking.
+        
+        Returns:
+            Dict with API status information
+        """
+        if not hasattr(self, '_api_status'):
+            self._api_status = {
+                'consecutive_failures': 0,
+                'max_consecutive_failures': 3,
+                'last_success_time': None,
+                'total_requests': 0,
+                'total_failures': 0
+            }
+        
+        return self._api_status
+
+    def _update_api_status(self, success: bool):
+        """Update API status after a request."""
+        if not hasattr(self, '_api_status'):
+            self.get_api_status()  # Initialize if needed
+        
+        self._api_status['total_requests'] += 1
+        
+        if success:
+            self._api_status['consecutive_failures'] = 0
+            self._api_status['last_success_time'] = time.time()
+        else:
+            self._api_status['consecutive_failures'] += 1
+            self._api_status['total_failures'] += 1
     
     def search_author(self, author_name: str) -> Optional[Dict]:
         """
@@ -104,7 +136,7 @@ class SemanticScholarAPI:
             logger.info(f"Using cached data for author: {author_name}")
             return cached_data
         
-        # Search for author
+        # Rate limiting
         self._rate_limit()
         
         try:
@@ -121,6 +153,9 @@ class SemanticScholarAPI:
             
             data = response.json()
             authors = data.get('data', [])
+            
+            # Update API status on success
+            self._update_api_status(success=True)
             
             if not authors:
                 logger.info(f"No authors found for: {author_name}")
@@ -145,9 +180,12 @@ class SemanticScholarAPI:
             return best_match
             
         except requests.exceptions.RequestException as e:
+            # Update API status on failure
+            self._update_api_status(success=False)
             logger.error(f"API request failed for author {author_name}: {e}")
             return None
         except Exception as e:
+            self._update_api_status(success=False)
             logger.error(f"Unexpected error searching for author {author_name}: {e}")
             return None
     

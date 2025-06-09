@@ -1,0 +1,16 @@
+{
+  "id": "test_20250608_213649",
+  "title": "Test Paper for Storage Fixes",
+  "authors": [
+    "Test Author 1",
+    "Test Author 2"
+  ],
+  "summary": "This is a test abstract to verify JSON serialization.",
+  "published": "2025-06-08T21:36:49.586428",
+  "categories": [
+    "cs.AI",
+    "cs.LG"
+  ],
+  "pdf_url": "http://example.com/test.pdf",
+  "comments": "Test comment"
+}

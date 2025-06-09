@@ -1,0 +1,51 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.04251v1",
+  "extraction_timestamp": "2025-06-09 02:19:24.739321",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "LLM-MARL framework integrates large language models into multi-agent reinforcement learning through three modular components: Coordinator for dynamic subgoal generation, Communicator for symbolic inter-agent messaging, and Memory for episodic recall, showing consistent improvements over baseline methods like MAPPO and QMIX.",
+    "The framework combines PPO training with language-conditioned loss and LLM query gating, enabling agents to leverage natural language for coordination and communication in complex multi-agent environments like Google Research Football, MAgent Battle, and StarCraft II.",
+    "Experimental results demonstrate significant performance improvements in win rate, coordination score, and zero-shot generalization across multiple game environments. Ablation studies confirm that both subgoal generation and language-based messaging contribute substantially to performance gains, with emergent behaviors including role specialization and communication-driven tactical coordination.",
+    "The implementation uses environment-grounded prompts that lead to semantic responses improving coordination. The prompt structure is modular and templatable for different environments or agent architectures. Training involves combining traditional reinforcement learning with language modeling capabilities, requiring integration of LLM inference with real-time multi-agent decision making. The framework supports episodic recall and dynamic strategy adaptation based on previous successful encounters.",
+    "This work bridges language modeling and policy learning, contributing to intelligent cooperative agent design in interactive simulations and offering pathways for leveraging LLMs in multi-agent systems for training, games, and human-AI collaboration applications."
+  ],
+  "limitations": [
+    "Limited evaluation to simulated game environments only",
+    "Computational overhead from LLM integration not fully quantified"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "reinforcement_learning",
+    "prompt_engineering",
+    "multi_agent"
+  ],
+  "implementation_complexity": "high",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Enhancing coordination, communication, and generalization in multi-agent reinforcement learning systems through language model integration",
+  "prerequisites": [
+    "Multi-agent reinforcement learning expertise",
+    "Large language model integration capabilities",
+    "Game simulation environments"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Training simulations",
+    "Game AI development",
+    "Human-AI collaboration systems"
+  ],
+  "total_author_hindex": 0,
+  "has_conference_mention": false,
+  "author_hindices": {},
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null
+}

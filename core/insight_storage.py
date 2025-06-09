@@ -8,6 +8,7 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import uuid
 from typing import List, Dict, Optional
 import logging
 
@@ -126,7 +127,7 @@ class InsightStorage:
     
     def _create_tables(self, conn):
         """Create tables in the given connection."""
-        # Updated schema without deprecated fields
+        # Updated schema without deprecated fields and with correct column count
         conn.executescript("""
             DROP TABLE IF EXISTS extraction_metadata;
             DROP TABLE IF EXISTS insights;
@@ -187,6 +188,15 @@ class InsightStorage:
         self._create_tables(conn)
         conn.close()
     
+    def _generate_uuid_for_paper(self, paper_id: str) -> str:
+        """
+        Generate a consistent UUID for a paper ID.
+        Uses namespace UUID to ensure same paper_id always generates same UUID.
+        """
+        # Use a namespace UUID for consistency
+        namespace = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')  # Standard namespace
+        return str(uuid.uuid5(namespace, paper_id))
+    
     def store_paper(self, paper_data: Dict) -> str:
         """
         Store raw paper data in both local and cloud storage.
@@ -195,7 +205,7 @@ class InsightStorage:
             paper_data: Paper metadata from arXiv
             
         Returns:
-            Paper ID
+            Paper ID (arxiv ID, not UUID)
         """
         paper_id = paper_data.get('id', '').split('/')[-1]
         if not paper_id:
@@ -207,9 +217,13 @@ class InsightStorage:
         # Store in Supabase if enabled
         if self.supabase and Config.USE_CLOUD_STORAGE:
             try:
+                # Generate UUID for Supabase
+                supabase_uuid = self._generate_uuid_for_paper(paper_id)
+                
                 # Prepare data for Supabase
                 supabase_data = {
-                    'id': paper_id,
+                    'id': supabase_uuid,  # Use UUID for Supabase
+                    'paper_id': paper_id,  # Store actual paper ID separately
                     'title': sanitized_paper.get('title', ''),
                     'authors': sanitized_paper.get('authors', []),
                     'summary': sanitized_paper.get('summary', ''),
@@ -223,11 +237,10 @@ class InsightStorage:
                 
                 # Upsert to Supabase
                 result = self.supabase.table('papers').upsert(supabase_data).execute()
-                logger.info(f"Stored paper {paper_id} in Supabase")
+                logger.info(f"Stored paper {paper_id} in Supabase with UUID {supabase_uuid}")
                 
             except Exception as e:
                 logger.error(f"Failed to store paper in Supabase: {e}")
-                # Continue with local storage
         
         # Always store locally (for backup or if cloud storage fails)
         if Config.ENABLE_LOCAL_BACKUP or not self.supabase:
@@ -295,14 +308,9 @@ class InsightStorage:
             return data
     
     def store_insights(self, paper_id: str, insights: PaperInsights, 
-                      extraction_metadata: Optional[ExtractionMetadata] = None):
+                  extraction_metadata: Optional[ExtractionMetadata] = None):
         """
         Store extracted insights with embeddings in both local and cloud storage.
-        
-        Args:
-            paper_id: Paper identifier
-            insights: Extracted insights
-            extraction_metadata: Optional extraction metadata
         """
         # Sanitize insights data before storing
         insights_dict = insights.dict()
@@ -311,10 +319,13 @@ class InsightStorage:
         # Store in Supabase if enabled
         if self.supabase and Config.USE_CLOUD_STORAGE:
             try:
+                # Generate UUID for Supabase
+                supabase_uuid = self._generate_uuid_for_paper(paper_id)
+                
                 # Prepare insights data for Supabase
                 supabase_insights = {
-                    'id': paper_id,
-                    'paper_id': paper_id,
+                    'id': supabase_uuid,  # Use UUID for Supabase
+                    'paper_id': paper_id,  # Store actual paper ID
                     'study_type': insights.study_type.value,
                     'techniques_used': [t.value for t in insights.techniques_used],
                     'implementation_complexity': insights.implementation_complexity.value,
@@ -336,13 +347,15 @@ class InsightStorage:
                 
                 # Upsert to Supabase
                 result = self.supabase.table('insights').upsert(supabase_insights).execute()
-                logger.info(f"Stored insights for {paper_id} in Supabase")
+                logger.info(f"Stored insights for {paper_id} in Supabase with UUID {supabase_uuid}")
                 
                 # Store extraction metadata if provided
                 if extraction_metadata:
+                    metadata_uuid = str(uuid.uuid4())  # Generate new UUID for metadata
                     metadata_data = {
-                        'id': extraction_metadata.extraction_id,
-                        'paper_id': paper_id,
+                        'id': metadata_uuid,
+                        'paper_id': paper_id,  # Use arxiv ID for reference
+                        'paper_uuid': supabase_uuid,  # Also store paper UUID
                         'extraction_time_seconds': extraction_metadata.extraction_time_seconds,
                         'api_calls_made': extraction_metadata.api_calls_made,
                         'estimated_cost_usd': extraction_metadata.estimated_cost_usd,
@@ -356,7 +369,6 @@ class InsightStorage:
                 
             except Exception as e:
                 logger.error(f"Failed to store insights in Supabase: {e}")
-                # Continue with local storage
         
         # Always store locally for backup
         if Config.ENABLE_LOCAL_BACKUP or not self.supabase:
@@ -412,7 +424,7 @@ class InsightStorage:
             (paper_id, study_type, complexity, techniques, 
              reputation_score, extraction_confidence, 
              has_code, has_dataset, key_findings_count, extraction_timestamp)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             paper_id,
             insights.study_type.value,
@@ -623,7 +635,8 @@ class InsightStorage:
         # Try Supabase first if enabled
         if self.supabase and Config.USE_CLOUD_STORAGE:
             try:
-                result = self.supabase.table('insights').select('*').eq('id', paper_id).execute()
+                # Query by paper_id (arxiv ID), not UUID
+                result = self.supabase.table('insights').select('*').eq('paper_id', paper_id).execute()
                 
                 if result.data and len(result.data) > 0:
                     # Convert from Supabase format back to PaperInsights
@@ -656,7 +669,8 @@ class InsightStorage:
         # Try Supabase first if enabled
         if self.supabase and Config.USE_CLOUD_STORAGE:
             try:
-                result = self.supabase.table('papers').select('*').eq('id', paper_id).execute()
+                # Query by paper_id (arxiv ID), not UUID
+                result = self.supabase.table('papers').select('*').eq('paper_id', paper_id).execute()
                 
                 if result.data and len(result.data) > 0:
                     paper_data = result.data[0]
@@ -667,7 +681,7 @@ class InsightStorage:
                     else:
                         # Reconstruct paper data from individual fields
                         return {
-                            'id': paper_data.get('id'),
+                            'id': paper_data.get('paper_id'),  # Use paper_id, not UUID
                             'title': paper_data.get('title'),
                             'authors': paper_data.get('authors', []),
                             'summary': paper_data.get('summary', ''),

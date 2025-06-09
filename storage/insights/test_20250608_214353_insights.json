@@ -1,0 +1,36 @@
+{
+  "paper_id": "test_20250608_214353",
+  "extraction_timestamp": "2025-06-09 02:43:53.902729",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Test finding 1",
+    "Test finding 2"
+  ],
+  "limitations": [],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "retrieval_augmented_generation",
+    "fine_tuning"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "",
+  "prerequisites": [],
+  "comparable_approaches": [],
+  "real_world_applications": [],
+  "total_author_hindex": 50,
+  "has_conference_mention": true,
+  "author_hindices": {},
+  "extraction_confidence": 0.9,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null
+}
