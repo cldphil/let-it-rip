@@ -350,14 +350,17 @@ class ManualProcessingController:
             # Store processing history if using cloud storage
             if hasattr(self.storage, 'supabase') and self.storage.supabase:
                 try:
+                    # REPLACE THE history_entry DICTIONARY WITH THIS:
                     history_entry = {
                         'batch_name': checkpoint_name,
                         'papers_processed': stats.get('successful', 0),
                         'papers_failed': stats.get('failed', 0),
                         'total_cost': stats.get('total_cost', 0),
                         'processing_time_seconds': stats.get('total_time', 0),
-                        'date_range_start': start_date.isoformat(),
-                        'date_range_end': end_date.isoformat(),
+                        'date_range': {  # Store as JSON object, not separate fields
+                            'start': start_date.isoformat(),
+                            'end': end_date.isoformat()
+                        },
                         'success_rate': stats.get('successful', 0) / len(papers) if papers else 0
                     }
                     
