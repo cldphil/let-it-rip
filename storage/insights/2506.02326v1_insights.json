@@ -1,0 +1,57 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.02326v1",
+  "extraction_timestamp": "2025-06-09 16:58:49.622622",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Fine-tuned models consistently outperform zero-shot and few-shot prompting approaches for toxicity detection tasks, indicating that domain-specific training is essential for reliable toxicity recognition systems in production environments.",
+    "The TRuST dataset provides comprehensive multi-label annotations including toxicity classification, target social group identification, and toxic span extraction, enabling more granular toxicity detection applications for content moderation systems.",
+    "Performance remains significantly low for certain social groups in toxicity detection, revealing systematic biases in current language models that could lead to unequal protection across different communities. This finding suggests that specialized training data and evaluation metrics are needed for underrepresented groups to ensure fair and effective toxicity detection across all demographics.",
+    "Large language models demonstrate weak social reasoning capabilities when it comes to toxicity detection, as advanced reasoning prompting techniques do not significantly improve performance over standard approaches. This limitation suggests that current LLMs lack the nuanced understanding of social context required for reliable toxicity detection, indicating that organizations should not rely solely on reasoning-based prompting for content moderation and should instead invest in fine-tuning approaches with comprehensive datasets that include diverse social contexts and target groups.",
+    "The research addresses critical concerns about toxicity in both user-generated content and LLM-generated output, highlighting the need for robust detection systems as AI-generated content becomes more prevalent online."
+  ],
+  "limitations": [
+    "Performance remains low for certain social groups indicating bias issues",
+    "Limited reasoning capabilities of LLMs for social context understanding"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "few_shot_learning",
+    "fine_tuning",
+    "prompt_engineering",
+    "zero_shot_learning"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Toxicity detection in online content and language model outputs with identification of target groups and toxic spans",
+  "prerequisites": [
+    "Large language models",
+    "Labeled toxicity datasets",
+    "Fine-tuning infrastructure"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Content moderation systems",
+    "Social media platform safety",
+    "AI-generated content filtering",
+    "Online forum monitoring"
+  ],
+  "total_author_hindex": 3,
+  "has_conference_mention": false,
+  "author_hindices": {
+    "Berk Atil": 2,
+    "Namrata Sureddy": 0,
+    "Rebecca J. Passonneau": 1
+  },
+  "extraction_confidence": 0.7,
+  "has_code_available": false,
+  "has_dataset_available": true,
+  "reproducibility_score": null
+}

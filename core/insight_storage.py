@@ -228,7 +228,7 @@ class InsightStorage:
                     'authors': sanitized_paper.get('authors', []),
                     'summary': sanitized_paper.get('summary', ''),
                     'published_date': sanitized_paper.get('published', ''),
-                    'categories': sanitized_paper.get('categories', []),
+                    'arxiv_categories': json.dumps(sanitized_paper.get('categories', [])),  # JSON encode categories
                     'pdf_url': sanitized_paper.get('pdf_url', ''),
                     'full_text': sanitized_paper.get('full_text', ''),
                     'comments': sanitized_paper.get('comments', ''),
@@ -276,12 +276,15 @@ class InsightStorage:
         """
         Recursively sanitize Unicode strings in a data structure.
         Removes or replaces invalid Unicode characters like surrogates.
+        Also handles datetime objects by converting to ISO format strings.
         
         Args:
             data: The data to sanitize
             aggressive: If True, use more aggressive sanitization (ASCII only)
         """
-        if isinstance(data, str):
+        if isinstance(data, datetime):
+            return data.isoformat()
+        elif isinstance(data, str):
             if aggressive:
                 # Remove all non-ASCII characters
                 return ''.join(char if ord(char) < 128 else '?' for char in data)
@@ -334,7 +337,7 @@ class InsightStorage:
                     'has_code': insights.has_code_available,
                     'has_dataset': insights.has_dataset_available,
                     'key_findings_count': len(insights.key_findings),
-                    'extraction_timestamp': insights.extraction_timestamp.isoformat(),
+                    'extraction_timestamp': insights.extraction_timestamp.isoformat() if hasattr(insights.extraction_timestamp, 'isoformat') else str(insights.extraction_timestamp),
                     'total_author_hindex': insights.total_author_hindex,
                     'has_conference_mention': insights.has_conference_mention,
                     'key_findings': insights.key_findings,
@@ -686,7 +689,7 @@ class InsightStorage:
                             'authors': paper_data.get('authors', []),
                             'summary': paper_data.get('summary', ''),
                             'published': paper_data.get('published_date', ''),
-                            'categories': paper_data.get('categories', []),
+                            'categories': json.loads(paper_data.get('arxiv_categories', '[]')),
                             'pdf_url': paper_data.get('pdf_url', ''),
                             'full_text': paper_data.get('full_text', ''),
                             'comments': paper_data.get('comments', '')

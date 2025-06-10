@@ -1,0 +1,55 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.06280v1",
+  "extraction_timestamp": "2025-06-10T01:10:42.249130",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Eigenspectrum analysis of neural network weight matrices suffers from aspect ratio bias, where matrices with different dimensions produce misleading heavytailness metrics that don't accurately reflect training quality or model performance.",
+    "The FARMS (Fixed-Aspect-Ratio Matrix Subsampling) method normalizes weight matrices by subsampling submatrices with consistent aspect ratios, eliminating bias in heavytailness measurements for more accurate model diagnosis.",
+    "Traditional heavytail-based spectral radius methods incorrectly assess well-trained layers with large aspect ratios as poorly trained, leading to suboptimal hyperparameter tuning decisions. For example, ResNet-18's final layer (512\u00d7100) with aspect ratio 5.12 may be misclassified due to its dimensions rather than actual training quality.",
+    "The proposed method addresses a fundamental flaw in existing eigenspectrum diagnostic tools used for layer-wise hyperparameter optimization in deep neural networks. By removing aspect ratio dependency, practitioners can make more informed decisions about model architecture and training strategies. This is particularly important for modern architectures where layer dimensions vary significantly, affecting the reliability of spectral analysis-based optimization approaches.",
+    "This work enables more reliable automated hyperparameter tuning and model diagnostics across diverse neural network architectures, potentially improving training efficiency and model performance evaluation methodologies."
+  ],
+  "limitations": [
+    "Limited experimental validation shown in the provided excerpt",
+    "Computational overhead of subsampling process not discussed"
+  ],
+  "future_work": [],
+  "study_type": "empirical",
+  "techniques_used": [
+    "other"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Aspect ratio bias in eigenspectrum analysis of neural network weight matrices leading to inaccurate model diagnosis and hyperparameter tuning",
+  "prerequisites": [
+    "Linear algebra knowledge",
+    "Understanding of neural network architectures",
+    "Familiarity with spectral analysis methods"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Layer-wise hyperparameter optimization",
+    "Neural network model diagnostics",
+    "Training quality assessment",
+    "Automated model tuning systems"
+  ],
+  "total_author_hindex": 20,
+  "has_conference_mention": true,
+  "author_hindices": {
+    "Yuanzhe Hu": 1,
+    "Kinshuk Goel": 1,
+    "Vlad Killiakov": 0,
+    "Yaoqing Yang": 18
+  },
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null
+}

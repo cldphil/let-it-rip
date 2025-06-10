@@ -117,16 +117,14 @@ class SynthesisEngine:
             paper_data['rerank_score'] = (
                 0.35 * reputation_score +          # Reputation (includes author h-index, conference)
                 0.25 * recency_score +          # Recency (recent research prioritized)
-                0.20 * case_study_score +       # Case study implementation bonus
-                0.20 * validation_score         # Industry validation bonus
+                0.20 * case_study_score       # Case study implementation bonus
             )
             
             # Store components for transparency
             paper_data['score_components'] = {
                 'reputation': reputation_score,
                 'recency': recency_score,
-                'case_study': case_study_score,
-                'validation': validation_score
+                'case_study': case_study_score
             }
         
         # Sort by rerank score

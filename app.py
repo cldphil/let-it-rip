@@ -18,6 +18,7 @@ from core import (
     UserContext
 )
 from config import Config
+from components.datetime_utils import prepare_dataframe_for_streamlit, sanitize_dict_for_display
 
 # Import manual processing if available
 try:
@@ -723,43 +724,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                 progress_state['errors'].append(str(e))
                 update_progress_display(progress_state)
                 st.error(f"❌ Unexpected error: {str(e)}")
-    
-    # Processing History
-    st.subheader("📋 Processing History")
-    
-    history = st.session_state.manual_controller.get_processing_history(limit=10)
-    
-    if history:
-        # Convert to DataFrame for better display
-        history_df = pd.DataFrame(history)
-        
-        # Display recent batches
-        for _, batch in history_df.head(5).iterrows():
-            with st.expander(f"📦 {batch.get('batch_name', 'Unknown Batch')} - {batch.get('created_at', '')[:10]}"):
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.metric("Papers Processed", batch.get('papers_processed', 0))
-                
-                with col2:
-                    success_rate = batch.get('success_rate', 0)
-                    if isinstance(success_rate, (int, float)):
-                        st.metric("Success Rate", f"{success_rate:.0%}")
-                    else:
-                        st.metric("Success Rate", "N/A")
-
-                with col3:
-                    # Handle both possible field names
-                    total_cost = batch.get('total_cost', batch.get('processing_cost_usd', 0))
-                    if isinstance(total_cost, (int, float)):
-                        st.metric("Cost", f"${total_cost:.2f}")
-                    else:
-                        st.metric("Cost", "$0.00")
-                
-                if batch.get('notes'):
-                    st.write(f"**Notes:** {batch['notes']}")
-    else:
-        st.info("No processing history available yet.")
 
 # Browse Insights Page (unchanged from original)
 elif page == "📚 Browse Insights":
@@ -1200,23 +1164,6 @@ elif page == "⚙️ Settings":
         </div>
         """, unsafe_allow_html=True)
         
-        # Show processing history summary if available
-        try:
-            history = st.session_state.manual_controller.get_processing_history(limit=5)
-            if history:
-                st.write(f"**Recent Processing History:** {len(history)} recent batches")
-                
-                # Quick stats from history
-                total_papers = sum(batch.get('papers_processed', 0) for batch in history)
-                total_cost = sum(batch.get('total_cost', 0) for batch in history)
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Recent Papers Processed", total_papers)
-                with col2:
-                    st.metric("Recent Processing Cost", f"${total_cost:.2f}")
-        except:
-            pass
     else:
         st.subheader("📅 Manual Processing Status")
         
