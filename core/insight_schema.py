@@ -142,10 +142,6 @@ class PaperInsights(BaseModel):
         default_factory=list,
         description="Acknowledged limitations or constraints"
     )
-    future_work: List[str] = Field(
-        default_factory=list,
-        description="Suggested future research directions"
-    )
     
     # Categorization
     study_type: StudyType = StudyType.UNKNOWN
@@ -153,8 +149,6 @@ class PaperInsights(BaseModel):
     
     # Implementation details
     implementation_complexity: ComplexityLevel = ComplexityLevel.UNKNOWN
-    resource_requirements: ResourceRequirements = Field(default_factory=ResourceRequirements)
-    success_metrics: List[SuccessMetric] = Field(default_factory=list)
     
     # Context and synthesis helpers
     problem_addressed: str = Field(
@@ -164,10 +158,6 @@ class PaperInsights(BaseModel):
     prerequisites: List[str] = Field(
         default_factory=list,
         description="Technical prerequisites for implementation"
-    )
-    comparable_approaches: List[str] = Field(
-        default_factory=list,
-        description="Alternative approaches mentioned or compared"
     )
     real_world_applications: List[str] = Field(
         default_factory=list,
@@ -205,7 +195,6 @@ class PaperInsights(BaseModel):
     # Additional metadata
     has_code_available: bool = False
     has_dataset_available: bool = False
-    reproducibility_score: Optional[float] = Field(None, ge=0.0, le=1.0)
     
     # Cloud storage optimization
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -237,6 +226,49 @@ class PaperInsights(BaseModel):
         reputation_score = min(1.0, raw_score / 100.0)
         
         return reputation_score
+    
+    def to_searchable_text(self) -> str:
+        """
+        Create searchable text for vector embeddings from key insight fields only.
+        Does NOT include full text or abstracts - only actionable insights.
+        
+        Returns:
+            Concatenated text from key insight fields for vector embedding
+        """
+        searchable_parts = []
+        
+        # Problem addressed (high priority for matching)
+        if self.problem_addressed:
+            searchable_parts.append(f"Problem: {self.problem_addressed}")
+        
+        # Key findings (most important for practical insights)
+        if self.key_findings:
+            findings_text = " ".join(self.key_findings)
+            searchable_parts.append(f"Findings: {findings_text}")
+        
+        # Real-world applications (important for business relevance)
+        if self.real_world_applications:
+            applications_text = " ".join(self.real_world_applications)
+            searchable_parts.append(f"Applications: {applications_text}")
+        
+        # Prerequisites (important for implementation planning)
+        if self.prerequisites:
+            prerequisites_text = " ".join(self.prerequisites)
+            searchable_parts.append(f"Prerequisites: {prerequisites_text}")
+        
+        # Limitations (important for risk assessment)
+        if self.limitations:
+            limitations_text = " ".join(self.limitations)
+            searchable_parts.append(f"Limitations: {limitations_text}")
+        
+        # Combine all parts
+        searchable_text = " ".join(searchable_parts)
+        
+        # Ensure we have some content for embedding
+        if not searchable_text.strip():
+            searchable_text = f"Research on {self.study_type.value} with {len(self.techniques_used)} techniques"
+        
+        return searchable_text
     
     def to_supabase_dict(self) -> Dict:
         """
@@ -319,15 +351,38 @@ class UserContext(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
     def to_search_query(self) -> str:
-        """Convert user context to search query for vector search."""
-        parts = [
-            f"Company size: {self.company_size}",
-            f"Use case: {self.use_case_description}",
-            f"Problems: {' '.join(self.specific_problems)}",
-            f"Skills: {' '.join(self.team_skills)}"
-        ]
+        """
+        Convert user context to search query for vector search against insights.
+        Focuses on business problems and expected outcomes for better matching.
+        """
+        search_parts = []
         
-        return " ".join(filter(None, parts))
+        # Use case description (highest priority for matching)
+        if self.use_case_description:
+            search_parts.append(f"Use case: {self.use_case_description}")
+        
+        # Specific problems (high priority for problem matching)
+        if self.specific_problems:
+            problems_text = " ".join(self.specific_problems)
+            search_parts.append(f"Problems: {problems_text}")
+        
+        # Expected outcomes (important for solution matching)
+        if self.expected_outcomes:
+            outcomes_text = " ".join(self.expected_outcomes)
+            search_parts.append(f"Expected outcomes: {outcomes_text}")
+        
+        # Company context for relevance
+        search_parts.append(f"Company size: {self.company_size}")
+        search_parts.append(f"Maturity level: {self.maturity_level}")
+        
+        # Combine all parts for comprehensive search
+        search_query = " ".join(search_parts)
+        
+        # Ensure we have meaningful content
+        if not search_query.strip():
+            search_query = "general AI implementation guidance"
+        
+        return search_query
     
     def to_supabase_dict(self) -> Dict:
         """Convert to dictionary format for Supabase storage."""

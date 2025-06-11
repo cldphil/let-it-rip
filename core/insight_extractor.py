@@ -950,7 +950,6 @@ IMPORTANT:
             
             problem_addressed=raw_insights.get('problem_addressed', ''),
             prerequisites=raw_insights.get('prerequisites', []),
-            comparable_approaches=raw_insights.get('comparable_approaches', []),
             real_world_applications=raw_insights.get('real_world_applications', []),
             
             has_code_available=bool(raw_insights.get('has_code_available', False)),
@@ -980,3 +979,83 @@ IMPORTANT:
             logger.warning(f"Failed to fetch author metrics for minimal insights: {e}")
         
         return insights
+    
+    def detect_conference_mention(self, paper_data: Dict) -> bool:
+        """
+        Detect if a paper mentions acceptance at a conference/workshop.
+        Checks title, abstract, comments field, and optionally full text.
+        
+        Args:
+            paper_data: Paper metadata including title, abstract, comments, and optionally full_text
+            
+        Returns:
+            True if conference/workshop mention detected
+        """
+        # Major AI/ML conferences and workshops
+        conferences = [
+            # Top-tier AI/ML conferences
+            'neurips', 'nips', 'icml', 'iclr', 'aaai', 'ijcai', 'cvpr', 'iccv', 'eccv',
+            'acl', 'emnlp', 'naacl', 'coling', 'sigir', 'kdd', 'www', 'icra', 'iros',
+            'uai', 'aistats', 'colt', 'interspeech', 'asru', 'icassp',
+            
+            # Workshops and venues
+            'workshop', 'symposium', 'tutorial', 'proceedings',
+            
+            # Specific acceptance mentions
+            'accepted at', 'accepted to', 'to appear in', 'published in',
+            'presented at', 'submission to', 'camera ready', 'conference paper',
+            'peer-reviewed', 'peer reviewed'
+        ]
+        
+        # Start with title and abstract
+        search_text = ""
+        if paper_data.get('title'):
+            search_text += paper_data['title'].lower() + " "
+        if paper_data.get('summary'):
+            search_text += paper_data['summary'].lower() + " "
+        
+        # PRIORITY: Check arXiv comments field first (most reliable source)
+        comments_found = False
+        if paper_data.get('comments'):
+            comments_lower = paper_data['comments'].lower()
+            logger.debug(f"Checking comments field: {comments_lower}")
+            
+            for conf in conferences:
+                if conf in comments_lower:
+                    logger.info(f"Conference detected in comments: '{conf}' in '{comments_lower}'")
+                    comments_found = True
+                    break
+        
+        # Check title and abstract
+        title_abstract_found = False
+        for conf in conferences:
+            if conf in search_text:
+                logger.debug(f"Conference detected in title/abstract: {conf}")
+                title_abstract_found = True
+                break
+        
+        # Check full text (if available) as last resort
+        full_text_found = False
+        if paper_data.get('full_text'):
+            # Just check first 2000 chars of full text to avoid false positives
+            full_text_snippet = paper_data['full_text'][:2000].lower()
+            for conf in conferences:
+                if conf in full_text_snippet:
+                    logger.debug(f"Conference detected in full text: {conf}")
+                    full_text_found = True
+                    break
+        
+        # Log detection sources for transparency
+        detection_sources = []
+        if comments_found:
+            detection_sources.append("comments")
+        if title_abstract_found:
+            detection_sources.append("title/abstract")
+        if full_text_found:
+            detection_sources.append("full_text")
+        
+        if detection_sources:
+            logger.info(f"Conference validation detected in: {', '.join(detection_sources)}")
+            return True
+        
+        return False

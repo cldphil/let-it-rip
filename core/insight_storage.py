@@ -30,6 +30,10 @@ class InsightStorage:
     - Insight extraction results with vector embeddings
     - Vector similarity search using Supabase functions
     - Processing statistics and analytics
+    
+    Note: Vector embeddings are created from insight fields only (key findings,
+    limitations, problem addressed, prerequisites, real world applications).
+    No full text is stored or embedded.
     """
     
     def __init__(self):
@@ -37,7 +41,7 @@ class InsightStorage:
         self._init_supabase()
         self._init_embedder()
         
-        logger.info("Initialized cloud-only storage with Supabase")
+        logger.info("Initialized cloud-only storage with Supabase (insights-only embeddings)")
     
     def _init_supabase(self):
         """Initialize Supabase client."""
@@ -73,7 +77,7 @@ class InsightStorage:
         """Initialize sentence transformer for embeddings."""
         try:
             self.embedder = SentenceTransformer(Config.VECTOR_EMBEDDING_MODEL)
-            logger.info(f"Initialized embedder: {Config.VECTOR_EMBEDDING_MODEL}")
+            logger.info(f"Initialized embedder for insights-only: {Config.VECTOR_EMBEDDING_MODEL}")
         except Exception as e:
             logger.error(f"Failed to initialize embedder: {e}")
             raise
@@ -81,6 +85,7 @@ class InsightStorage:
     def store_paper(self, paper_data: Dict) -> str:
         """
         Store raw paper data in Supabase.
+        NOTE: Does not store full text - only metadata.
         
         Args:
             paper_data: Paper metadata from arXiv
@@ -100,6 +105,7 @@ class InsightStorage:
             supabase_uuid = generate_paper_uuid(paper_id)
             
             # Prepare data for Supabase with proper validation
+            # NOTE: Explicitly exclude full_text to avoid storing it
             supabase_data = {
                 'id': supabase_uuid,
                 'paper_id': paper_id,
@@ -110,6 +116,7 @@ class InsightStorage:
                 'arxiv_categories': sanitized_paper.get('categories', []),
                 'pdf_url': sanitized_paper.get('pdf_url', ''),
                 'comments': sanitized_paper.get('comments', ''),
+                # NOTE: full_text is intentionally excluded
             }
             
             # Upsert to Supabase (insert or update if exists)
@@ -131,6 +138,9 @@ class InsightStorage:
         """
         Store extracted insights with embeddings in Supabase.
         
+        Vector embeddings are created from insights only (key findings, limitations,
+        problem addressed, prerequisites, real world applications) - NO full text.
+        
         Args:
             paper_id: Paper identifier
             insights: Extracted insights
@@ -140,9 +150,11 @@ class InsightStorage:
             # Generate UUID for Supabase
             supabase_uuid = generate_paper_uuid(paper_id)
             
-            # Generate embedding for vector search
+            # Generate embedding from insights only (no full text)
             searchable_text = insights.to_searchable_text()
             embedding = self.embedder.encode([searchable_text])[0]
+            
+            logger.info(f"Generated embedding from insights for {paper_id} ({len(searchable_text)} chars)")
             
             # Prepare insights data for Supabase
             insights_data = {
@@ -166,8 +178,8 @@ class InsightStorage:
                 'real_world_applications': insights.real_world_applications,
                 'extraction_timestamp': insights.extraction_timestamp.isoformat(),
                 'embedding': embedding.tolist(),  # Store embedding for vector search
-                'searchable_text': searchable_text,
                 'full_insights': insights.to_supabase_dict()  # Store complete insights
+                # NOTE: searchable_text is NOT stored - only used for embedding generation
             }
             
             # Store insights
@@ -216,6 +228,9 @@ class InsightStorage:
         """
         Find papers matching user context using Supabase vector similarity.
         
+        Vector search is performed against insights embeddings (key findings,
+        limitations, problem addressed, prerequisites, real world applications).
+        
         Args:
             user_context: User requirements and constraints
             n_results: Number of results to return
@@ -227,6 +242,8 @@ class InsightStorage:
             # Generate query embedding from user context
             query_text = user_context.to_search_query()
             query_embedding = self.embedder.encode([query_text])[0]
+            
+            logger.info(f"Searching for papers matching: '{query_text[:100]}...'")
             
             # Use Supabase RPC function for vector similarity search
             results = self.supabase.rpc(
@@ -468,6 +485,7 @@ class InsightStorage:
                     'categories': paper_data.get('arxiv_categories', []),
                     'pdf_url': paper_data.get('pdf_url', ''),
                     'comments': paper_data.get('comments', '')
+                    # NOTE: full_text is intentionally excluded
                 }
                 
         except Exception as e:

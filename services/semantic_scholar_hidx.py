@@ -1,6 +1,7 @@
 """
 Semantic Scholar API integration for fetching author metrics.
 Cloud-only version without local file caching.
+Enhanced conference detection that prioritizes comments field.
 """
 
 import requests
@@ -236,10 +237,13 @@ class SemanticScholarAPI:
     
     def detect_conference_mention(self, paper_data: Dict) -> bool:
         """
-        Detect if a paper mentions acceptance at a conference/workshop.
+        Enhanced conference detection that prioritizes the comments field.
+        
+        The arXiv comments field is the most reliable source for conference
+        acceptance information (e.g., "Accepted at NeurIPS 2024").
         
         Args:
-            paper_data: Paper metadata including title, abstract, and optionally full_text
+            paper_data: Paper metadata including title, abstract, comments, and optionally full_text
             
         Returns:
             True if conference/workshop mention detected
@@ -251,38 +255,74 @@ class SemanticScholarAPI:
             'acl', 'emnlp', 'naacl', 'coling', 'sigir', 'kdd', 'www', 'icra', 'iros',
             'uai', 'aistats', 'colt', 'interspeech', 'asru', 'icassp',
             
-            # Workshops
-            'workshop', 'symposium', 'tutorial',
+            # Additional venues
+            'workshop', 'symposium', 'tutorial', 'proceedings',
             
-            # Specific mentions
+            # Acceptance indicators
             'accepted at', 'accepted to', 'to appear in', 'published in',
-            'presented at', 'submission to', 'camera ready', 'conference paper'
+            'presented at', 'submission to', 'camera ready', 'conference paper',
+            'peer-reviewed', 'peer reviewed', 'under review'
         ]
         
-        # Combine all text to search
-        search_text = ""
-        if paper_data.get('title'):
-            search_text += paper_data['title'].lower() + " "
-        if paper_data.get('summary'):
-            search_text += paper_data['summary'].lower() + " "
-        if paper_data.get('full_text'):
-            # Just check first 2000 chars of full text to avoid false positives
-            search_text += paper_data['full_text'][:2000].lower()
+        detection_sources = []
         
-        # Check for conference mentions
-        for conf in conferences:
-            if conf in search_text:
-                logger.debug(f"Detected conference mention: {conf}")
-                return True
-        
-        # Check arXiv comments field if available
+        # PRIORITY 1: Check arXiv comments field (most reliable)
         if paper_data.get('comments'):
-            comments_lower = paper_data['comments'].lower()
+            comments_text = paper_data['comments'].lower().strip()
+            logger.debug(f"Checking comments: '{comments_text}'")
+            
             for conf in conferences:
-                if conf in comments_lower:
-                    logger.debug(f"Detected conference in comments: {conf}")
-                    return True
+                if conf in comments_text:
+                    detection_sources.append(f"comments:'{conf}'")
+                    logger.info(f"Conference detected in comments: '{conf}' in '{comments_text}'")
+                    
+            # Special handling for common comment patterns
+            comment_patterns = [
+                r'accepted.*(?:neurips|nips|icml|iclr|aaai|ijcai|cvpr)',
+                r'(?:neurips|nips|icml|iclr|aaai|ijcai|cvpr).*(?:2024|2023|2022)',
+                r'workshop.*(?:neurips|nips|icml|iclr)',
+                r'to appear.*conference'
+            ]
+            
+            import re
+            for pattern in comment_patterns:
+                if re.search(pattern, comments_text, re.IGNORECASE):
+                    detection_sources.append(f"comments:pattern")
+                    logger.info(f"Conference pattern detected in comments: {pattern}")
+                    break
         
+        # PRIORITY 2: Check title (papers often include venue in title)
+        if paper_data.get('title'):
+            title_lower = paper_data['title'].lower()
+            for conf in conferences:
+                if conf in title_lower:
+                    detection_sources.append(f"title:'{conf}'")
+                    logger.debug(f"Conference detected in title: {conf}")
+        
+        # PRIORITY 3: Check abstract/summary
+        if paper_data.get('summary'):
+            summary_lower = paper_data['summary'].lower()
+            for conf in conferences:
+                if conf in summary_lower:
+                    detection_sources.append(f"abstract:'{conf}'")
+                    logger.debug(f"Conference detected in abstract: {conf}")
+        
+        # PRIORITY 4: Check full text (limited scope to avoid false positives)
+        if paper_data.get('full_text'):
+            # Only check first 2000 chars to focus on introduction/abstract
+            full_text_snippet = paper_data['full_text'][:2000].lower()
+            for conf in conferences:
+                if conf in full_text_snippet:
+                    detection_sources.append(f"fulltext:'{conf}'")
+                    logger.debug(f"Conference detected in full text: {conf}")
+                    break  # Only report first match from full text
+        
+        # Log all detection sources for transparency
+        if detection_sources:
+            logger.info(f"Conference validation detected from: {', '.join(detection_sources)}")
+            return True
+        
+        logger.debug("No conference mentions detected")
         return False
     
     def clear_memory_cache(self):
@@ -322,13 +362,24 @@ def test_semantic_scholar_api():
     print(f"Individual h-indices: {individual}")
     
     # Test conference detection
-    print("\nTesting conference detection...")
-    test_paper = {
-        'title': 'A Great Paper Accepted at NeurIPS 2024',
+    print("\nTesting enhanced conference detection...")
+    
+    # Test with comments field (highest priority)
+    test_paper_comments = {
+        'title': 'A Great Paper',
+        'summary': 'We present a new method...',
+        'comments': 'Accepted at NeurIPS 2024'
+    }
+    has_conference = api.detect_conference_mention(test_paper_comments)
+    print(f"Conference from comments: {has_conference}")
+    
+    # Test with title
+    test_paper_title = {
+        'title': 'ICML Workshop on Advanced Methods',
         'summary': 'We present a new method...'
     }
-    has_conference = api.detect_conference_mention(test_paper)
-    print(f"Conference mention detected: {has_conference}")
+    has_conference = api.detect_conference_mention(test_paper_title)
+    print(f"Conference from title: {has_conference}")
     
     # Show cache stats
     print(f"\nCache stats: {api.get_cache_stats()}")
