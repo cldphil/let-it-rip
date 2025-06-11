@@ -1,12 +1,14 @@
 """
 Structured insight schema for research papers.
-Defines the data models for extracted insights and metadata.
+Defines cloud-optimized data models for extracted insights and metadata.
+Optimized for Supabase storage and retrieval.
 """
 
 from typing import List, Dict, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
+import uuid
 
 class StudyType(str, Enum):
     """Types of research studies."""
@@ -121,12 +123,15 @@ class SuccessMetric(BaseModel):
     statistical_significance: Optional[bool] = None
 
 class PaperInsights(BaseModel):
-    """Comprehensive insights extracted from a research paper."""
+    """
+    Comprehensive insights extracted from a research paper.
+    Optimized for cloud storage with Supabase.
+    """
     
-    # Identification
+    # Identification - Cloud optimized
     paper_id: str  # arXiv ID or unique identifier
     extraction_timestamp: datetime = Field(default_factory=datetime.utcnow)
-    extraction_version: str = "1.0"
+    extraction_version: str = "2.0"  # Updated for cloud-only version
     
     # Core insights - Enhanced key findings
     key_findings: List[str] = Field(
@@ -169,9 +174,9 @@ class PaperInsights(BaseModel):
         description="Specific real-world use cases mentioned"
     )
     
-    # New reputation indicators
+    # Reputation indicators (cloud-optimized)
     total_author_hindex: int = Field(
-        default=1,
+        default=0,  # Changed from 1 to 0 for cleaner cloud storage
         description="Sum of h-indices for all authors"
     )
     has_conference_mention: bool = Field(
@@ -181,6 +186,12 @@ class PaperInsights(BaseModel):
     author_hindices: Dict[str, int] = Field(
         default_factory=dict,
         description="Individual h-indices for each author"
+    )
+    
+    # Industry validation (cloud-optimized)
+    industry_validation: bool = Field(
+        default=False,
+        description="Whether paper has industry validation or real-world deployment"
     )
     
     # Confidence in extraction
@@ -196,24 +207,19 @@ class PaperInsights(BaseModel):
     has_dataset_available: bool = False
     reproducibility_score: Optional[float] = Field(None, ge=0.0, le=1.0)
     
+    # Cloud storage optimization
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
     @validator('key_findings')
     def limit_key_findings(cls, v):
         """Ensure we don't have too many key findings."""
         return v[:10] if len(v) > 10 else v
     
-    def to_searchable_text(self) -> str:
-        """Convert insights to searchable text for embeddings."""
-        parts = [
-            f"Problem: {self.problem_addressed}",
-            f"Study type: {self.study_type.value}",
-            f"Techniques: {', '.join(t.value for t in self.techniques_used)}",
-            f"Complexity: {self.implementation_complexity.value}",
-            "Key findings: " + " ".join(self.key_findings),
-            "Prerequisites: " + " ".join(self.prerequisites),
-            "Applications: " + " ".join(self.real_world_applications)
-        ]
-        
-        return " ".join(filter(None, parts))
+    @validator('updated_at', pre=True, always=True)
+    def update_timestamp(cls, v):
+        """Always update the timestamp on model updates."""
+        return datetime.utcnow()
     
     def get_reputation_score(self) -> float:
         """
@@ -231,10 +237,58 @@ class PaperInsights(BaseModel):
         reputation_score = min(1.0, raw_score / 100.0)
         
         return reputation_score
+    
+    def to_supabase_dict(self) -> Dict:
+        """
+        Convert to dictionary format optimized for Supabase storage.
+        Handles nested objects and ensures proper JSON serialization.
+        """
+        data = self.dict()
+        
+        # Convert enums to strings
+        data['study_type'] = self.study_type.value
+        data['techniques_used'] = [t.value for t in self.techniques_used]
+        data['implementation_complexity'] = self.implementation_complexity.value
+        
+        # Ensure timestamps are ISO format strings
+        data['extraction_timestamp'] = self.extraction_timestamp.isoformat()
+        data['created_at'] = self.created_at.isoformat()
+        data['updated_at'] = self.updated_at.isoformat()
+        
+        return data
+    
+    @classmethod
+    def from_supabase_dict(cls, data: Dict) -> 'PaperInsights':
+        """
+        Create PaperInsights from Supabase dictionary data.
+        Handles enum conversion and timestamp parsing.
+        """
+        # Convert string enums back to enum objects
+        if 'study_type' in data:
+            data['study_type'] = StudyType(data['study_type'])
+        
+        if 'techniques_used' in data:
+            data['techniques_used'] = [TechniqueCategory(t) for t in data['techniques_used']]
+        
+        if 'implementation_complexity' in data:
+            data['implementation_complexity'] = ComplexityLevel(data['implementation_complexity'])
+        
+        # Parse timestamps
+        for ts_field in ['extraction_timestamp', 'created_at', 'updated_at']:
+            if ts_field in data and isinstance(data[ts_field], str):
+                data[ts_field] = datetime.fromisoformat(data[ts_field].replace('Z', '+00:00'))
+        
+        return cls(**data)
 
 
 class UserContext(BaseModel):
-    """User context for personalized recommendations."""
+    """
+    User context for personalized recommendations.
+    Cloud-optimized for Supabase storage and vector search.
+    """
+    
+    # Unique identifier for cloud storage
+    context_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     
     # Organization profile
     company_size: str = "medium"  # startup, small, medium, large, enterprise
@@ -260,8 +314,12 @@ class UserContext(BaseModel):
     specific_problems: List[str] = Field(default_factory=list)
     expected_outcomes: List[str] = Field(default_factory=list)
     
+    # Cloud storage optimization
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
     def to_search_query(self) -> str:
-        """Convert user context to search query."""
+        """Convert user context to search query for vector search."""
         parts = [
             f"Company size: {self.company_size}",
             f"Use case: {self.use_case_description}",
@@ -270,12 +328,30 @@ class UserContext(BaseModel):
         ]
         
         return " ".join(filter(None, parts))
+    
+    def to_supabase_dict(self) -> Dict:
+        """Convert to dictionary format for Supabase storage."""
+        data = self.dict()
+        
+        # Convert enum lists to string lists
+        data['preferred_techniques'] = [t.value for t in self.preferred_techniques]
+        data['avoided_techniques'] = [t.value for t in self.avoided_techniques]
+        
+        # Ensure timestamps are ISO format
+        data['created_at'] = self.created_at.isoformat()
+        data['updated_at'] = self.updated_at.isoformat()
+        
+        return data
 
 
 class ExtractionMetadata(BaseModel):
-    """Metadata about the extraction process."""
+    """
+    Metadata about the extraction process.
+    Cloud-optimized for Supabase storage and analytics.
+    """
     
-    extraction_id: str
+    # Identification
+    extraction_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     paper_id: str
     extraction_timestamp: datetime = Field(default_factory=datetime.utcnow)
     
@@ -289,7 +365,7 @@ class ExtractionMetadata(BaseModel):
     tokens_used: Optional[int] = None
     api_calls_made: int = 1
     
-    # Reputation metrics
+    # Section analysis (cloud-optimized)
     sections_found: Dict[str, bool] = Field(default_factory=dict)
     section_lengths: Dict[str, int] = Field(default_factory=dict)
     extraction_errors: List[str] = Field(default_factory=list)
@@ -297,7 +373,62 @@ class ExtractionMetadata(BaseModel):
     # Cost tracking
     estimated_cost_usd: Optional[float] = None
     
+    # Cloud storage optimization
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    success: bool = True
+    
+    def to_supabase_dict(self) -> Dict:
+        """Convert to dictionary format for Supabase storage."""
+        data = self.dict()
+        
+        # Ensure timestamps are ISO format
+        data['extraction_timestamp'] = self.extraction_timestamp.isoformat()
+        data['created_at'] = self.created_at.isoformat()
+        
+        return data
+    
+    @classmethod
+    def from_supabase_dict(cls, data: Dict) -> 'ExtractionMetadata':
+        """Create ExtractionMetadata from Supabase dictionary data."""
+        # Parse timestamps
+        for ts_field in ['extraction_timestamp', 'created_at']:
+            if ts_field in data and isinstance(data[ts_field], str):
+                data[ts_field] = datetime.fromisoformat(data[ts_field].replace('Z', '+00:00'))
+        
+        return cls(**data)
+    
     class Config:
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+
+# Cloud-optimized utility functions
+
+def generate_paper_uuid(paper_id: str) -> str:
+    """
+    Generate a consistent UUID for a paper ID for Supabase.
+    Uses namespace UUID to ensure same paper_id always generates same UUID.
+    """
+    namespace = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
+    return str(uuid.uuid5(namespace, paper_id))
+
+def sanitize_for_cloud_storage(data: Dict) -> Dict:
+    """
+    Sanitize data for cloud storage by handling problematic characters
+    and ensuring proper JSON serialization.
+    """
+    def clean_value(value):
+        if isinstance(value, str):
+            # Remove or replace problematic Unicode characters
+            return value.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+        elif isinstance(value, datetime):
+            return value.isoformat()
+        elif isinstance(value, dict):
+            return {k: clean_value(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [clean_value(item) for item in value]
+        else:
+            return value
+    
+    return clean_value(data)

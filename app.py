@@ -1,6 +1,6 @@
 """
 Streamlit web interface for the GenAI Research Implementation Platform.
-Updated with cloud storage and manual processing capabilities.
+Cloud-only version with Supabase integration.
 """
 
 import streamlit as st
@@ -8,7 +8,6 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import json
-from pathlib import Path
 
 # Import core modules
 from core import (
@@ -18,7 +17,7 @@ from core import (
     UserContext
 )
 from config import Config
-from components.datetime_utils import prepare_dataframe_for_streamlit, sanitize_dict_for_display
+from components.datetime_utils import prepare_dataframe_for_streamlit
 
 # Import manual processing if available
 try:
@@ -143,22 +142,6 @@ st.markdown("""
         margin: 1rem 0;
     }
     
-    /* Date range card */
-    .date-range-card {
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .date-range-card:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
     /* Case study badge */
     .case-study-badge {
         background-color: var(--success-color);
@@ -204,12 +187,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Cloud storage indicator
-if Config.USE_CLOUD_STORAGE:
-    st.markdown("""
-    <div class="cloud-indicator">
-        ☁️ <strong>Cloud Storage Active</strong> - Data synced to Supabase
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<div class="cloud-indicator">
+    ☁️ <strong>Cloud Storage Active</strong> - Data synced to Supabase
+</div>
+""", unsafe_allow_html=True)
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
@@ -231,7 +213,7 @@ if page == "📊 Dashboard":
     # Always get fresh statistics when dashboard loads
     current_stats = st.session_state.storage.get_statistics()
     
-    # Key metrics - updated to remove deprecated fields
+    # Key metrics
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -349,7 +331,7 @@ if page == "📊 Dashboard":
                 font_size=12
             )
             st.plotly_chart(fig_study, use_container_width=True)
-    
+
 # Manual Processing Page
 elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
     st.header("Manual Processing Control")
@@ -439,8 +421,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
         if estimate.get('reputation_filter_active'):
             st.info(f"🔍 **Reputation filtering active** (minimum score: {estimate['min_reputation_score']:.2f})")
         
-        st.markdown('</div>', unsafe_allow_html=True)
-        
         # Check existing papers
         existing_check = st.session_state.manual_controller.check_existing_papers(start_datetime, end_datetime)
         
@@ -453,7 +433,7 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
         # Processing button
         if st.button("🔄 Process Papers", use_container_width=True, type="primary", disabled=not is_valid):
             
-            # Create progress tracking UI containers (created once)
+            # Create progress tracking UI containers
             st.markdown("### Processing Progress")
             
             # Create empty containers that will be updated
@@ -673,14 +653,14 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                         if estimate_vs_actual.get('estimated_papers') and estimate_vs_actual.get('actual_papers'):
                             est_papers = estimate_vs_actual['estimated_papers']
                             act_papers = estimate_vs_actual['actual_papers']
-                            if est_papers > 0:  # Avoid division by zero
+                            if est_papers > 0:
                                 accuracy = 100 - abs(est_papers - act_papers) / est_papers * 100
                                 comparison_data[0]['Accuracy'] = f"{accuracy:.1f}%"
 
                         if estimate_vs_actual.get('estimated_cost') and estimate_vs_actual.get('actual_cost'):
                             est_cost = estimate_vs_actual['estimated_cost']
                             act_cost = estimate_vs_actual['actual_cost']
-                            if est_cost > 0:  # Avoid division by zero
+                            if est_cost > 0:
                                 accuracy = 100 - abs(est_cost - act_cost) / est_cost * 100
                                 comparison_data[1]['Accuracy'] = f"{accuracy:.1f}%"
                         
@@ -704,11 +684,11 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                 update_progress_display(progress_state)
                 st.error(f"❌ Unexpected error: {str(e)}")
 
-# Browse Insights Page (unchanged from original)
+# Browse Insights Page - Updated for cloud-only
 elif page == "📚 Browse Insights":
     st.header("Browse Research Insights")
     
-    # Enhanced filters with better styling - removed deprecated field filters
+    # Enhanced filters with better styling
     st.markdown("#### Filter Research Papers")
     
     col1, col2, col3 = st.columns(3)
@@ -730,7 +710,6 @@ elif page == "📚 Browse Insights":
         )
     
     with col3:
-        # Updated sort options - removed deprecated fields
         sort_by = st.selectbox(
             "Sort Results By",
             options=['reputation_score', 'recency', 'key_findings_count', 'extraction_confidence'],
@@ -750,53 +729,58 @@ elif page == "📚 Browse Insights":
     with col3:
         show_with_code_only = st.checkbox("Show only papers with code", value=False)
     
-    # Get all papers using the storage API
-    all_papers = []
-    
+    # Cloud-only paper retrieval using vector search
     try:
-        # Get statistics to check if we have any papers
-        stats = st.session_state.storage.get_statistics()
+        # Use empty user context to get all papers
+        from core.insight_schema import UserContext
+        empty_context = UserContext(use_case_description="browse all papers")
         
-        # Use the storage API to get papers
-        insights_dir = Path("storage/insights")
+        # Get papers using vector search with very low threshold to get all
+        Config.VECTOR_SIMILARITY_THRESHOLD = 0.0  # Temporarily lower threshold
+        all_papers_data = st.session_state.storage.find_similar_papers(
+            empty_context, 
+            n_results=1000  # Get up to 1000 papers
+        )
+        Config.VECTOR_SIMILARITY_THRESHOLD = 0.6  # Reset threshold
         
-        if insights_dir.exists():
-            for insight_file in insights_dir.glob("*.json"):
-                if "_insights" in insight_file.name:
-                    paper_id = insight_file.stem.replace("_insights", "")
-                    
-                    try:
-                        insights = st.session_state.storage.load_insights(paper_id)
-                        paper_data = st.session_state.storage.load_paper(paper_id)
-                        
-                        if insights and paper_data:
-                            # Apply filters
-                            if (insights.implementation_complexity.value in complexity_filter and
-                                insights.study_type.value in study_type_filter):
-                                
-                                # Apply case study filter if checked
-                                if show_case_studies_only and insights.study_type.value != 'case_study':
-                                    continue
-                                
-                                # Apply code availability filter if checked
-                                if show_with_code_only and not insights.has_code_available:
-                                    continue
-                                
-                                all_papers.append({
-                                    'paper_id': paper_id,
-                                    'title': paper_data.get('title', 'Unknown'),
-                                    'authors': paper_data.get('authors', []),
-                                    'published': paper_data.get('published', ''),
-                                    'pdf_url': paper_data.get('pdf_url', ''),
-                                    'insights': insights,
-                                    'reputation_score': insights.get_reputation_score(),
-                                    'recency': paper_data.get('published', '2020'),
-                                    'key_findings_count': len(insights.key_findings),
-                                    'extraction_confidence': insights.extraction_confidence
-                                })
-                    except Exception as e:
-                        st.warning(f"Error loading paper {paper_id}: {str(e)}")
-                        continue
+        # Convert to display format and apply filters
+        all_papers = []
+        for paper_data in all_papers_data:
+            insights = paper_data['insights']
+            
+            # Load paper metadata
+            paper_info = st.session_state.storage.load_paper(paper_data['paper_id'])
+            if not paper_info:
+                continue
+            
+            # Apply filters
+            if (insights.implementation_complexity.value in complexity_filter and
+                insights.study_type.value in study_type_filter):
+                
+                # Apply case study filter if checked
+                if show_case_studies_only and insights.study_type.value != 'case_study':
+                    continue
+                
+                # Apply industry validation filter if checked
+                if show_validated_only and not insights.industry_validation:
+                    continue
+                
+                # Apply code availability filter if checked
+                if show_with_code_only and not insights.has_code_available:
+                    continue
+                
+                all_papers.append({
+                    'paper_id': paper_data['paper_id'],
+                    'title': paper_info.get('title', 'Unknown'),
+                    'authors': paper_info.get('authors', []),
+                    'published': paper_info.get('published', ''),
+                    'pdf_url': paper_info.get('pdf_url', ''),
+                    'insights': insights,
+                    'reputation_score': insights.get_reputation_score(),
+                    'recency': paper_info.get('published', '2020'),
+                    'key_findings_count': len(insights.key_findings),
+                    'extraction_confidence': insights.extraction_confidence
+                })
         
         # Sort papers based on selected criteria
         if all_papers:
@@ -809,15 +793,17 @@ elif page == "📚 Browse Insights":
         st.write(f"Found {len(all_papers)} papers matching filters")
         
         if not all_papers:
-            st.info("No papers found. Try fetching some papers first or adjusting your filters.")
+            st.info("No papers found. Try processing some papers first or adjusting your filters.")
         else:
-            # Display papers with updated metrics
+            # Display papers
             for paper in all_papers[:50]:  # Show top 50
                 with st.expander(f"📄 {paper['title'][:100]}..."):
                     # Add badges for case study and validation status
                     badges_html = ""
                     if paper['insights'].study_type.value == 'case_study':
                         badges_html += '<span class="case-study-badge">CASE STUDY</span> '
+                    if paper['insights'].industry_validation:
+                        badges_html += '<span class="validation-badge">INDUSTRY VALIDATED</span> '
                     
                     if badges_html:
                         st.markdown(badges_html, unsafe_allow_html=True)
@@ -861,7 +847,7 @@ elif page == "📚 Browse Insights":
                             st.markdown(f"📄 [View Full Paper PDF]({paper['pdf_url']})")
                     
                     with col2:
-                        # Updated reputation metrics - removed deprecated fields
+                        # Reputation metrics
                         st.metric("Reputation Score", f"{paper['reputation_score']:.2f}")
                         st.metric("Key Findings", paper['key_findings_count'])
                         st.metric("Extraction Confidence", f"{paper['extraction_confidence']:.2f}")
@@ -879,12 +865,14 @@ elif page == "📚 Browse Insights":
                             st.success("✅ Code Available")
                         if paper['insights'].has_dataset_available:
                             st.success("✅ Dataset Available")
+                        if paper['insights'].industry_validation:
+                            st.success("✅ Industry Validated")
                             
     except Exception as e:
         st.error(f"Error loading papers: {str(e)}")
         st.info("Try refreshing the page or checking if papers have been processed.")
 
-# Get Recommendations Page (unchanged from original)
+# Get Recommendations Page
 elif page == "🎯 Get Recommendations":
     st.header("Get Personalized Recommendations")
     
@@ -924,26 +912,15 @@ elif page == "🎯 Get Recommendations":
             specific_problems=[p.strip() for p in specific_problems.split('\n') if p.strip()] if specific_problems else []
         )
         
-        # Check if synthesis_engine has interactive mode support
-        if hasattr(st.session_state.synthesis_engine, 'synthesize_recommendations'):
-            # Get method signature to check if it supports interactive parameter
-            import inspect
-            sig = inspect.signature(st.session_state.synthesis_engine.synthesize_recommendations)
-            if 'interactive' in sig.parameters:
-                with st.spinner("Our AI consultant is analyzing research and preparing recommendations..."):
-                    synthesis_result = st.session_state.synthesis_engine.synthesize_recommendations(context, interactive=True)
-            else:
-                with st.spinner("Analyzing research and generating recommendations..."):
-                    synthesis_result = st.session_state.synthesis_engine.synthesize_recommendations(context)
-        else:
-            with st.spinner("Analyzing research and generating recommendations..."):
-                synthesis_result = st.session_state.synthesis_engine.synthesize_recommendations(context)
+        # Get recommendations
+        with st.spinner("Our AI consultant is analyzing research and preparing recommendations..."):
+            synthesis_result = st.session_state.synthesis_engine.synthesize_recommendations(context)
         
         # Store synthesis in session state
         st.session_state.current_synthesis = synthesis_result
         st.session_state.current_context = context
         
-        # Check if we have consultant analysis (interactive mode)
+        # Check if we have consultant analysis
         if 'consultant_analysis' in synthesis_result:
             # Display consultant analysis
             st.markdown("---")
@@ -966,95 +943,51 @@ elif page == "🎯 Get Recommendations":
                         for paper in metadata['top_paper_scores'][:3]:
                             case_tag = " [CASE STUDY]" if paper.get('is_case_study') else ""
                             st.write(f"- {paper['title']}{case_tag}")
-                            # Updated score components display
+                            # Score components display
                             components = paper.get('components', {})
                             st.write(f"  Reputation: {components.get('reputation', 0):.2f} | "
                                    f"Recency: {components.get('recency', 0):.2f} | "
-                                   f"Case Study: {components.get('case_study', 0):.2f} | "
-                                   f"Validation: {components.get('validation', 0):.2f}")
-            
-            # Interactive options
-            st.markdown("---")
-            st.subheader("🔄 Next Steps")
-            
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                if st.button("📋 Generate Detailed Roadmap", use_container_width=True):
-                    st.session_state.show_roadmap = True
-                    st.rerun()
-                    
-            with col2:
-                if st.button("🔍 Explore Alternatives", use_container_width=True):
-                    st.session_state.show_alternatives = True
-                    st.rerun()
-                    
-            with col3:
-                if st.button("💬 Ask Follow-up Question", use_container_width=True):
-                    st.session_state.show_followup = True
-                    st.rerun()
-    
-    # Handle interactive next steps (implementation unchanged from original)
-    if hasattr(st.session_state, 'show_roadmap') and st.session_state.show_roadmap:
-        st.markdown("---")
-        st.subheader("📋 Implementation Roadmap")
-        
-        # Check if synthesis engine has the method
-        if hasattr(st.session_state.synthesis_engine, 'generate_implementation_roadmap'):
-            with st.spinner("Generating detailed implementation roadmap..."):
-                roadmap_result = st.session_state.synthesis_engine.generate_implementation_roadmap(
-                    st.session_state.current_synthesis,
-                    st.session_state.current_context
-                )
-            
-            if 'error' not in roadmap_result:
-                st.markdown(roadmap_result['implementation_roadmap'])
-                
-                # Download button for roadmap
-                st.download_button(
-                    label="📥 Download Roadmap",
-                    data=roadmap_result['implementation_roadmap'],
-                    file_name=f"implementation_roadmap_{datetime.now().strftime('%Y%m%d')}.md",
-                    mime="text/markdown"
-                )
-            else:
-                st.error(f"Failed to generate roadmap: {roadmap_result['error']}")
-        else:
-            st.info("Detailed roadmap generation is not available. Using the standard roadmap from recommendations.")
-        
-        # Reset flag
-        st.session_state.show_roadmap = False
-        
-        # Button to go back
-        if st.button("⬅️ Back to Recommendations"):
-            st.rerun()
+                                   f"Case Study: {components.get('case_study', 0):.2f}")
 
 # Settings Page
 elif page == "⚙️ Settings":
     st.header("Platform Settings")
     
     # Cloud Storage Status
-    if Config.USE_CLOUD_STORAGE:
-        st.subheader("☁️ Cloud Storage Status")
-        
-        st.markdown("""
-        <div class="success-box">
-            <h4>Cloud Storage Active</h4>
-            <p>Your data is being synced to Supabase cloud storage.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Cloud storage metrics
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric("Storage Type", "☁️ Supabase")
-        
-        with col2:
-            st.metric("Backup Enabled", "✅" if Config.ENABLE_LOCAL_BACKUP else "❌")
-        
-        with col3:
-            st.metric("Min Reputation", f"{Config.MINIMUM_REPUTATION_SCORE:.2f}")
+    st.subheader("☁️ Cloud Storage Status")
+    
+    st.markdown("""
+    <div class="success-box">
+        <h4>Cloud Storage Active</h4>
+        <p>Your data is being synced to Supabase cloud storage.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Cloud storage metrics
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Storage Type", "☁️ Supabase")
+    
+    with col2:
+        # Health check button
+        if st.button("🔍 Health Check"):
+            with st.spinner("Checking system health..."):
+                health_status = st.session_state.storage.health_check()
+                
+                if health_status['healthy']:
+                    st.success("✅ System is healthy")
+                else:
+                    st.error("❌ System health issues detected")
+                
+                # Show detailed health status
+                with st.expander("Health Check Details"):
+                    for check_name, check_result in health_status['checks'].items():
+                        status_icon = "✅" if check_result['status'] == 'ok' else "❌"
+                        st.write(f"{status_icon} **{check_name}**: {check_result['message']}")
+    
+    with col3:
+        st.metric("Min Reputation", f"{Config.MINIMUM_REPUTATION_SCORE:.2f}")
     
     # Storage management
     st.subheader("Storage Management")
@@ -1064,7 +997,8 @@ elif page == "⚙️ Settings":
     with col1:
         if st.button("🗑️ Clear All Data", use_container_width=True):
             if st.checkbox("I understand this will delete all data"):
-                st.session_state.storage.clear_all()
+                with st.spinner("Clearing all data..."):
+                    st.session_state.storage.clear_all()
                 st.success("✅ All data cleared successfully")
                 st.rerun()
     
@@ -1094,13 +1028,13 @@ elif page == "⚙️ Settings":
     stats_data = {
         "Metric": [
             "Total Papers",
-            "Total Insights",
+            "Total Insights", 
             "Average Reputation Score",
             "Average Key Findings Count",
             "Papers with Code",
-            "Industry Validated Papers",
             "Case Studies",
-            "Recent Papers (Last 2 Years)"
+            "Recent Papers (Last 2 Years)",
+            "Average Extraction Confidence"
         ],
         "Value": [
             current_stats.get('total_papers', 0),
@@ -1109,7 +1043,8 @@ elif page == "⚙️ Settings":
             f"{current_stats.get('average_key_findings_count', 0):.1f}",
             current_stats.get('papers_with_code', 0),
             current_stats.get('case_studies_count', 0),
-            current_stats.get('recent_papers_count', 0)
+            current_stats.get('recent_papers_count', 0),
+            f"{current_stats.get('average_extraction_confidence', 0):.2f}"
         ]
     }
     
@@ -1125,9 +1060,10 @@ elif page == "⚙️ Settings":
     - LLM Model: {Config.LLM_MODEL}
     - Batch Size: {Config.BATCH_SIZE}
     - Max Key Findings: {Config.MAX_KEY_FINDINGS}
-    - Use Cloud Storage: {'Yes' if Config.USE_CLOUD_STORAGE else 'No'}
+    - Cloud Storage: ☁️ Supabase
     - Enable Author Lookup: {'Yes' if Config.ENABLE_AUTHOR_LOOKUP else 'No'}
     - Manual Processing: {'Available' if MANUAL_PROCESSING_AVAILABLE else 'Unavailable'}
+    - Vector Model: {Config.VECTOR_EMBEDDING_MODEL}
     """
     
     st.info(config_info)
@@ -1153,22 +1089,6 @@ elif page == "⚙️ Settings":
         </div>
         """, unsafe_allow_html=True)
     
-    # Reputation Score Information
-    st.subheader("Reputation Score Information")
-    
-    st.markdown("""
-    <div class="info-box">
-        <h4>Reputation Score Calculation</h4>
-        <p>The reputation score is automatically calculated based on:</p>
-        <ul>
-            <li><strong>Author H-Index:</strong> Sum of h-indices for all paper authors</li>
-            <li><strong>Conference Validation:</strong> 1.5x multiplier if published at a recognized conference</li>
-            <li><strong>Formula:</strong> (total_author_hindex × conference_multiplier) / 100</li>
-        </ul>
-        <p>This provides an objective measure of research credibility and impact.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
     # About
     st.subheader("About")
     
@@ -1177,15 +1097,15 @@ elif page == "⚙️ Settings":
     
     Transform cutting-edge AI research into actionable business insights.
     
-    **Version:** 2.1.0  
+    **Version:** 2.2.0 (Cloud-Only)  
     **License:** MIT
     
     **Recent Updates:**
-    - Manual processing with date range selection
-    - Cloud storage integration with Supabase
-    - Enhanced reputation scoring with author h-index
-    - Cost estimation and progress tracking
-    - Improved case study validation
+    - Full cloud-only operation with Supabase
+    - Enhanced vector search capabilities
+    - Improved reputation scoring system
+    - Real-time health monitoring
+    - Streamlined architecture
     """
     
     st.markdown(f"""
@@ -1194,16 +1114,10 @@ elif page == "⚙️ Settings":
     </div>
     """, unsafe_allow_html=True)
 
-# Handle navigation from dashboard
-if hasattr(st.session_state, 'nav_to_manual') and st.session_state.nav_to_manual:
-    st.session_state.nav_to_manual = False
-    st.query_params['page'] = "manual_processing"
-
 # Footer
 st.markdown("---")
-storage_type = "Cloud" if Config.USE_CLOUD_STORAGE else "Local"
 st.markdown(f"""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>© 2025 GenAI Research Platform | Enhanced with {storage_type} Storage & Manual Processing</p>
+    <p>© 2025 GenAI Research Platform | Cloud-Only with Supabase</p>
 </div>
 """, unsafe_allow_html=True)

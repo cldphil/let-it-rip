@@ -14,7 +14,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'research_tools'))
 from services.semantic_scholar_hidx import SemanticScholarAPI
 
-from core.insight_schema import (
+from .insight_schema import (
     PaperInsights, StudyType, TechniqueCategory, 
     ComplexityLevel, ExtractionMetadata
 )

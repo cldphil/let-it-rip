@@ -1,5 +1,6 @@
 """
 Semantic Scholar API integration for fetching author metrics.
+Cloud-only version without local file caching.
 """
 
 import requests
@@ -7,40 +8,46 @@ import time
 import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-import json
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 class SemanticScholarAPI:
     """
     Client for Semantic Scholar API to fetch author h-index and other metrics.
+    Cloud-only version with in-memory caching only.
     
     API Documentation: https://api.semanticscholar.org/
     """
     
-    def __init__(self, api_key: Optional[str] = None, cache_dir: str = "storage/author_cache"):
+    def __init__(self, api_key: Optional[str] = None):
         """
         Initialize Semantic Scholar API client.
         
         Args:
             api_key: Optional API key for higher rate limits
-            cache_dir: Directory to cache author data
         """
         self.base_url = "https://api.semanticscholar.org/graph/v1"
         self.headers = {}
         if api_key:
             self.headers["x-api-key"] = api_key
         
-        # Set up caching to avoid repeated API calls
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        # In-memory cache for current session only
+        self.memory_cache = {}
         
         # Rate limiting
         self.last_request_time = 0
-        self.min_request_interval = 0.1  # 10 requests per second without API key
+        self.min_request_interval = 0.2  # 5 requests per second without API key
         
-        logger.info("Initialized Semantic Scholar API client")
+        # API status tracking
+        self._api_status = {
+            'consecutive_failures': 0,
+            'max_consecutive_failures': 3,
+            'last_success_time': None,
+            'total_requests': 0,
+            'total_failures': 0
+        }
+        
+        logger.info("Initialized Semantic Scholar API client (cloud-only, no local caching)")
     
     def _rate_limit(self):
         """Ensure we don't exceed rate limits."""
@@ -50,43 +57,25 @@ class SemanticScholarAPI:
             time.sleep(self.min_request_interval - time_since_last)
         self.last_request_time = time.time()
     
-    def _get_cache_path(self, author_name: str) -> Path:
-        """Get cache file path for an author."""
-        # Simple filename sanitization
-        safe_name = "".join(c for c in author_name if c.isalnum() or c in "._- ")
-        return self.cache_dir / f"{safe_name}.json"
+    def _get_from_memory_cache(self, author_name: str) -> Optional[Dict]:
+        """Get author data from in-memory cache."""
+        return self.memory_cache.get(author_name.lower())
     
-    def _load_from_cache(self, author_name: str) -> Optional[Dict]:
-        """Load author data from cache if available and recent."""
-        cache_path = self._get_cache_path(author_name)
-        if cache_path.exists():
-            try:
-                with open(cache_path, 'r') as f:
-                    cached_data = json.load(f)
-                
-                # Check if cache is recent (within 30 days)
-                cache_time = datetime.fromisoformat(cached_data.get('cached_at', '2020-01-01'))
-                if (datetime.now() - cache_time).days < 30:
-                    return cached_data['author_data']
-                    
-            except Exception as e:
-                logger.warning(f"Failed to load cache for {author_name}: {e}")
-        
-        return None
-    
-    def _save_to_cache(self, author_name: str, author_data: Dict):
-        """Save author data to cache."""
-        cache_path = self._get_cache_path(author_name)
-        cache_data = {
-            'cached_at': datetime.now().isoformat(),
+    def _save_to_memory_cache(self, author_name: str, author_data: Dict):
+        """Save author data to in-memory cache."""
+        self.memory_cache[author_name.lower()] = {
+            'cached_at': datetime.now(),
             'author_data': author_data
         }
         
-        try:
-            with open(cache_path, 'w') as f:
-                json.dump(cache_data, f, indent=2)
-        except Exception as e:
-            logger.warning(f"Failed to cache data for {author_name}: {e}")
+        # Limit cache size to prevent memory issues
+        if len(self.memory_cache) > 1000:
+            # Remove oldest entries
+            oldest_key = min(
+                self.memory_cache.keys(),
+                key=lambda k: self.memory_cache[k]['cached_at']
+            )
+            del self.memory_cache[oldest_key]
 
     def get_api_status(self) -> Dict:
         """
@@ -95,22 +84,10 @@ class SemanticScholarAPI:
         Returns:
             Dict with API status information
         """
-        if not hasattr(self, '_api_status'):
-            self._api_status = {
-                'consecutive_failures': 0,
-                'max_consecutive_failures': 3,
-                'last_success_time': None,
-                'total_requests': 0,
-                'total_failures': 0
-            }
-        
         return self._api_status
 
     def _update_api_status(self, success: bool):
         """Update API status after a request."""
-        if not hasattr(self, '_api_status'):
-            self.get_api_status()  # Initialize if needed
-        
         self._api_status['total_requests'] += 1
         
         if success:
@@ -130,11 +107,19 @@ class SemanticScholarAPI:
         Returns:
             Author data dict with h-index, or None if not found
         """
-        # Check cache first
-        cached_data = self._load_from_cache(author_name)
+        # Check in-memory cache first
+        cached_data = self._get_from_memory_cache(author_name)
         if cached_data:
-            logger.info(f"Using cached data for author: {author_name}")
-            return cached_data
+            # Check if cache is recent (within current session)
+            cache_age = (datetime.now() - cached_data['cached_at']).total_seconds()
+            if cache_age < 3600:  # 1 hour cache for current session
+                logger.debug(f"Using cached data for author: {author_name}")
+                return cached_data['author_data']
+        
+        # Check API status before making request
+        if self._api_status['consecutive_failures'] >= self._api_status['max_consecutive_failures']:
+            logger.warning(f"Skipping author lookup for {author_name} due to consecutive API failures")
+            return None
         
         # Rate limiting
         self._rate_limit()
@@ -148,7 +133,12 @@ class SemanticScholarAPI:
                 'limit': 5  # Get top 5 matches
             }
             
-            response = requests.get(search_url, params=params, headers=self.headers, timeout=10)
+            response = requests.get(
+                search_url, 
+                params=params, 
+                headers=self.headers, 
+                timeout=10
+            )
             response.raise_for_status()
             
             data = response.json()
@@ -160,33 +150,48 @@ class SemanticScholarAPI:
             if not authors:
                 logger.info(f"No authors found for: {author_name}")
                 # Cache negative result
-                self._save_to_cache(author_name, {'hIndex': 0, 'found': False})
+                negative_result = {'hIndex': 0, 'found': False}
+                self._save_to_memory_cache(author_name, negative_result)
                 return None
             
             # Try to find exact match first
             for author in authors:
                 if author.get('name', '').lower() == author_name.lower():
                     author['found'] = True
-                    self._save_to_cache(author_name, author)
+                    self._save_to_memory_cache(author_name, author)
                     return author
             
             # If no exact match, return first result (best match)
             best_match = authors[0]
             best_match['found'] = True
             best_match['approximate_match'] = True
-            self._save_to_cache(author_name, best_match)
+            self._save_to_memory_cache(author_name, best_match)
             
             logger.info(f"Found approximate match for {author_name}: {best_match.get('name')}")
             return best_match
             
-        except requests.exceptions.RequestException as e:
-            # Update API status on failure
+        except requests.exceptions.Timeout:
+            # Handle timeout gracefully
+            logger.warning(f"API timeout for author {author_name} - continuing without h-index")
             self._update_api_status(success=False)
-            logger.error(f"API request failed for author {author_name}: {e}")
+            # Cache negative result to avoid re-attempting
+            negative_result = {'hIndex': 0, 'found': False, 'timeout': True}
+            self._save_to_memory_cache(author_name, negative_result)
             return None
-        except Exception as e:
+            
+        except requests.exceptions.RequestException as e:
+            # Handle other API errors gracefully
+            logger.warning(f"API request failed for author {author_name}: {e}")
             self._update_api_status(success=False)
-            logger.error(f"Unexpected error searching for author {author_name}: {e}")
+            # Cache negative result
+            negative_result = {'hIndex': 0, 'found': False, 'error': str(e)}
+            self._save_to_memory_cache(author_name, negative_result)
+            return None
+            
+        except Exception as e:
+            # Handle unexpected errors
+            logger.warning(f"Unexpected error searching for author {author_name}: {e}")
+            self._update_api_status(success=False)
             return None
     
     def get_author_hindex(self, author_name: str) -> int:
@@ -267,7 +272,7 @@ class SemanticScholarAPI:
         # Check for conference mentions
         for conf in conferences:
             if conf in search_text:
-                logger.info(f"Detected conference mention: {conf}")
+                logger.debug(f"Detected conference mention: {conf}")
                 return True
         
         # Check arXiv comments field if available
@@ -275,10 +280,28 @@ class SemanticScholarAPI:
             comments_lower = paper_data['comments'].lower()
             for conf in conferences:
                 if conf in comments_lower:
-                    logger.info(f"Detected conference in comments: {conf}")
+                    logger.debug(f"Detected conference in comments: {conf}")
                     return True
         
         return False
+    
+    def clear_memory_cache(self):
+        """Clear the in-memory cache."""
+        self.memory_cache.clear()
+        logger.info("Cleared in-memory author cache")
+    
+    def get_cache_stats(self) -> Dict:
+        """Get statistics about the current in-memory cache."""
+        return {
+            'cached_authors': len(self.memory_cache),
+            'api_requests_total': self._api_status['total_requests'],
+            'api_failures_total': self._api_status['total_failures'],
+            'consecutive_failures': self._api_status['consecutive_failures'],
+            'success_rate': (
+                (self._api_status['total_requests'] - self._api_status['total_failures']) / 
+                max(1, self._api_status['total_requests'])
+            )
+        }
 
 
 # Convenience function for testing
@@ -306,82 +329,10 @@ def test_semantic_scholar_api():
     }
     has_conference = api.detect_conference_mention(test_paper)
     print(f"Conference mention detected: {has_conference}")
+    
+    # Show cache stats
+    print(f"\nCache stats: {api.get_cache_stats()}")
 
-    def search_author(self, author_name: str) -> Optional[Dict]:
-        """
-        Search for an author by name with enhanced timeout handling.
-        """
-        # Check cache first
-        cached_data = self._load_from_cache(author_name)
-        if cached_data:
-            logger.info(f"Using cached data for author: {author_name}")
-            return cached_data
-        
-        # Rate limiting
-        self._rate_limit()
-        
-        try:
-            # Search endpoint with longer timeout
-            search_url = f"{self.base_url}/author/search"
-            params = {
-                'query': author_name,
-                'fields': 'authorId,name,affiliations,paperCount,citationCount,hIndex',
-                'limit': 5
-            }
-            
-            # Increased timeout to 30 seconds
-            response = requests.get(search_url, params=params, headers=self.headers, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            authors = data.get('data', [])
-            
-            # Update API status on success
-            self._update_api_status(success=True)
-            
-            if not authors:
-                logger.info(f"No authors found for: {author_name}")
-                # Cache negative result
-                self._save_to_cache(author_name, {'hIndex': 0, 'found': False})
-                return None
-            
-            # Try to find exact match first
-            for author in authors:
-                if author.get('name', '').lower() == author_name.lower():
-                    author['found'] = True
-                    self._save_to_cache(author_name, author)
-                    return author
-            
-            # If no exact match, return first result
-            best_match = authors[0]
-            best_match['found'] = True
-            best_match['approximate_match'] = True
-            self._save_to_cache(author_name, best_match)
-            
-            logger.info(f"Found approximate match for {author_name}: {best_match.get('name')}")
-            return best_match
-            
-        except requests.exceptions.Timeout:
-            # Handle timeout gracefully
-            logger.warning(f"API timeout for author {author_name} - continuing without h-index")
-            self._update_api_status(success=False)
-            # Cache negative result to avoid re-attempting
-            self._save_to_cache(author_name, {'hIndex': 0, 'found': False, 'timeout': True})
-            return None
-            
-        except requests.exceptions.RequestException as e:
-            # Handle other API errors gracefully
-            logger.warning(f"API request failed for author {author_name}: {e}")
-            self._update_api_status(success=False)
-            # Cache negative result
-            self._save_to_cache(author_name, {'hIndex': 0, 'found': False, 'error': str(e)})
-            return None
-            
-        except Exception as e:
-            # Handle unexpected errors
-            logger.warning(f"Unexpected error searching for author {author_name}: {e}")
-            self._update_api_status(success=False)
-            return None
 
 if __name__ == "__main__":
     test_semantic_scholar_api()

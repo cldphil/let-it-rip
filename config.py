@@ -1,6 +1,6 @@
 """
 Configuration settings for the Research Implementation Platform.
-Updated with Supabase cloud storage and reputation filtering.
+Cloud-only configuration optimized for Supabase storage.
 """
 
 import os
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    """Application configuration settings."""
+    """Application configuration settings - Cloud-only with Supabase."""
     
     # API Configuration
     LLM_API_KEY = os.getenv('LLM_API_KEY')
@@ -18,14 +18,12 @@ class Config:
     ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
     
-    # Supabase Configuration
+    # Supabase Configuration (Required)
     SUPABASE_URL = os.getenv('SUPABASE_URL')
     SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
     SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
     
-    # Storage Configuration
-    USE_CLOUD_STORAGE = os.getenv('USE_CLOUD_STORAGE', 'false').lower() == 'true'
-    ENABLE_LOCAL_BACKUP = os.getenv('ENABLE_LOCAL_BACKUP', 'true').lower() == 'true'
+    # Quality Filtering
     MINIMUM_REPUTATION_SCORE = float(os.getenv('MINIMUM_REPUTATION_SCORE', '0.0'))
     
     # LLM Settings
@@ -37,66 +35,47 @@ class Config:
     # arXiv API Settings
     ARXIV_BASE_URL = "http://export.arxiv.org/api/query"
     ARXIV_MAX_RESULTS_DEFAULT = 20
-    ARXIV_REQUEST_DELAY = 1.0  # Seconds between requests (be respectful)
+    ARXIV_REQUEST_DELAY = 1.0  # Seconds between requests
     ARXIV_TIMEOUT = 30
     
-    # Semantic Scholar API Settings (updated for better timeout handling)
+    # Semantic Scholar API Settings (Rate limited)
     SEMANTIC_SCHOLAR_MIN_INTERVAL = 0.2  # Minimum seconds between API calls
-    SEMANTIC_SCHOLAR_MAX_RETRIES = 2  # Reduced retries to avoid long delays
-    SEMANTIC_SCHOLAR_TIMEOUT = 5  # Increased timeout from 10 to 30 seconds
-    MAX_AUTHORS_PER_PAPER = 3  # Reduced from 5 to 3 to minimize API calls
+    SEMANTIC_SCHOLAR_MAX_RETRIES = 2  # Reduced retries for faster processing
+    SEMANTIC_SCHOLAR_TIMEOUT = 10  # Timeout for author lookups
+    MAX_AUTHORS_PER_PAPER = 3  # Limit authors to reduce API calls
     CONTINUE_ON_API_ERRORS = True  # Continue processing if author lookup fails
     
-    # Processing Settings (updated for resilience)
-    SKIP_AUTHOR_ON_TIMEOUT = True  # Skip author lookup if it times out
-    CACHE_FAILED_LOOKUPS = True  # Cache failed lookups to avoid retrying
+    # Processing Settings
+    BATCH_SIZE = 5  # Optimized batch size for cloud processing
+    MAX_RETRIES = 3  # Retry attempts for failed API calls
+    ENABLE_FULL_TEXT = True  # Enable full text extraction
+    ENABLE_LLM_TAGGING = True  # Use LLM for extraction
+    ENABLE_AUTHOR_LOOKUP = True  # Fetch author h-indices
     
-    # Text Extraction Settings
+    # Text Extraction Limits
     ABSTRACT_MAX_CHARS = 500
     INTRODUCTION_MAX_CHARS = 1000
     METHODOLOGY_MAX_CHARS = 800
     RESULTS_MAX_CHARS = 600
     CONCLUSION_MAX_CHARS = 600
     
-    # Reputation Scoring Weights (objective metrics only)
+    # Vector Search Configuration
+    VECTOR_EMBEDDING_MODEL = 'all-MiniLM-L6-v2'  # SentenceTransformer model
+    VECTOR_SIMILARITY_THRESHOLD = 0.6  # Minimum similarity for matches
+    MAX_VECTOR_SEARCH_RESULTS = 50  # Maximum results before filtering
+    
+    # Reputation Scoring Configuration
     RECENCY_WEIGHT = 0.25  # Prioritize recent research
     REPUTATION_WEIGHT = 0.35  # Author h-index + conference validation
     VALIDATION_WEIGHT = 0.20  # Industry validation importance
     CASE_STUDY_WEIGHT = 0.20  # Real-world implementation evidence
     RECENCY_DECAY_RATE = 0.1  # Reputation decay per year (10%)
     
-    # Reputation Score Configuration
+    # Reputation Score Calculation
     CONFERENCE_MULTIPLIER = 1.5  # Multiplier for papers with conference validation
-    REPUTATION_SCORE_NORMALIZATION = 100.0  # Divisor for normalizing h-index to 0-1 range
+    REPUTATION_SCORE_NORMALIZATION = 100.0  # Divisor for normalizing h-index
     MAX_REPUTATION_SCORE = 1.0  # Maximum reputation score cap
-    
-    # Author H-Index Configuration
-    SEMANTIC_SCHOLAR_CACHE_DAYS = 30  # Days to cache author h-index data
-    AUTHOR_HINDEX_TIMEOUT = 10  # Timeout for author lookup requests
-    MIN_HINDEX_FOR_REPUTATION = 5  # Minimum h-index to consider for reputation bonus
-    
-    # Cloud Storage Configuration
-    VECTOR_EMBEDDING_MODEL = 'all-MiniLM-L6-v2'  # SentenceTransformer model for embeddings
-    VECTOR_SIMILARITY_THRESHOLD = 0.6  # Minimum similarity for vector search
-    MAX_VECTOR_SEARCH_RESULTS = 50  # Maximum results from vector search before filtering
-    
-    # Processing Settings
-    BATCH_SIZE = 10  # Number of papers to process in each batch
-    FREE_TIER_BATCH_SIZE = 5  # Smaller batches for free tier
-    MAX_RETRIES = 3  # Retry attempts for failed API calls
-    ENABLE_FULL_TEXT = True  # Enable full text extraction for enhanced key findings
-    ENABLE_LLM_TAGGING = True  # Whether to use LLM for tagging (vs heuristics)
-    ENABLE_AUTHOR_LOOKUP = True  # Whether to fetch author h-indices
-    
-    # Free Tier Optimization
-    FREE_TIER_DAILY_LIMIT = 10  # Papers to process daily on free tier
-    FREE_TIER_STORAGE_LIMIT_MB = 500  # Supabase free tier limit
-    FREE_TIER_BATCH_SIZE = 5  # Smaller batches for free tier
-    
-    # Output Settings (for local backup)
-    OUTPUT_DIR = "output"
-    METADATA_FILENAME = "papers_metadata.json"
-    FULL_TEXT_FILENAME = "papers_fulltext.json"
+    MIN_HINDEX_FOR_REPUTATION = 5  # Minimum h-index for reputation bonus
     
     # Search Terms for GenAI Research
     GENAI_SEARCH_TERMS = [
@@ -115,7 +94,7 @@ class Config:
         "transformer"
     ]
     
-    # Business Tag Categories (streamlined for objective analysis)
+    # Study Type Categories
     METHODOLOGY_TYPES = [
         "case_study", 
         "theoretical", 
@@ -135,7 +114,7 @@ class Config:
         "unknown"
     ]
     
-    # Updated success metrics focused on measurable outcomes
+    # Success Metrics Categories
     SUCCESS_METRICS = [
         "roi_mentioned",
         "kpis_listed", 
@@ -149,6 +128,7 @@ class Config:
         "user_satisfaction_scores"
     ]
     
+    # Technical Requirements
     TECHNICAL_REQUIREMENTS = [
         "fine_tuning",
         "retrieval_augmented_generation",
@@ -165,17 +145,6 @@ class Config:
     # Enhanced Key Findings Configuration
     MAX_KEY_FINDINGS = 10  # Allow up to 10 detailed findings per paper
     MIN_FINDING_LENGTH = 50  # Minimum characters per finding
-    FOCUS_AREAS = [
-        "methods",
-        "results", 
-        "implications",
-        "uniqueness",
-        "practical_applications",
-        "conclusions",
-        "limitations",
-        "validation_evidence",
-        "industry_deployment"
-    ]
     
     # Conference Detection Configuration
     MAJOR_AI_CONFERENCES = [
@@ -209,7 +178,7 @@ class Config:
         'deployed system', 'production deployment'
     ]
     
-    # Ranking Algorithm Configuration (updated weights)
+    # Ranking Algorithm Configuration
     RANKING_WEIGHTS = {
         'similarity': 0.30,      # Vector similarity
         'reputation': 0.25,      # Author h-index + conference validation
@@ -225,15 +194,48 @@ class Config:
     CONSERVATIVE_REPUTATION_THRESHOLD = 0.5  # Reputation threshold for conservative users
     
     # Manual Processing Configuration
-    ENABLE_DATE_RANGE_PROCESSING = True  # Allow date range selection
     DEFAULT_PROCESSING_DAYS = 7  # Default to last 7 days
     MAX_PROCESSING_DAYS = 365  # Maximum days in a single batch
+    
+    # Rate Limiting and Performance
+    SUPABASE_MAX_BATCH_SIZE = 1000  # Maximum records per batch insert
+    SUPABASE_REQUEST_TIMEOUT = 30  # Timeout for Supabase requests
+    VECTOR_SEARCH_TIMEOUT = 10  # Timeout for vector similarity searches
+    
+    # Database Table Names (for consistency)
+    TABLE_PAPERS = 'papers'
+    TABLE_INSIGHTS = 'insights'
+    TABLE_EXTRACTION_METADATA = 'extraction_metadata'
+    TABLE_PROCESSING_LOGS = 'processing_logs'
+    TABLE_USER_CONTEXTS = 'user_contexts'
+    
+    # Supabase Function Names
+    FUNCTION_MATCH_INSIGHTS = 'match_insights'  # Vector similarity search function
+    FUNCTION_GET_PAPER_STATS = 'get_paper_statistics'  # Statistics function
+    
+    # Data Validation Rules
+    MAX_TITLE_LENGTH = 500
+    MAX_ABSTRACT_LENGTH = 5000
+    MAX_FINDING_LENGTH = 1000
+    MAX_AUTHORS_DISPLAY = 10
+    
+    # Processing Limits
+    MAX_PAPERS_PER_REQUEST = 1000
+    MAX_CONCURRENT_EXTRACTIONS = 3
+    MAX_EXTRACTION_TIME_MINUTES = 10
     
     @classmethod
     def validate_config(cls):
         """Validate that required configuration is present."""
         errors = []
         warnings = []
+        
+        # Check required Supabase configuration
+        if not cls.SUPABASE_URL:
+            errors.append("SUPABASE_URL is required for cloud-only operation")
+        
+        if not (cls.SUPABASE_ANON_KEY or cls.SUPABASE_SERVICE_ROLE_KEY):
+            errors.append("SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY is required")
         
         # Check LLM API keys
         if cls.ENABLE_LLM_TAGGING and not any([
@@ -244,31 +246,22 @@ class Config:
         ]):
             warnings.append("LLM tagging enabled but no API key found. Will fall back to heuristics.")
         
-        # Check Supabase configuration
-        if cls.USE_CLOUD_STORAGE:
-            if not cls.SUPABASE_URL:
-                errors.append("SUPABASE_URL required when USE_CLOUD_STORAGE=true")
-            if not (cls.SUPABASE_ANON_KEY or cls.SUPABASE_SERVICE_ROLE_KEY):
-                errors.append("SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY required when USE_CLOUD_STORAGE=true")
-        
-        # Check reputation score configuration
+        # Validate reputation score configuration
         if cls.MINIMUM_REPUTATION_SCORE < 0 or cls.MINIMUM_REPUTATION_SCORE > 1:
             warnings.append(f"MINIMUM_REPUTATION_SCORE should be between 0 and 1, got {cls.MINIMUM_REPUTATION_SCORE}")
         
-        # Check date range configuration
+        # Validate date range configuration
         if cls.DEFAULT_PROCESSING_DAYS > cls.MAX_PROCESSING_DAYS:
             warnings.append(f"DEFAULT_PROCESSING_DAYS ({cls.DEFAULT_PROCESSING_DAYS}) exceeds MAX_PROCESSING_DAYS ({cls.MAX_PROCESSING_DAYS})")
-        
-        # Create output directory if using local storage
-        if not cls.USE_CLOUD_STORAGE or cls.ENABLE_LOCAL_BACKUP:
-            if not os.path.exists(cls.OUTPUT_DIR):
-                os.makedirs(cls.OUTPUT_DIR)
-                print(f"Created output directory: {cls.OUTPUT_DIR}")
         
         # Validate ranking weights
         total_ranking_weight = sum(cls.RANKING_WEIGHTS.values())
         if abs(total_ranking_weight - 1.0) > 0.01:
             warnings.append(f"Ranking weights sum to {total_ranking_weight:.2f}, expected ~1.0")
+        
+        # Validate batch sizes
+        if cls.BATCH_SIZE > cls.SUPABASE_MAX_BATCH_SIZE:
+            warnings.append(f"BATCH_SIZE ({cls.BATCH_SIZE}) exceeds SUPABASE_MAX_BATCH_SIZE ({cls.SUPABASE_MAX_BATCH_SIZE})")
         
         # Print validation results
         if errors:
@@ -282,198 +275,38 @@ class Config:
             for warning in warnings:
                 print(f"   - {warning}")
         
-        print("✅ Configuration validated successfully")
-
-    # Maps application field names to actual database column names
-    PROCESSING_LOGS_COLUMN_MAPPING = {
-        # Application field name → Database column name
-        'papers_failed': 'failed_extractions',
-        'papers_successful': 'successful_extractions',
-        'total_cost': 'total_cost_usd',
-        
-        # These fields are identical (no mapping needed)
-        'batch_name': 'batch_name',
-        'papers_processed': 'papers_processed', 
-        'processing_time_seconds': 'processing_time_seconds',
-        'success_rate': 'success_rate',
-        'date_range': 'date_range',
-        'created_at': 'created_at',
-        'id': 'id'
-    }
-    
-    # Reverse mapping for reading data back from database
-    PROCESSING_LOGS_REVERSE_MAPPING = {
-        v: k for k, v in PROCESSING_LOGS_COLUMN_MAPPING.items()
-    }
-    
-    # Required fields for each table (for validation)
-    REQUIRED_FIELDS = {
-        'papers': ['id', 'paper_id', 'title'],
-        'insights': ['id', 'paper_id', 'study_type'],
-        'extraction_metadata': ['id', 'extraction_id', 'paper_id', 'extraction_timestamp'],
-        'processing_logs': ['batch_name', 'papers_processed']
-    }
-    
-    # Default values for optional fields
-    DEFAULT_VALUES = {
-        'processing_logs': {
-            'failed_extractions': 0,
-            'successful_extractions': 0,
-            'total_cost_usd': 0.0,
-            'processing_time_seconds': 0.0,
-            'success_rate': 0.0
-        }
-    }
-    
-    # Field validation rules
-    FIELD_VALIDATION = {
-        'processing_logs': {
-            'papers_processed': {'type': int, 'min': 0},
-            'failed_extractions': {'type': int, 'min': 0},
-            'successful_extractions': {'type': int, 'min': 0},
-            'total_cost_usd': {'type': float, 'min': 0.0},
-            'processing_time_seconds': {'type': float, 'min': 0.0},
-            'success_rate': {'type': float, 'min': 0.0, 'max': 1.0}
-        }
-    }
-    
-    @classmethod
-    def get_column_mapping(cls, table_name: str) -> dict:
-        """Get column mapping for a specific table."""
-        mappings = {
-            'processing_logs': cls.PROCESSING_LOGS_COLUMN_MAPPING
-        }
-        return mappings.get(table_name, {})
-    
-    @classmethod
-    def get_reverse_mapping(cls, table_name: str) -> dict:
-        """Get reverse column mapping for a specific table."""
-        mappings = {
-            'processing_logs': cls.PROCESSING_LOGS_REVERSE_MAPPING
-        }
-        return mappings.get(table_name, {})
-    
-    @classmethod
-    def map_to_db_columns(cls, data: dict, table_name: str) -> dict:
-        """Map application field names to database column names."""
-        mapping = cls.get_column_mapping(table_name)
-        mapped_data = {}
-        
-        for app_field, value in data.items():
-            db_column = mapping.get(app_field, app_field)
-            mapped_data[db_column] = value
-        
-        return mapped_data
-    
-    @classmethod
-    def map_from_db_columns(cls, data: dict, table_name: str) -> dict:
-        """Map database column names back to application field names."""
-        reverse_mapping = cls.get_reverse_mapping(table_name)
-        mapped_data = {}
-        
-        for db_column, value in data.items():
-            app_field = reverse_mapping.get(db_column, db_column)
-            mapped_data[app_field] = value
-        
-        return mapped_data
-    
-    @classmethod
-    def validate_fields(cls, data: dict, table_name: str) -> tuple:
-        """
-        Validate data fields for a table.
-        
-        Returns:
-            (is_valid, errors_list)
-        """
-        validation_rules = cls.FIELD_VALIDATION.get(table_name, {})
-        errors = []
-        
-        for field, rules in validation_rules.items():
-            if field in data:
-                value = data[field]
-                
-                # Type validation
-                expected_type = rules.get('type')
-                if expected_type and not isinstance(value, expected_type):
-                    try:
-                        # Try to convert
-                        data[field] = expected_type(value)
-                    except (ValueError, TypeError):
-                        errors.append(f"Field '{field}' must be of type {expected_type.__name__}")
-                        continue
-                
-                # Range validation
-                if 'min' in rules and data[field] < rules['min']:
-                    errors.append(f"Field '{field}' must be >= {rules['min']}")
-                
-                if 'max' in rules and data[field] > rules['max']:
-                    errors.append(f"Field '{field}' must be <= {rules['max']}")
-        
-        return len(errors) == 0, errors
-    
-    @classmethod
-    def apply_defaults(cls, data: dict, table_name: str) -> dict:
-        """Apply default values for missing optional fields."""
-        defaults = cls.DEFAULT_VALUES.get(table_name, {})
-        
-        for field, default_value in defaults.items():
-            if field not in data:
-                data[field] = default_value
-        
-        return data
-    
-    @classmethod
-    def print_column_mappings(cls):
-        """Print all column mappings for debugging."""
-        print("\n📋 Database Column Mappings")
-        print("=" * 50)
-        
-        print("\n🔄 Processing Logs Mapping:")
-        for app_field, db_column in cls.PROCESSING_LOGS_COLUMN_MAPPING.items():
-            if app_field != db_column:
-                print(f"   {app_field} → {db_column}")
-            else:
-                print(f"   {app_field} (no change)")
-        
-        print(f"\n📊 Required Fields:")
-        for table, fields in cls.REQUIRED_FIELDS.items():
-            print(f"   {table}: {', '.join(fields)}")
-
+        print("✅ Cloud-only configuration validated successfully")
     
     @classmethod
     def get_active_api_key(cls):
         """Get the first available API key."""
-        for key in [cls.LLM_API_KEY, cls.OPENAI_API_KEY, cls.ANTHROPIC_API_KEY, cls.GOOGLE_API_KEY]:
+        for key in [cls.LLM_API_KEY, cls.ANTHROPIC_API_KEY, cls.OPENAI_API_KEY, cls.GOOGLE_API_KEY]:
             if key:
                 return key
         return None
     
     @classmethod
+    def get_supabase_config(cls):
+        """Get Supabase configuration."""
+        return {
+            'url': cls.SUPABASE_URL,
+            'anon_key': cls.SUPABASE_ANON_KEY,
+            'service_role_key': cls.SUPABASE_SERVICE_ROLE_KEY,
+            'timeout': cls.SUPABASE_REQUEST_TIMEOUT,
+            'max_batch_size': cls.SUPABASE_MAX_BATCH_SIZE,
+            'vector_search_timeout': cls.VECTOR_SEARCH_TIMEOUT
+        }
+    
+    @classmethod
     def get_semantic_scholar_config(cls):
-        """Get Semantic Scholar API configuration for resilient processing."""
+        """Get Semantic Scholar API configuration."""
         return {
             'timeout': cls.SEMANTIC_SCHOLAR_TIMEOUT,
             'max_retries': cls.SEMANTIC_SCHOLAR_MAX_RETRIES,
             'min_interval': cls.SEMANTIC_SCHOLAR_MIN_INTERVAL,
             'max_authors': cls.MAX_AUTHORS_PER_PAPER,
-            'continue_on_errors': cls.CONTINUE_ON_API_ERRORS,
-            'skip_on_timeout': cls.SKIP_AUTHOR_ON_TIMEOUT,
-            'cache_failures': cls.CACHE_FAILED_LOOKUPS
+            'continue_on_errors': cls.CONTINUE_ON_API_ERRORS
         }
-    
-    @classmethod
-    def get_storage_class(cls):
-        """Get the appropriate storage class based on configuration."""
-        try:
-            from core.insight_storage import InsightStorage
-            return InsightStorage
-        except ImportError:
-            # Fallback import path
-            try:
-                from core import InsightStorage
-                return InsightStorage
-            except ImportError:
-                raise ImportError("Could not import InsightStorage class")
     
     @classmethod
     def get_reputation_score_config(cls):
@@ -509,35 +342,53 @@ class Config:
         }
     
     @classmethod
-    def get_cloud_config(cls):
-        """Get cloud storage configuration."""
+    def get_vector_config(cls):
+        """Get vector search configuration."""
         return {
-            'use_cloud_storage': cls.USE_CLOUD_STORAGE,
-            'enable_local_backup': cls.ENABLE_LOCAL_BACKUP,
-            'minimum_reputation_score': cls.MINIMUM_REPUTATION_SCORE,
-            'vector_model': cls.VECTOR_EMBEDDING_MODEL,
+            'model': cls.VECTOR_EMBEDDING_MODEL,
             'similarity_threshold': cls.VECTOR_SIMILARITY_THRESHOLD,
-            'max_search_results': cls.MAX_VECTOR_SEARCH_RESULTS
+            'max_search_results': cls.MAX_VECTOR_SEARCH_RESULTS,
+            'timeout': cls.VECTOR_SEARCH_TIMEOUT
         }
     
     @classmethod
-    def get_free_tier_config(cls):
-        """Get free tier optimization configuration."""
+    def get_processing_limits(cls):
+        """Get processing limits and constraints."""
         return {
-            'daily_limit': cls.FREE_TIER_DAILY_LIMIT,
-            'storage_limit_mb': cls.FREE_TIER_STORAGE_LIMIT_MB,
-            'batch_size': cls.FREE_TIER_BATCH_SIZE,
-            'enable_monitoring': True
+            'max_papers_per_request': cls.MAX_PAPERS_PER_REQUEST,
+            'max_concurrent_extractions': cls.MAX_CONCURRENT_EXTRACTIONS,
+            'max_extraction_time_minutes': cls.MAX_EXTRACTION_TIME_MINUTES,
+            'batch_size': cls.BATCH_SIZE,
+            'max_retries': cls.MAX_RETRIES
         }
     
-    @classmethod 
+    @classmethod
+    def get_table_names(cls):
+        """Get all table names for database operations."""
+        return {
+            'papers': cls.TABLE_PAPERS,
+            'insights': cls.TABLE_INSIGHTS,
+            'extraction_metadata': cls.TABLE_EXTRACTION_METADATA,
+            'processing_logs': cls.TABLE_PROCESSING_LOGS,
+            'user_contexts': cls.TABLE_USER_CONTEXTS
+        }
+    
+    @classmethod
+    def get_supabase_functions(cls):
+        """Get Supabase function names."""
+        return {
+            'match_insights': cls.FUNCTION_MATCH_INSIGHTS,
+            'get_paper_stats': cls.FUNCTION_GET_PAPER_STATS
+        }
+    
+    @classmethod
     def print_current_config(cls):
-        """Enhanced configuration summary including rate limiting."""
+        """Print current configuration summary."""
         print("\n" + "=" * 60)
-        print("Current Configuration Summary")
+        print("Cloud-Only Configuration Summary")
         print("=" * 60)
         
-        print(f"📊 Storage: {'☁️  Supabase Cloud' if cls.USE_CLOUD_STORAGE else '💾 Local SQLite'}")
+        print(f"☁️  Storage: Supabase Cloud")
         print(f"🔍 Min Reputation Score: {cls.MINIMUM_REPUTATION_SCORE}")
         print(f"🤖 LLM Model: {cls.LLM_MODEL}")
         print(f"📈 Author Lookup: {'✅' if cls.ENABLE_AUTHOR_LOOKUP else '❌'}")
@@ -546,8 +397,35 @@ class Config:
         print(f"🔄 Max API Retries: {cls.SEMANTIC_SCHOLAR_MAX_RETRIES}")
         print(f"📦 Batch Size: {cls.BATCH_SIZE}")
         print(f"🛡️  Continue on API Errors: {'✅' if cls.CONTINUE_ON_API_ERRORS else '❌'}")
+        print(f"🔧 Vector Model: {cls.VECTOR_EMBEDDING_MODEL}")
+        print(f"📊 Max Vector Results: {cls.MAX_VECTOR_SEARCH_RESULTS}")
+        
+        # Show Supabase connection status
+        supabase_configured = bool(cls.SUPABASE_URL and (cls.SUPABASE_ANON_KEY or cls.SUPABASE_SERVICE_ROLE_KEY))
+        print(f"🗄️  Supabase Configured: {'✅' if supabase_configured else '❌'}")
         
         print("=" * 60)
+    
+    @classmethod
+    def get_data_validation_rules(cls):
+        """Get data validation rules for input sanitization."""
+        return {
+            'max_title_length': cls.MAX_TITLE_LENGTH,
+            'max_abstract_length': cls.MAX_ABSTRACT_LENGTH,
+            'max_finding_length': cls.MAX_FINDING_LENGTH,
+            'max_authors_display': cls.MAX_AUTHORS_DISPLAY,
+            'max_key_findings': cls.MAX_KEY_FINDINGS,
+            'min_finding_length': cls.MIN_FINDING_LENGTH
+        }
+    
+    @classmethod
+    def is_cloud_ready(cls) -> bool:
+        """Check if configuration is ready for cloud operations."""
+        return bool(
+            cls.SUPABASE_URL and 
+            (cls.SUPABASE_ANON_KEY or cls.SUPABASE_SERVICE_ROLE_KEY) and
+            cls.get_active_api_key()
+        )
 
-# Initialize configuration on import
+# Initialize and validate configuration on import
 Config.validate_config()

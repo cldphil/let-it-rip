@@ -1,12 +1,10 @@
 """
-Batch processing system with checkpointing for handling large paper volumes.
-Supports incremental processing and failure recovery.
+Cloud-only batch processing system for handling large paper volumes.
+Uses in-memory state tracking and Supabase for persistence.
 """
 
 import asyncio
-import json
 from datetime import datetime
-from pathlib import Path
 from typing import List, Dict, Optional, Set
 import logging
 import traceback
@@ -19,13 +17,13 @@ logger = logging.getLogger(__name__)
 
 class BatchProcessor:
     """
-    Processes papers in batches with checkpointing and error recovery.
+    Cloud-only batch processor for papers with in-memory state tracking.
     
     Features:
-    - Incremental processing with checkpoints
     - Parallel processing within batches
     - Automatic retry on failures
     - Progress tracking and cost estimation
+    - Cloud-native design without local checkpointing
     """
     
     def __init__(self, 
@@ -46,8 +44,16 @@ class BatchProcessor:
         self.storage = storage or InsightStorage()
         self.batch_size = batch_size
         self.max_workers = max_workers
-        self.checkpoint_dir = Path("storage/checkpoints")
-        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        
+        # In-memory processing state
+        self.current_session = {
+            'session_id': f"batch_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+            'start_time': None,
+            'processed_papers': set(),
+            'failed_papers': set(),
+            'current_batch': 0,
+            'total_batches': 0
+        }
         
         # Processing statistics
         self.stats = {
@@ -59,31 +65,31 @@ class BatchProcessor:
             'total_cost': 0.0,
             'errors': []
         }
+        
+        logger.info(f"Initialized cloud-only batch processor (batch_size={batch_size})")
     
     async def process_papers(self, 
                            papers: List[Dict], 
-                           checkpoint_name: Optional[str] = None,
-                           force_reprocess: bool = False) -> Dict:
+                           session_name: Optional[str] = None,
+                           force_reprocess: bool = False,
+                           progress_callback=None) -> Dict:
         """
-        Process a list of papers with checkpointing.
+        Process a list of papers with progress tracking.
         
         Args:
             papers: List of paper dictionaries
-            checkpoint_name: Name for checkpoint file (auto-generated if not provided)
+            session_name: Name for this processing session
             force_reprocess: Whether to reprocess already processed papers
+            progress_callback: Function for progress updates
             
         Returns:
             Processing statistics
         """
         start_time = datetime.utcnow()
+        self.current_session['start_time'] = start_time
         
-        # Setup checkpoint
-        if not checkpoint_name:
-            checkpoint_name = f"batch_{start_time.strftime('%Y%m%d_%H%M%S')}"
-        checkpoint_file = self.checkpoint_dir / f"{checkpoint_name}.json"
-        
-        # Load checkpoint if exists
-        processed_ids = self._load_checkpoint(checkpoint_file)
+        if session_name:
+            self.current_session['session_id'] = session_name
         
         # Filter papers to process
         papers_to_process = []
@@ -94,35 +100,52 @@ class BatchProcessor:
                 self.stats['skipped'] += 1
                 continue
             
-            if paper_id in processed_ids and not force_reprocess:
+            # Check if already processed (unless force reprocess)
+            if not force_reprocess and self._is_already_processed(paper_id):
                 logger.info(f"Skipping already processed paper: {paper_id}")
                 self.stats['skipped'] += 1
                 continue
             
             papers_to_process.append(paper)
         
-        logger.info(f"Processing {len(papers_to_process)} papers in batches of {self.batch_size}")
+        if not papers_to_process:
+            logger.warning("No papers to process after filtering")
+            return self.stats
+        
+        # Calculate batch information
+        self.current_session['total_batches'] = (len(papers_to_process) + self.batch_size - 1) // self.batch_size
+        
+        logger.info(f"Processing {len(papers_to_process)} papers in {self.current_session['total_batches']} batches")
         
         # Process in batches
         for i in range(0, len(papers_to_process), self.batch_size):
             batch = papers_to_process[i:i + self.batch_size]
             batch_num = i // self.batch_size + 1
-            total_batches = (len(papers_to_process) + self.batch_size - 1) // self.batch_size
+            self.current_session['current_batch'] = batch_num
             
-            logger.info(f"Processing batch {batch_num}/{total_batches}")
+            logger.info(f"Processing batch {batch_num}/{self.current_session['total_batches']}")
+            
+            # Update progress
+            if progress_callback:
+                progress = (batch_num - 1) / self.current_session['total_batches'] * 100
+                progress_callback(
+                    f"Processing batch {batch_num}/{self.current_session['total_batches']}", 
+                    progress,
+                    current_batch=batch_num,
+                    total_batches=self.current_session['total_batches']
+                )
             
             # Process batch
-            batch_results = await self._process_batch(batch)
+            batch_results = await self._process_batch(batch, progress_callback)
             
-            # Update checkpoint
+            # Update statistics
             for paper_id, success in batch_results.items():
                 if success:
-                    processed_ids.add(paper_id)
+                    self.current_session['processed_papers'].add(paper_id)
                     self.stats['successful'] += 1
                 else:
+                    self.current_session['failed_papers'].add(paper_id)
                     self.stats['failed'] += 1
-            
-            self._save_checkpoint(checkpoint_file, processed_ids)
             
             # Rate limiting between batches
             if i + self.batch_size < len(papers_to_process):
@@ -132,13 +155,22 @@ class BatchProcessor:
         self.stats['total_processed'] = len(papers_to_process)
         self.stats['total_time'] = (datetime.utcnow() - start_time).total_seconds()
         
-        # Save final statistics
-        self._save_statistics(checkpoint_name)
+        # Store processing log in cloud storage
+        await self._store_processing_log()
         
         logger.info(f"Processing complete: {self.stats}")
+        
+        # Final progress update
+        if progress_callback:
+            progress_callback(
+                f"Processing complete! Processed {self.stats['successful']} papers successfully",
+                100,
+                phase='completed'
+            )
+        
         return self.stats
     
-    async def _process_batch(self, batch: List[Dict]) -> Dict[str, bool]:
+    async def _process_batch(self, batch: List[Dict], progress_callback=None) -> Dict[str, bool]:
         """
         Process a single batch of papers concurrently.
         
@@ -155,16 +187,26 @@ class BatchProcessor:
             tasks.append((paper_id, task))
         
         # Wait for all tasks with timeout
-        for paper_id, task in tasks:
+        for i, (paper_id, task) in enumerate(tasks):
             try:
-                success = await asyncio.wait_for(task, timeout=60)  # 60 second timeout
+                success = await asyncio.wait_for(task, timeout=300)  # 5 minute timeout per paper
                 results[paper_id] = success
+                
+                # Update progress within batch
+                if progress_callback:
+                    paper_title = next((p.get('title', '') for p in batch if p.get('id', '').split('/')[-1] == paper_id), '')
+                    progress_callback(
+                        f"Completed paper {i+1}/{len(batch)}: {paper_title[:50]}...",
+                        current_paper_in_batch=i+1,
+                        total_papers_in_batch=len(batch)
+                    )
+                    
             except asyncio.TimeoutError:
                 logger.error(f"Timeout processing paper {paper_id}")
                 results[paper_id] = False
                 self.stats['errors'].append({
                     'paper_id': paper_id,
-                    'error': 'Timeout',
+                    'error': 'Processing timeout (5 minutes)',
                     'timestamp': datetime.utcnow().isoformat()
                 })
             except Exception as e:
@@ -219,13 +261,6 @@ class BatchProcessor:
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to process paper {paper_id} after {max_retries} attempts: {str(e)}")
                     logger.error(f"Traceback: {traceback.format_exc()}")
-                    # Store error details but continue processing other papers
-                    self.stats['errors'].append({
-                        'paper_id': paper_id,
-                        'error': str(e),
-                        'traceback': traceback.format_exc(),
-                        'timestamp': datetime.utcnow().isoformat()
-                    })
                     return False
                 else:
                     logger.warning(f"Attempt {attempt + 1} failed for paper {paper_id}, retrying...")
@@ -233,85 +268,87 @@ class BatchProcessor:
         
         return False
     
-    def _load_checkpoint(self, checkpoint_file: Path) -> Set[str]:
-        """Load processed paper IDs from checkpoint."""
-        if not checkpoint_file.exists():
-            return set()
+    def _is_already_processed(self, paper_id: str) -> bool:
+        """
+        Check if a paper has already been processed by querying cloud storage.
         
-        try:
-            with open(checkpoint_file, 'r') as f:
-                data = json.load(f)
-                return set(data.get('processed_ids', []))
-        except Exception as e:
-            logger.warning(f"Failed to load checkpoint: {e}")
-            return set()
-    
-    def _save_checkpoint(self, checkpoint_file: Path, processed_ids: Set[str]):
-        """Save checkpoint with processed paper IDs."""
-        checkpoint_data = {
-            'processed_ids': list(processed_ids),
-            'timestamp': datetime.utcnow().isoformat(),
-            'stats': self.stats
-        }
-        
-        try:
-            with open(checkpoint_file, 'w') as f:
-                json.dump(checkpoint_data, f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save checkpoint: {e}")
-    
-    def _save_statistics(self, checkpoint_name: str):
-        """Save processing statistics."""
-        stats_file = self.checkpoint_dir / f"{checkpoint_name}_stats.json"
-        
-        stats_data = {
-            'checkpoint_name': checkpoint_name,
-            'timestamp': datetime.utcnow().isoformat(),
-            'statistics': self.stats,
-            'storage_stats': self.storage.get_statistics()
-        }
-        
-        try:
-            with open(stats_file, 'w') as f:
-                json.dump(stats_data, f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save statistics: {e}")
-    
-    def get_checkpoint_status(self, checkpoint_name: str) -> Optional[Dict]:
-        """Get status of a checkpoint."""
-        checkpoint_file = self.checkpoint_dir / f"{checkpoint_name}.json"
-        if not checkpoint_file.exists():
-            return None
-        
-        try:
-            with open(checkpoint_file, 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"Failed to load checkpoint status: {e}")
-            return None
-    
-    def list_checkpoints(self) -> List[Dict]:
-        """List all available checkpoints."""
-        checkpoints = []
-        
-        for checkpoint_file in self.checkpoint_dir.glob("*.json"):
-            if checkpoint_file.name.endswith("_stats.json"):
-                continue
+        Args:
+            paper_id: Paper identifier
             
-            try:
-                with open(checkpoint_file, 'r') as f:
-                    data = json.load(f)
-                    checkpoints.append({
-                        'name': checkpoint_file.stem,
-                        'timestamp': data.get('timestamp'),
-                        'processed_count': len(data.get('processed_ids', [])),
-                        'stats': data.get('stats', {})
-                    })
-            except Exception as e:
-                logger.warning(f"Failed to load checkpoint {checkpoint_file}: {e}")
-                continue
+        Returns:
+            True if already processed, False otherwise
+        """
+        try:
+            # Check if insights exist for this paper
+            insights = self.storage.load_insights(paper_id)
+            return insights is not None
+        except Exception as e:
+            logger.warning(f"Error checking if paper {paper_id} is processed: {e}")
+            return False
+    
+    async def _store_processing_log(self):
+        """Store processing log in cloud storage."""
+        try:
+            log_data = {
+                'batch_name': self.current_session['session_id'],
+                'papers_processed': self.stats['total_processed'],
+                'successful_extractions': self.stats['successful'],
+                'failed_extractions': self.stats['failed'],
+                'total_cost_usd': self.stats['total_cost'],
+                'processing_time_seconds': self.stats['total_time'],
+                'success_rate': (
+                    self.stats['successful'] / max(1, self.stats['total_processed'])
+                ),
+                'date_range': {
+                    'start': self.current_session['start_time'].isoformat(),
+                    'end': datetime.utcnow().isoformat()
+                },
+                'error_count': len(self.stats['errors'])
+            }
+            
+            self.storage.store_processing_log(log_data)
+            logger.info(f"Stored processing log for session: {self.current_session['session_id']}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to store processing log: {e}")
+    
+    def get_current_session_status(self) -> Dict:
+        """Get current session status for monitoring."""
+        return {
+            'session_id': self.current_session['session_id'],
+            'current_batch': self.current_session['current_batch'],
+            'total_batches': self.current_session['total_batches'],
+            'papers_processed': len(self.current_session['processed_papers']),
+            'papers_failed': len(self.current_session['failed_papers']),
+            'current_stats': self.stats.copy(),
+            'elapsed_time': (
+                (datetime.utcnow() - self.current_session['start_time']).total_seconds()
+                if self.current_session['start_time'] else 0
+            )
+        }
+    
+    def reset_session(self):
+        """Reset current session state."""
+        self.current_session = {
+            'session_id': f"batch_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+            'start_time': None,
+            'processed_papers': set(),
+            'failed_papers': set(),
+            'current_batch': 0,
+            'total_batches': 0
+        }
         
-        return sorted(checkpoints, key=lambda x: x.get('timestamp', ''), reverse=True)
+        self.stats = {
+            'total_processed': 0,
+            'successful': 0,
+            'failed': 0,
+            'skipped': 0,
+            'total_time': 0.0,
+            'total_cost': 0.0,
+            'errors': []
+        }
+        
+        logger.info("Reset batch processor session")
 
 
 class SyncBatchProcessor:
@@ -333,13 +370,13 @@ class SyncBatchProcessor:
         finally:
             loop.close()
     
-    def get_checkpoint_status(self, checkpoint_name: str) -> Optional[Dict]:
-        """Get checkpoint status."""
-        return self.async_processor.get_checkpoint_status(checkpoint_name)
+    def get_current_session_status(self) -> Dict:
+        """Get current session status."""
+        return self.async_processor.get_current_session_status()
     
-    def list_checkpoints(self) -> List[Dict]:
-        """List all checkpoints."""
-        return self.async_processor.list_checkpoints()
+    def reset_session(self):
+        """Reset current session."""
+        self.async_processor.reset_session()
     
     @property
     def stats(self) -> Dict:

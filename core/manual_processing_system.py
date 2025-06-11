@@ -35,9 +35,7 @@ class ManualProcessingController:
         """Initialize manual processing controller."""
         self.storage = InsightStorage()
         
-        # Use appropriate batch size based on storage type
-        batch_size = Config.FREE_TIER_BATCH_SIZE if Config.USE_CLOUD_STORAGE else Config.BATCH_SIZE
-        self.processor = SyncBatchProcessor(storage=self.storage, batch_size=batch_size)
+        self.processor = SyncBatchProcessor(storage=self.storage, batch_size=Config.BATCH_SIZE)
         
         # Use the existing ArxivFetcher instead of creating a redundant one
         self.fetcher = ArxivFetcher()
