@@ -230,9 +230,7 @@ class InsightStorage:
                     'published_date': sanitized_paper.get('published', ''),
                     'arxiv_categories': json.dumps(sanitized_paper.get('categories', [])),  # JSON encode categories
                     'pdf_url': sanitized_paper.get('pdf_url', ''),
-                    'full_text': sanitized_paper.get('full_text', ''),
                     'comments': sanitized_paper.get('comments', ''),
-                    'metadata': sanitized_paper  # Store full data as JSON
                 }
                 
                 # Upsert to Supabase
@@ -357,6 +355,7 @@ class InsightStorage:
                     metadata_uuid = str(uuid.uuid4())  # Generate new UUID for metadata
                     metadata_data = {
                         'id': metadata_uuid,
+                        'extraction_id': extraction_metadata.extraction_id,  # ← ADD THIS LINE
                         'paper_id': paper_id,  # Use arxiv ID for reference
                         'paper_uuid': supabase_uuid,  # Also store paper UUID
                         'extraction_time_seconds': extraction_metadata.extraction_time_seconds,

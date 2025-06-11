@@ -171,7 +171,7 @@ class PaperInsights(BaseModel):
     
     # New reputation indicators
     total_author_hindex: int = Field(
-        default=0,
+        default=1,
         description="Sum of h-indices for all authors"
     )
     has_conference_mention: bool = Field(

@@ -1,0 +1,56 @@
+{
+  "paper_id": "http://arxiv.org/abs/2506.07326v1",
+  "extraction_timestamp": "2025-06-10T18:17:29.154588",
+  "extraction_version": "1.0",
+  "key_findings": [
+    "Reward models exhibit substantial heterogeneity even when trained on similar objectives, indicating that training methodology and data selection significantly impact model behavior and alignment outcomes in practice.",
+    "Systematic asymmetries exist in how reward models encode high-scoring versus low-scoring tokens, revealing fundamental biases in how these models represent human value judgments and preferences.",
+    "Reward models demonstrate significant sensitivity to prompt framing that mirrors human cognitive biases, suggesting that the way prompts are constructed can dramatically influence model outputs and alignment effectiveness. This finding has direct implications for prompt engineering in RLHF systems.",
+    "The research introduces a novel interpretability approach through exhaustive vocabulary analysis, examining how reward models score every possible single-token response to value-laden prompts. This methodology provides unprecedented insight into reward model behavior and could be implemented as a standard evaluation technique for assessing reward model reliability and consistency across different deployment scenarios.",
+    "Reward models show overvaluation of more frequent tokens, indicating potential training biases that could affect alignment quality and suggesting the need for frequency-aware training approaches in future reward model development."
+  ],
+  "limitations": [
+    "Validity of findings remains uncertain when abstracted from operational role in RLHF systems with pre-trained models and KL constraints",
+    "Poor documentation of training data and processes makes it difficult to attribute observed behaviors to specific development choices"
+  ],
+  "future_work": [],
+  "study_type": "unknown",
+  "techniques_used": [
+    "other",
+    "reward_modeling"
+  ],
+  "implementation_complexity": "medium",
+  "resource_requirements": {
+    "compute_requirements": null,
+    "data_requirements": null,
+    "budget_tier": null,
+    "special_hardware": [],
+    "cloud_services": []
+  },
+  "success_metrics": [],
+  "problem_addressed": "Understanding and interpreting how reward models encode human value judgments and their behavior across vocabulary space for better AI alignment",
+  "prerequisites": [
+    "Access to reward models",
+    "Computational resources for exhaustive vocabulary analysis",
+    "Understanding of RLHF systems"
+  ],
+  "comparable_approaches": [],
+  "real_world_applications": [
+    "Reward model evaluation and validation",
+    "AI alignment system improvement",
+    "Bias detection in language model training"
+  ],
+  "total_author_hindex": 11,
+  "has_conference_mention": false,
+  "author_hindices": {
+    "Brian Christian": 1,
+    "Hannah Rose Kirk": 3,
+    "Jessica A. F. Thompson": 0,
+    "Christopher Summerfield": 0,
+    "Tsvetomira Dumbalska": 7
+  },
+  "extraction_confidence": 0.85,
+  "has_code_available": false,
+  "has_dataset_available": false,
+  "reproducibility_score": null
+}

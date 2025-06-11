@@ -1,6 +1,94 @@
+"""
+Enhanced DataFrame preparation in components/datetime_utils.py
+This handles currency strings and other problematic data types.
+"""
+
 import pandas as pd
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Union
+
+def prepare_dataframe_for_streamlit(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepare a DataFrame for Streamlit display by converting problematic data types.
+    
+    Args:
+        df: DataFrame to prepare
+        
+    Returns:
+        DataFrame with all columns converted to Streamlit-compatible formats
+    """
+    df_copy = df.copy()
+    
+    for col in df_copy.columns:
+        # Handle datetime columns
+        if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
+            df_copy[col] = df_copy[col].dt.strftime('%Y-%m-%d %H:%M:%S')
+            
+        # Handle object columns (strings, mixed types)
+        elif df_copy[col].dtype == 'object':
+            df_copy[col] = df_copy[col].apply(lambda x: _clean_cell_value(x))
+    
+    return df_copy
+
+
+def _clean_cell_value(value: Any) -> Any:
+    """
+    Clean individual cell values for Streamlit compatibility.
+    
+    Args:
+        value: Cell value to clean
+        
+    Returns:
+        Cleaned value suitable for Streamlit display
+    """
+    if pd.isna(value):
+        return value
+    
+    if isinstance(value, str):
+        # Handle currency strings (e.g., '$0.01', '$1,234.56')
+        if value.startswith('$'):
+            try:
+                # Remove $ and commas, convert to float
+                numeric_str = value[1:].replace(',', '')
+                return float(numeric_str)
+            except ValueError:
+                # If conversion fails, return as string
+                return value
+        
+        # Handle datetime strings
+        if 'T' in value and ':' in value:
+            try:
+                return format_datetime_for_display(value)
+            except:
+                return value
+        
+        # Handle percentage strings (e.g., '25%', '100.5%')
+        if value.endswith('%'):
+            try:
+                # Remove % and convert to float
+                numeric_str = value[:-1]
+                return float(numeric_str)
+            except ValueError:
+                return value
+        
+        # Handle numeric strings with commas (e.g., '1,234', '1,234.56')
+        if re.match(r'^[\d,]+\.?\d*$', value):
+            try:
+                return float(value.replace(',', ''))
+            except ValueError:
+                return value
+    
+    # Handle datetime objects
+    elif isinstance(value, datetime):
+        return format_datetime_for_display(value)
+    
+    # Handle lists/dicts by converting to string
+    elif isinstance(value, (list, dict)):
+        return str(value)
+    
+    return value
+
 
 def format_datetime_for_display(dt: Union[str, datetime]) -> str:
     """
@@ -25,34 +113,6 @@ def format_datetime_for_display(dt: Union[str, datetime]) -> str:
     return str(dt)
 
 
-def prepare_dataframe_for_streamlit(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Prepare a DataFrame for Streamlit display by converting datetime columns.
-    
-    Args:
-        df: DataFrame to prepare
-        
-    Returns:
-        DataFrame with datetime columns converted to strings
-    """
-    df_copy = df.copy()
-    
-    # Convert datetime columns to strings
-    for col in df_copy.columns:
-        if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
-            df_copy[col] = df_copy[col].dt.strftime('%Y-%m-%d %H:%M:%S')
-        elif df_copy[col].dtype == 'object':
-            # Check if column contains datetime strings
-            try:
-                sample = df_copy[col].dropna().iloc[0] if len(df_copy[col].dropna()) > 0 else None
-                if sample and isinstance(sample, str) and 'T' in sample and ':' in sample:
-                    df_copy[col] = df_copy[col].apply(lambda x: format_datetime_for_display(x) if pd.notna(x) else x)
-            except:
-                pass
-    
-    return df_copy
-
-
 def sanitize_dict_for_display(data: Union[Dict, List]) -> Union[Dict, List]:
     """
     Recursively sanitize a dictionary or list for display by converting datetime objects.
@@ -70,6 +130,9 @@ def sanitize_dict_for_display(data: Union[Dict, List]) -> Union[Dict, List]:
     elif isinstance(data, datetime):
         return format_datetime_for_display(data)
     elif isinstance(data, str):
+        # Handle currency and percentage strings
+        if data.startswith('$') or data.endswith('%'):
+            return _clean_cell_value(data)
         # Check if it's an ISO datetime string
         if 'T' in data and ':' in data:
             try:

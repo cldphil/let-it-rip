@@ -640,28 +640,6 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                     
                     st.success("✅ Processing completed successfully!")
                     
-                    # Show detailed results
-                    st.markdown("### 📊 Processing Results")
-                    
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        st.metric("Papers Found", results['papers_found'])
-                    
-                    with col2:
-                        st.metric("Papers Processed", results['papers_processed'])
-                    
-                    with col3:
-                        # Handle different possible field names for cost
-                        cost_value = results.get('total_cost', results.get('processing_cost_usd', 0))
-                        if isinstance(cost_value, (int, float)):
-                            st.metric("Processing Cost", f"${cost_value:.2f}")
-                        else:
-                            st.metric("Processing Cost", "$0.00")
-                    
-                    with col4:
-                        st.metric("Processing Time", f"{results['processing_time_seconds']:.1f}s")
-                    
                     # Success rate calculation
                     if results['papers_found'] > 0:
                         success_rate = results['papers_processed'] / results['papers_found']
@@ -706,7 +684,8 @@ elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
                                 accuracy = 100 - abs(est_cost - act_cost) / est_cost * 100
                                 comparison_data[1]['Accuracy'] = f"{accuracy:.1f}%"
                         
-                        st.dataframe(pd.DataFrame(comparison_data), use_container_width=True, hide_index=True)
+                        comparison_df = prepare_dataframe_for_streamlit(pd.DataFrame(comparison_data))
+                        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
                     
                     # Reputation filtering info
                     reputation_info = results.get('reputation_filtering', {})
@@ -1134,7 +1113,7 @@ elif page == "⚙️ Settings":
         ]
     }
     
-    stats_df = pd.DataFrame(stats_data)
+    stats_df = prepare_dataframe_for_streamlit(pd.DataFrame(stats_data))
     st.dataframe(stats_df, use_container_width=True, hide_index=True)
     
     # Configuration

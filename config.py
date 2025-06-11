@@ -40,12 +40,16 @@ class Config:
     ARXIV_REQUEST_DELAY = 1.0  # Seconds between requests (be respectful)
     ARXIV_TIMEOUT = 30
     
-    # Semantic Scholar API Settings (for author h-index and conference detection)
+    # Semantic Scholar API Settings (updated for better timeout handling)
     SEMANTIC_SCHOLAR_MIN_INTERVAL = 0.2  # Minimum seconds between API calls
-    SEMANTIC_SCHOLAR_MAX_RETRIES = 3  # Max retries for failed requests
-    SEMANTIC_SCHOLAR_TIMEOUT = 10  # Request timeout in seconds
-    MAX_AUTHORS_PER_PAPER = 5  # Limit authors processed per paper to reduce API calls
+    SEMANTIC_SCHOLAR_MAX_RETRIES = 2  # Reduced retries to avoid long delays
+    SEMANTIC_SCHOLAR_TIMEOUT = 5  # Increased timeout from 10 to 30 seconds
+    MAX_AUTHORS_PER_PAPER = 3  # Reduced from 5 to 3 to minimize API calls
     CONTINUE_ON_API_ERRORS = True  # Continue processing if author lookup fails
+    
+    # Processing Settings (updated for resilience)
+    SKIP_AUTHOR_ON_TIMEOUT = True  # Skip author lookup if it times out
+    CACHE_FAILED_LOOKUPS = True  # Cache failed lookups to avoid retrying
     
     # Text Extraction Settings
     ABSTRACT_MAX_CHARS = 500
@@ -279,6 +283,162 @@ class Config:
                 print(f"   - {warning}")
         
         print("✅ Configuration validated successfully")
+
+    # Maps application field names to actual database column names
+    PROCESSING_LOGS_COLUMN_MAPPING = {
+        # Application field name → Database column name
+        'papers_failed': 'failed_extractions',
+        'papers_successful': 'successful_extractions',
+        'total_cost': 'total_cost_usd',
+        
+        # These fields are identical (no mapping needed)
+        'batch_name': 'batch_name',
+        'papers_processed': 'papers_processed', 
+        'processing_time_seconds': 'processing_time_seconds',
+        'success_rate': 'success_rate',
+        'date_range': 'date_range',
+        'created_at': 'created_at',
+        'id': 'id'
+    }
+    
+    # Reverse mapping for reading data back from database
+    PROCESSING_LOGS_REVERSE_MAPPING = {
+        v: k for k, v in PROCESSING_LOGS_COLUMN_MAPPING.items()
+    }
+    
+    # Required fields for each table (for validation)
+    REQUIRED_FIELDS = {
+        'papers': ['id', 'paper_id', 'title'],
+        'insights': ['id', 'paper_id', 'study_type'],
+        'extraction_metadata': ['id', 'extraction_id', 'paper_id', 'extraction_timestamp'],
+        'processing_logs': ['batch_name', 'papers_processed']
+    }
+    
+    # Default values for optional fields
+    DEFAULT_VALUES = {
+        'processing_logs': {
+            'failed_extractions': 0,
+            'successful_extractions': 0,
+            'total_cost_usd': 0.0,
+            'processing_time_seconds': 0.0,
+            'success_rate': 0.0
+        }
+    }
+    
+    # Field validation rules
+    FIELD_VALIDATION = {
+        'processing_logs': {
+            'papers_processed': {'type': int, 'min': 0},
+            'failed_extractions': {'type': int, 'min': 0},
+            'successful_extractions': {'type': int, 'min': 0},
+            'total_cost_usd': {'type': float, 'min': 0.0},
+            'processing_time_seconds': {'type': float, 'min': 0.0},
+            'success_rate': {'type': float, 'min': 0.0, 'max': 1.0}
+        }
+    }
+    
+    @classmethod
+    def get_column_mapping(cls, table_name: str) -> dict:
+        """Get column mapping for a specific table."""
+        mappings = {
+            'processing_logs': cls.PROCESSING_LOGS_COLUMN_MAPPING
+        }
+        return mappings.get(table_name, {})
+    
+    @classmethod
+    def get_reverse_mapping(cls, table_name: str) -> dict:
+        """Get reverse column mapping for a specific table."""
+        mappings = {
+            'processing_logs': cls.PROCESSING_LOGS_REVERSE_MAPPING
+        }
+        return mappings.get(table_name, {})
+    
+    @classmethod
+    def map_to_db_columns(cls, data: dict, table_name: str) -> dict:
+        """Map application field names to database column names."""
+        mapping = cls.get_column_mapping(table_name)
+        mapped_data = {}
+        
+        for app_field, value in data.items():
+            db_column = mapping.get(app_field, app_field)
+            mapped_data[db_column] = value
+        
+        return mapped_data
+    
+    @classmethod
+    def map_from_db_columns(cls, data: dict, table_name: str) -> dict:
+        """Map database column names back to application field names."""
+        reverse_mapping = cls.get_reverse_mapping(table_name)
+        mapped_data = {}
+        
+        for db_column, value in data.items():
+            app_field = reverse_mapping.get(db_column, db_column)
+            mapped_data[app_field] = value
+        
+        return mapped_data
+    
+    @classmethod
+    def validate_fields(cls, data: dict, table_name: str) -> tuple:
+        """
+        Validate data fields for a table.
+        
+        Returns:
+            (is_valid, errors_list)
+        """
+        validation_rules = cls.FIELD_VALIDATION.get(table_name, {})
+        errors = []
+        
+        for field, rules in validation_rules.items():
+            if field in data:
+                value = data[field]
+                
+                # Type validation
+                expected_type = rules.get('type')
+                if expected_type and not isinstance(value, expected_type):
+                    try:
+                        # Try to convert
+                        data[field] = expected_type(value)
+                    except (ValueError, TypeError):
+                        errors.append(f"Field '{field}' must be of type {expected_type.__name__}")
+                        continue
+                
+                # Range validation
+                if 'min' in rules and data[field] < rules['min']:
+                    errors.append(f"Field '{field}' must be >= {rules['min']}")
+                
+                if 'max' in rules and data[field] > rules['max']:
+                    errors.append(f"Field '{field}' must be <= {rules['max']}")
+        
+        return len(errors) == 0, errors
+    
+    @classmethod
+    def apply_defaults(cls, data: dict, table_name: str) -> dict:
+        """Apply default values for missing optional fields."""
+        defaults = cls.DEFAULT_VALUES.get(table_name, {})
+        
+        for field, default_value in defaults.items():
+            if field not in data:
+                data[field] = default_value
+        
+        return data
+    
+    @classmethod
+    def print_column_mappings(cls):
+        """Print all column mappings for debugging."""
+        print("\n📋 Database Column Mappings")
+        print("=" * 50)
+        
+        print("\n🔄 Processing Logs Mapping:")
+        for app_field, db_column in cls.PROCESSING_LOGS_COLUMN_MAPPING.items():
+            if app_field != db_column:
+                print(f"   {app_field} → {db_column}")
+            else:
+                print(f"   {app_field} (no change)")
+        
+        print(f"\n📊 Required Fields:")
+        for table, fields in cls.REQUIRED_FIELDS.items():
+            print(f"   {table}: {', '.join(fields)}")
+
     
     @classmethod
     def get_active_api_key(cls):
@@ -289,10 +449,21 @@ class Config:
         return None
     
     @classmethod
+    def get_semantic_scholar_config(cls):
+        """Get Semantic Scholar API configuration for resilient processing."""
+        return {
+            'timeout': cls.SEMANTIC_SCHOLAR_TIMEOUT,
+            'max_retries': cls.SEMANTIC_SCHOLAR_MAX_RETRIES,
+            'min_interval': cls.SEMANTIC_SCHOLAR_MIN_INTERVAL,
+            'max_authors': cls.MAX_AUTHORS_PER_PAPER,
+            'continue_on_errors': cls.CONTINUE_ON_API_ERRORS,
+            'skip_on_timeout': cls.SKIP_AUTHOR_ON_TIMEOUT,
+            'cache_failures': cls.CACHE_FAILED_LOOKUPS
+        }
+    
+    @classmethod
     def get_storage_class(cls):
         """Get the appropriate storage class based on configuration."""
-        # For now, use the existing InsightStorage class for both local and cloud
-        # The InsightStorage class already handles cloud vs local based on config
         try:
             from core.insight_storage import InsightStorage
             return InsightStorage

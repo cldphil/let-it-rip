@@ -307,6 +307,81 @@ def test_semantic_scholar_api():
     has_conference = api.detect_conference_mention(test_paper)
     print(f"Conference mention detected: {has_conference}")
 
+    def search_author(self, author_name: str) -> Optional[Dict]:
+        """
+        Search for an author by name with enhanced timeout handling.
+        """
+        # Check cache first
+        cached_data = self._load_from_cache(author_name)
+        if cached_data:
+            logger.info(f"Using cached data for author: {author_name}")
+            return cached_data
+        
+        # Rate limiting
+        self._rate_limit()
+        
+        try:
+            # Search endpoint with longer timeout
+            search_url = f"{self.base_url}/author/search"
+            params = {
+                'query': author_name,
+                'fields': 'authorId,name,affiliations,paperCount,citationCount,hIndex',
+                'limit': 5
+            }
+            
+            # Increased timeout to 30 seconds
+            response = requests.get(search_url, params=params, headers=self.headers, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            authors = data.get('data', [])
+            
+            # Update API status on success
+            self._update_api_status(success=True)
+            
+            if not authors:
+                logger.info(f"No authors found for: {author_name}")
+                # Cache negative result
+                self._save_to_cache(author_name, {'hIndex': 0, 'found': False})
+                return None
+            
+            # Try to find exact match first
+            for author in authors:
+                if author.get('name', '').lower() == author_name.lower():
+                    author['found'] = True
+                    self._save_to_cache(author_name, author)
+                    return author
+            
+            # If no exact match, return first result
+            best_match = authors[0]
+            best_match['found'] = True
+            best_match['approximate_match'] = True
+            self._save_to_cache(author_name, best_match)
+            
+            logger.info(f"Found approximate match for {author_name}: {best_match.get('name')}")
+            return best_match
+            
+        except requests.exceptions.Timeout:
+            # Handle timeout gracefully
+            logger.warning(f"API timeout for author {author_name} - continuing without h-index")
+            self._update_api_status(success=False)
+            # Cache negative result to avoid re-attempting
+            self._save_to_cache(author_name, {'hIndex': 0, 'found': False, 'timeout': True})
+            return None
+            
+        except requests.exceptions.RequestException as e:
+            # Handle other API errors gracefully
+            logger.warning(f"API request failed for author {author_name}: {e}")
+            self._update_api_status(success=False)
+            # Cache negative result
+            self._save_to_cache(author_name, {'hIndex': 0, 'found': False, 'error': str(e)})
+            return None
+            
+        except Exception as e:
+            # Handle unexpected errors
+            logger.warning(f"Unexpected error searching for author {author_name}: {e}")
+            self._update_api_status(success=False)
+            return None
 
 if __name__ == "__main__":
     test_semantic_scholar_api()

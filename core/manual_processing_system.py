@@ -5,7 +5,7 @@ Now serves purely as a workflow orchestrator.
 
 import os
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Union
 import logging
 
 from core import SyncBatchProcessor, InsightStorage
@@ -354,8 +354,9 @@ class ManualProcessingController:
                     history_entry = {
                         'batch_name': checkpoint_name,
                         'papers_processed': stats.get('successful', 0),
-                        'papers_failed': stats.get('failed', 0),
-                        'total_cost': stats.get('total_cost', 0),
+                        'successful_extractions': stats.get('successful', 0),
+                        'failed_extractions': stats.get('failed', 0),
+                        'total_cost_usd': stats.get('total_cost', 0),
                         'processing_time_seconds': stats.get('total_time', 0),
                         'date_range': {  # Store as JSON object, not separate fields
                             'start': start_date.isoformat(),
@@ -554,55 +555,320 @@ class ManualProcessingController:
     
     def get_processing_history(self, limit: int = 10) -> List[Dict]:
         """
-        Get recent processing history.
+        Get recent processing history with enhanced column mapping and error handling.
         
         Args:
             limit: Maximum number of recent batches to return
             
         Returns:
-            List of processing history records
+            List of processing history records with consistent field names
         """
         try:
             if hasattr(self.storage, 'supabase') and self.storage.supabase:
-                result = self.storage.supabase.table('processing_logs').select(
-                    '*'
-                ).order('created_at', desc=True).limit(limit).execute()
+                # Query with error handling
+                try:
+                    result = self.storage.supabase.table('processing_logs').select(
+                        '*'
+                    ).order('created_at', desc=True).limit(limit).execute()
+                    
+                    if not result.data:
+                        logger.info("No processing history found")
+                        return []
+                    
+                    logger.info(f"Retrieved {len(result.data)} processing history records")
+                    
+                except Exception as e:
+                    logger.error(f"Failed to query processing history: {e}")
+                    return []
                 
-                # Clean up the data for consistent field names
-                history_data = result.data
-                for record in history_data:
-                    # Ensure consistent field names
-                    if 'processing_cost_usd' in record and 'total_cost' not in record:
-                        record['total_cost'] = record['processing_cost_usd']
-                    
-                    # Ensure all numeric fields are properly typed
-                    if 'total_cost' in record:
-                        try:
-                            cost_str = str(record['total_cost']).replace('$', '').strip()
-                            record['total_cost'] = float(cost_str) if cost_str else 0.0
-                        except (ValueError, TypeError):
-                            record['total_cost'] = 0.0
-                    
-                    if 'papers_processed' in record:
-                        try:
-                            record['papers_processed'] = int(record['papers_processed'])
-                        except (ValueError, TypeError):
-                            record['papers_processed'] = 0
-                    
-                    if 'success_rate' in record:
-                        try:
-                            record['success_rate'] = float(record['success_rate'])
-                        except (ValueError, TypeError):
-                            record['success_rate'] = 0.0
+                # Enhanced data mapping and validation
+                history_data = []
                 
+                for i, record in enumerate(result.data):
+                    try:
+                        mapped_record = self._process_history_record(record)
+                        if mapped_record:  # Only include valid records
+                            history_data.append(mapped_record)
+                            
+                    except Exception as e:
+                        logger.warning(f"Failed to process history record {i}: {e}")
+                        continue  # Skip problematic records
+                
+                logger.info(f"Successfully processed {len(history_data)} history records")
                 return history_data
+            
             else:
                 # Local storage fallback
-                return []
+                logger.info("Using local storage for processing history")
+                return self._get_local_processing_history(limit)
                 
         except Exception as e:
             logger.error(f"Failed to get processing history: {e}")
             return []
+
+    def _process_history_record(self, record: Dict) -> Optional[Dict]:
+        """
+        Process a single history record with enhanced mapping and validation.
+        
+        Args:
+            record: Raw database record
+            
+        Returns:
+            Processed record with consistent field names, or None if invalid
+        """
+        try:
+            # Start with the raw record
+            processed_record = record.copy()
+            
+            # Apply column mapping from database to application field names
+            column_mappings = {
+                # Database column → Application field
+                'failed_extractions': 'papers_failed',
+                'successful_extractions': 'papers_successful', 
+                'total_cost_usd': 'total_cost'
+            }
+            
+            for db_column, app_field in column_mappings.items():
+                if db_column in processed_record:
+                    processed_record[app_field] = processed_record[db_column]
+                    # Keep original for compatibility, but prioritize mapped version
+            
+            # Ensure all numeric fields are properly typed and validated
+            numeric_fields = {
+                'papers_processed': {'type': int, 'default': 0, 'min': 0},
+                'papers_failed': {'type': int, 'default': 0, 'min': 0},
+                'papers_successful': {'type': int, 'default': 0, 'min': 0},
+                'failed_extractions': {'type': int, 'default': 0, 'min': 0},
+                'successful_extractions': {'type': int, 'default': 0, 'min': 0},
+                'total_cost': {'type': float, 'default': 0.0, 'min': 0.0},
+                'total_cost_usd': {'type': float, 'default': 0.0, 'min': 0.0},
+                'processing_time_seconds': {'type': float, 'default': 0.0, 'min': 0.0},
+                'success_rate': {'type': float, 'default': 0.0, 'min': 0.0, 'max': 1.0}
+            }
+            
+            for field, config in numeric_fields.items():
+                if field in processed_record:
+                    processed_record[field] = self._validate_numeric_field(
+                        processed_record[field], 
+                        config
+                    )
+            
+            # Calculate derived fields if missing
+            processed_record = self._calculate_derived_fields(processed_record)
+            
+            # Validate required fields exist
+            required_fields = ['batch_name', 'created_at']
+            for field in required_fields:
+                if not processed_record.get(field):
+                    logger.warning(f"Record missing required field: {field}")
+                    return None
+            
+            # Format timestamps for consistency
+            if 'created_at' in processed_record:
+                processed_record['created_at'] = self._format_timestamp(processed_record['created_at'])
+            
+            return processed_record
+            
+        except Exception as e:
+            logger.error(f"Error processing history record: {e}")
+            return None
+
+    def _validate_numeric_field(self, value, config: Dict) -> Union[int, float]:
+        """
+        Validate and convert a numeric field with error handling.
+        
+        Args:
+            value: Raw field value
+            config: Validation configuration
+            
+        Returns:
+            Validated numeric value
+        """
+        try:
+            # Handle string representations
+            if isinstance(value, str):
+                # Remove currency symbols and whitespace
+                cleaned_value = value.replace('$', '').replace(',', '').strip()
+                if not cleaned_value:
+                    return config['default']
+                value = cleaned_value
+            
+            # Convert to expected type
+            expected_type = config['type']
+            converted_value = expected_type(value)
+            
+            # Apply range validation
+            if 'min' in config and converted_value < config['min']:
+                logger.warning(f"Value {converted_value} below minimum {config['min']}, using minimum")
+                converted_value = config['min']
+            
+            if 'max' in config and converted_value > config['max']:
+                logger.warning(f"Value {converted_value} above maximum {config['max']}, using maximum")
+                converted_value = config['max']
+            
+            return converted_value
+            
+        except (ValueError, TypeError) as e:
+            logger.warning(f"Failed to convert field value '{value}': {e}, using default")
+            return config['default']
+
+    def _calculate_derived_fields(self, record: Dict) -> Dict:
+        """
+        Calculate derived fields for consistency and completeness.
+        
+        Args:
+            record: Processing history record
+            
+        Returns:
+            Record with calculated derived fields
+        """
+        try:
+            # Calculate total processed if missing
+            if 'papers_processed' not in record or record['papers_processed'] == 0:
+                papers_failed = record.get('papers_failed', record.get('failed_extractions', 0))
+                papers_successful = record.get('papers_successful', record.get('successful_extractions', 0))
+                record['papers_processed'] = papers_failed + papers_successful
+            
+            # Calculate success rate if missing or invalid
+            papers_processed = record.get('papers_processed', 0)
+            if papers_processed > 0:
+                papers_successful = record.get('papers_successful', record.get('successful_extractions', 0))
+                calculated_success_rate = papers_successful / papers_processed
+                
+                # Only update if missing or clearly wrong
+                current_success_rate = record.get('success_rate', 0)
+                if current_success_rate == 0 or current_success_rate > 1:
+                    record['success_rate'] = round(calculated_success_rate, 3)
+            
+            # Ensure both column name versions exist for compatibility
+            if 'papers_failed' in record and 'failed_extractions' not in record:
+                record['failed_extractions'] = record['papers_failed']
+            
+            if 'papers_successful' in record and 'successful_extractions' not in record:
+                record['successful_extractions'] = record['papers_successful']
+            
+            if 'total_cost' in record and 'total_cost_usd' not in record:
+                record['total_cost_usd'] = record['total_cost']
+            
+            return record
+            
+        except Exception as e:
+            logger.warning(f"Error calculating derived fields: {e}")
+            return record
+
+    def _format_timestamp(self, timestamp_value) -> str:
+        """
+        Format timestamp for consistent display.
+        
+        Args:
+            timestamp_value: Raw timestamp value
+            
+        Returns:
+            Formatted timestamp string
+        """
+        try:
+            if isinstance(timestamp_value, str):
+                # Parse ISO format and reformat for display
+                from datetime import datetime
+                if 'T' in timestamp_value:
+                    dt = datetime.fromisoformat(timestamp_value.replace('Z', '+00:00'))
+                    return dt.strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    return timestamp_value
+            else:
+                return str(timestamp_value)
+                
+        except Exception as e:
+            logger.warning(f"Error formatting timestamp: {e}")
+            return str(timestamp_value)
+
+    def _get_local_processing_history(self, limit: int) -> List[Dict]:
+        """
+        Fallback method for local storage processing history.
+        
+        Args:
+            limit: Maximum records to return
+            
+        Returns:
+            List of processing history records
+        """
+        try:
+            # This would implement local file-based history if needed
+            # For now, return empty list
+            logger.info("Local processing history not implemented")
+            return []
+            
+        except Exception as e:
+            logger.error(f"Error getting local processing history: {e}")
+            return []
+
+    # ADDITIONAL ENHANCEMENT: Add processing history statistics method
+
+    def get_processing_statistics(self, days: int = 30) -> Dict:
+        """
+        Get processing statistics for the last N days.
+        
+        Args:
+            days: Number of days to analyze
+            
+        Returns:
+            Dict with processing statistics
+        """
+        try:
+            # Get recent history
+            recent_history = self.get_processing_history(limit=100)  # Get more for stats
+            
+            if not recent_history:
+                return {
+                    'total_batches': 0,
+                    'total_papers_processed': 0,
+                    'total_successful': 0,
+                    'total_failed': 0,
+                    'average_success_rate': 0.0,
+                    'total_cost': 0.0,
+                    'average_processing_time': 0.0
+                }
+            
+            # Filter by date range
+            from datetime import datetime, timedelta
+            cutoff_date = datetime.now() - timedelta(days=days)
+            
+            filtered_history = []
+            for record in recent_history:
+                try:
+                    record_date = datetime.fromisoformat(record['created_at'].replace('Z', '+00:00'))
+                    if record_date >= cutoff_date:
+                        filtered_history.append(record)
+                except:
+                    # Include records with unparseable dates
+                    filtered_history.append(record)
+            
+            # Calculate statistics
+            stats = {
+                'total_batches': len(filtered_history),
+                'total_papers_processed': sum(r.get('papers_processed', 0) for r in filtered_history),
+                'total_successful': sum(r.get('papers_successful', r.get('successful_extractions', 0)) for r in filtered_history),
+                'total_failed': sum(r.get('papers_failed', r.get('failed_extractions', 0)) for r in filtered_history),
+                'total_cost': sum(r.get('total_cost', r.get('total_cost_usd', 0)) for r in filtered_history),
+                'total_processing_time': sum(r.get('processing_time_seconds', 0) for r in filtered_history)
+            }
+            
+            # Calculate averages
+            if stats['total_papers_processed'] > 0:
+                stats['average_success_rate'] = stats['total_successful'] / stats['total_papers_processed']
+            else:
+                stats['average_success_rate'] = 0.0
+            
+            if stats['total_batches'] > 0:
+                stats['average_processing_time'] = stats['total_processing_time'] / stats['total_batches']
+            else:
+                stats['average_processing_time'] = 0.0
+            
+            return stats
+            
+        except Exception as e:
+            logger.error(f"Error calculating processing statistics: {e}")
+            return {}
     
     def get_storage_usage(self) -> Dict:
         """Get current storage usage statistics."""
