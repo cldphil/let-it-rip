@@ -55,9 +55,9 @@ class Config:
     # Text Extraction Limits
     ABSTRACT_MAX_CHARS = 500
     INTRODUCTION_MAX_CHARS = 1000
-    METHODOLOGY_MAX_CHARS = 800
-    RESULTS_MAX_CHARS = 600
-    CONCLUSION_MAX_CHARS = 600
+    METHODOLOGY_MAX_CHARS = 1500
+    RESULTS_MAX_CHARS = 2000
+    CONCLUSION_MAX_CHARS = 2000
     
     # Vector Search Configuration
     VECTOR_EMBEDDING_MODEL = 'all-MiniLM-L6-v2'  # SentenceTransformer model
@@ -74,8 +74,8 @@ class Config:
     # Reputation Score Calculation
     CONFERENCE_MULTIPLIER = 1.5  # Multiplier for papers with conference validation
     REPUTATION_SCORE_NORMALIZATION = 100.0  # Divisor for normalizing h-index
-    MAX_REPUTATION_SCORE = 1.0  # Maximum reputation score cap
-    MIN_HINDEX_FOR_REPUTATION = 5  # Minimum h-index for reputation bonus
+    MAX_REPUTATION_SCORE = 100  # Maximum reputation score cap
+    MIN_HINDEX_FOR_REPUTATION = 1  # Minimum h-index for reputation bonus
     
     # Search Terms for GenAI Research
     GENAI_SEARCH_TERMS = [
@@ -144,7 +144,7 @@ class Config:
     
     # Enhanced Key Findings Configuration
     MAX_KEY_FINDINGS = 10  # Allow up to 10 detailed findings per paper
-    MIN_FINDING_LENGTH = 50  # Minimum characters per finding
+    MIN_FINDING_LENGTH = 100  # Minimum characters per finding
     
     # Conference Detection Configuration
     MAJOR_AI_CONFERENCES = [
@@ -181,9 +181,9 @@ class Config:
     # Ranking Algorithm Configuration
     RANKING_WEIGHTS = {
         'similarity': 0.30,      # Vector similarity
-        'reputation': 0.25,      # Author h-index + conference validation
+        'reputation': 0.10,      # Author h-index + conference validation
         'recency': 0.20,         # Time-based relevance
-        'findings_richness': 0.15,  # Number and depth of key findings
+        'findings_richness': 0.30,  # Number and depth of key findings
         'validation_bonus': 0.10    # Industry validation and technique match bonuses
     }
     
@@ -191,7 +191,7 @@ class Config:
     MAX_PAPERS_FOR_SYNTHESIS = 25  # Maximum papers to include in synthesis
     CASE_STUDY_BONUS_THRESHOLD = 0.7  # Minimum case study score for bonus
     VALIDATION_BONUS_THRESHOLD = 0.8  # Minimum validation score for bonus
-    CONSERVATIVE_REPUTATION_THRESHOLD = 0.5  # Reputation threshold for conservative users
+    CONSERVATIVE_REPUTATION_THRESHOLD = 0.0  # Reputation threshold for conservative users
     
     # Manual Processing Configuration
     DEFAULT_PROCESSING_DAYS = 7  # Default to last 7 days

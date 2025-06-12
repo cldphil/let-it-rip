@@ -227,49 +227,6 @@ class PaperInsights(BaseModel):
         
         return reputation_score
     
-    def to_searchable_text(self) -> str:
-        """
-        Create searchable text for vector embeddings from key insight fields only.
-        Does NOT include full text or abstracts - only actionable insights.
-        
-        Returns:
-            Concatenated text from key insight fields for vector embedding
-        """
-        searchable_parts = []
-        
-        # Problem addressed (high priority for matching)
-        if self.problem_addressed:
-            searchable_parts.append(f"Problem: {self.problem_addressed}")
-        
-        # Key findings (most important for practical insights)
-        if self.key_findings:
-            findings_text = " ".join(self.key_findings)
-            searchable_parts.append(f"Findings: {findings_text}")
-        
-        # Real-world applications (important for business relevance)
-        if self.real_world_applications:
-            applications_text = " ".join(self.real_world_applications)
-            searchable_parts.append(f"Applications: {applications_text}")
-        
-        # Prerequisites (important for implementation planning)
-        if self.prerequisites:
-            prerequisites_text = " ".join(self.prerequisites)
-            searchable_parts.append(f"Prerequisites: {prerequisites_text}")
-        
-        # Limitations (important for risk assessment)
-        if self.limitations:
-            limitations_text = " ".join(self.limitations)
-            searchable_parts.append(f"Limitations: {limitations_text}")
-        
-        # Combine all parts
-        searchable_text = " ".join(searchable_parts)
-        
-        # Ensure we have some content for embedding
-        if not searchable_text.strip():
-            searchable_text = f"Research on {self.study_type.value} with {len(self.techniques_used)} techniques"
-        
-        return searchable_text
-    
     def to_supabase_dict(self) -> Dict:
         """
         Convert to dictionary format optimized for Supabase storage.

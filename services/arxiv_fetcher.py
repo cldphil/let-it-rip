@@ -325,7 +325,7 @@ class ArxivFetcher:
             
             # Check content size
             content_length = response.headers.get('content-length')
-            if content_length and int(content_length) > 10 * 1024 * 1024:  # 10MB limit
+            if content_length and int(content_length) > 20971520: # 20MB limit 
                 logger.warning(f"PDF too large: {content_length} bytes")
                 return ""
             
@@ -336,7 +336,7 @@ class ArxivFetcher:
             pdf_content = b''
             for chunk in response.iter_content(chunk_size=8192):
                 pdf_content += chunk
-                if len(pdf_content) > 10 * 1024 * 1024:  # 10MB limit
+                if len(pdf_content) > 20971520:  # 20MB limit
                     logger.warning("PDF download exceeded size limit")
                     break
             

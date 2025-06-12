@@ -182,7 +182,7 @@ st.markdown("""
 st.markdown("""
 <div style="background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
     <h1 style="color: white; margin: 0; font-size: 2.5rem;">Research Implementation Platform</h1>
-    <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">Transform research into actionable insights</p>
+    <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">Put cutting edge research to work for you</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -197,7 +197,8 @@ st.markdown("""
 st.sidebar.title("Navigation")
 
 # Dynamic page list based on available features
-page_options = ["📊 Dashboard", "📚 Browse Insights", "🎯 Get Recommendations"]
+# "📚 Browse Insights" not shown
+page_options = ["📊 Dashboard", "🎯 Get Recommendations"]
 
 if MANUAL_PROCESSING_AVAILABLE:
     page_options.append("📅 Manual Processing")
@@ -214,33 +215,18 @@ if page == "📊 Dashboard":
     current_stats = st.session_state.storage.get_statistics()
     
     # Key metrics
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric(
             "Total Papers",
             current_stats['total_papers']
         )
-    
+
     with col2:
-        # Reputation score metric
-        if current_stats.get('total_insights', 0) > 0:
-            st.metric(
-                "Avg Reputation Score",
-                f"{current_stats['average_reputation_score']:.2f}",
-                help="Based on author h-index and conference validation"
-            )
-        else:
-            st.metric(
-                "Avg Reputation Score",
-                "N/A",
-                help="Process papers to see reputation scores"
-            )
-    
-    with col3:
         # Case studies metric
-        if current_stats.get('total_insights', 0) > 0:
-            case_study_rate = current_stats.get('case_studies_count', 0) / current_stats['total_insights']
+        if current_stats.get('total_papers', 0) > 0:
+            case_study_rate = current_stats.get('case_studies_count', 0) / current_stats['total_papers']
             st.metric(
                 "Case Studies",
                 f"{current_stats.get('case_studies_count', 0)} ({case_study_rate:.0%})",
@@ -253,48 +239,20 @@ if page == "📊 Dashboard":
                 help="Process papers to see case study count"
             )
     
-    # Additional metrics row
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric(
-            "Avg Key Findings",
-            f"{current_stats.get('average_key_findings_count', 0):.1f}",
-            help="Average number of key findings per paper"
-        )
-    
-    with col2:
+    with col3:
+        code_rate = current_stats.get('papers_with_code', 0) / current_stats['total_papers']
         st.metric(
             "Papers with Code",
-            current_stats.get('papers_with_code', 0),
+            f"{current_stats.get('papers_with_code', 0)} ({code_rate:.0%})",
             help="Papers with available implementation code"
         )
-    
-    with col3:
+
+    with col4:
         st.metric(
             "Recent Papers",
             current_stats.get('recent_papers_count', 0),
             help="Papers from the last 2 years"
         )
-    
-    with col4:
-        # Calculate processing rate if we have data
-        if current_stats.get('total_papers', 0) > 0 and current_stats.get('total_insights', 0) > 0:
-            processing_rate = current_stats['total_insights'] / current_stats['total_papers']
-            st.metric(
-                "Processing Rate",
-                f"{processing_rate:.0%}",
-                help="Percentage of papers successfully processed"
-            )
-        else:
-            st.metric(
-                "Processing Rate",
-                "N/A",
-                help="Process papers to see success rate"
-            )
-    
-    # Charts
-    st.subheader("Research Distribution")
     
     col1, col2 = st.columns(2)
     
@@ -306,7 +264,7 @@ if page == "📊 Dashboard":
                 y=list(current_stats['complexity_distribution'].values()),
                 title="Implementation Complexity",
                 color_discrete_sequence=['#0066FF'],
-                labels={'x': 'Complexity Level', 'y': 'Number of Papers'}
+                labels={'x': '', 'y': ''}
             )
             fig_complexity.update_layout(
                 showlegend=False,
@@ -322,8 +280,8 @@ if page == "📊 Dashboard":
                 x=list(current_stats['study_type_distribution'].keys()),
                 y=list(current_stats['study_type_distribution'].values()),
                 title="Study Types",
-                color_discrete_sequence=['#00D4FF'],
-                labels={'x': 'Study Type', 'y': 'Number of Papers'}
+                color_discrete_sequence=['#0066FF'],
+                labels={'x': '', 'y': ''}
             )
             fig_study.update_layout(
                 showlegend=False,
@@ -331,358 +289,6 @@ if page == "📊 Dashboard":
                 font_size=12
             )
             st.plotly_chart(fig_study, use_container_width=True)
-
-# Manual Processing Page
-elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
-    st.header("Manual Processing Control")
-    
-    st.markdown("""
-    <div class="info-box">
-        <p><strong>Manual Processing</strong> allows you to select specific date ranges, estimate costs, and have full control over which papers to process.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Date Range Selection
-    st.subheader("📅 Select Date Range")
-    
-    # Get available date ranges
-    available_ranges = st.session_state.manual_controller.get_available_date_ranges()
-    
-    # Custom date selection
-    st.markdown("**Custom Date Range:**")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        start_date = st.date_input(
-            "Start Date",
-            value=st.session_state.get('selected_start', datetime.now() - timedelta(days=7)).date(),
-            max_value=datetime.now().date()
-        )
-    
-    with col2:
-        end_date = st.date_input(
-            "End Date",
-            value=st.session_state.get('selected_end', datetime.now() - timedelta(days=1)).date(),
-            max_value=datetime.now().date()
-        )
-    
-    # Convert to datetime
-    start_datetime = datetime.combine(start_date, datetime.min.time())
-    end_datetime = datetime.combine(end_date, datetime.max.time())
-    
-    # Validate date range
-    is_valid, error_msg = st.session_state.manual_controller.validate_date_range(start_datetime, end_datetime)
-    
-    if not is_valid:
-        st.error(f"Invalid date range: {error_msg}")
-    else:
-        # Cost Estimation
-        st.subheader("💰 Cost Estimation")
-        
-        # Maximum papers setting
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            max_papers = st.number_input(
-                "Maximum papers to process",
-                min_value=1,
-                max_value=1000,
-                value=100,
-                help="Limit the number of papers to process from this date range"
-            )
-        
-        with col2:
-            skip_existing = st.checkbox(
-                "Skip existing papers",
-                value=True,
-                help="Skip papers that have already been processed"
-            )
-        
-        # Get cost estimate
-        estimate = st.session_state.manual_controller.estimate_processing_cost(
-            start_datetime, end_datetime, max_papers
-        )
-        
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Estimated Papers", estimate['estimated_papers'])
-        
-        with col2:
-            st.metric("Estimated Cost", f"${estimate['estimated_cost_usd']:.2f}")
-        
-        with col3:
-            st.metric("Estimated Time", f"{estimate['estimated_time_minutes']:.1f} min")
-        
-        with col4:
-            st.metric("Days in Range", estimate['days_in_range'])
-        
-        # Additional estimate details
-        if estimate.get('reputation_filter_active'):
-            st.info(f"🔍 **Reputation filtering active** (minimum score: {estimate['min_reputation_score']:.2f})")
-        
-        # Check existing papers
-        existing_check = st.session_state.manual_controller.check_existing_papers(start_datetime, end_datetime)
-        
-        if existing_check['existing_papers'] > 0:
-            st.warning(f"⚠️ {existing_check['message']}")
-        
-        # Processing Controls
-        st.subheader("🚀 Start Processing")
-
-        # Processing button
-        if st.button("🔄 Process Papers", use_container_width=True, type="primary", disabled=not is_valid):
-            
-            # Create progress tracking UI containers
-            st.markdown("### Processing Progress")
-            
-            # Create empty containers that will be updated
-            phase_container = st.empty()
-            progress_bar = st.empty()
-            progress_text = st.empty()
-            stats_container = st.empty()
-            current_activity = st.empty()
-            error_container = st.empty()
-            
-            # Initialize progress tracking state
-            progress_state = {
-                'phase': 'initializing',
-                'overall_progress': 0,
-                'papers_found': 0,
-                'papers_processed': 0,
-                'insights_generated': 0,
-                'current_paper': '',
-                'start_time': datetime.now(),
-                'errors': []
-            }
-            
-            def update_progress_display(state):
-                """Update the progress display with current state."""
-                
-                # Phase indicator
-                phase_emojis = {
-                    'initializing': '🔧',
-                    'fetching': '📡',
-                    'processing': '⚙️',
-                    'completed': '✅',
-                    'error': '❌'
-                }
-                
-                phase_names = {
-                    'initializing': 'Initializing',
-                    'fetching': 'Fetching Papers',
-                    'processing': 'Extracting Insights',
-                    'completed': 'Processing Complete',
-                    'error': 'Error Occurred'
-                }
-                
-                phase_colors = {
-                    'initializing': '#0066FF',
-                    'fetching': '#17A2B8',
-                    'processing': '#FFC107',
-                    'completed': '#28A745',
-                    'error': '#DC3545'
-                }
-                
-                emoji = phase_emojis.get(state['phase'], '⚙️')
-                name = phase_names.get(state['phase'], 'Processing')
-                color = phase_colors.get(state['phase'], '#0066FF')
-                
-                # Update phase indicator
-                phase_container.markdown(f"""
-                <div style="background: linear-gradient(135deg, {color} 0%, {color}AA 100%); 
-                            padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <h2 style="color: white; margin: 0; font-size: 1.8rem;">{emoji} {name}</h2>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Update progress bar
-                progress_bar.progress(state['overall_progress'] / 100)
-                
-                # Update progress text
-                elapsed = (datetime.now() - state['start_time']).total_seconds()
-                if elapsed < 60:
-                    time_str = f"{elapsed:.0f}s"
-                else:
-                    time_str = f"{elapsed/60:.1f}m"
-                
-                progress_text.markdown(f"""
-                **Progress:** {state['overall_progress']:.1f}% | **Elapsed:** {time_str}
-                """)
-                
-                # Update statistics
-                with stats_container.container():
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        st.metric("Papers Found", state['papers_found'])
-                    
-                    with col2:
-                        st.metric("Papers Processed", state['papers_processed'])
-                    
-                    with col3:
-                        st.metric("Insights Generated", state['insights_generated'])
-                    
-                    with col4:
-                        if state['papers_processed'] > 0:
-                            rate = state['papers_processed'] / (elapsed / 60)
-                            st.metric("Rate", f"{rate:.1f}/min")
-                        else:
-                            st.metric("Rate", "Calculating...")
-                
-                # Update current activity
-                if state['current_paper']:
-                    current_activity.info(f"📄 Processing: {state['current_paper'][:100]}...")
-                else:
-                    current_activity.empty()
-                
-                # Update errors if any
-                if state['errors']:
-                    with error_container.expander(f"⚠️ Errors ({len(state['errors'])})"):
-                        for error in state['errors'][-3:]:
-                            st.error(f"• {error}")
-                else:
-                    error_container.empty()
-            
-            # Enhanced progress callback function
-            def enhanced_progress_callback(message, progress, **kwargs):
-                """Enhanced progress callback that handles detailed progress updates."""
-                
-                # Update progress state based on message and additional info
-                if "Fetching papers" in message:
-                    progress_state['phase'] = 'fetching'
-                    progress_state['overall_progress'] = min(progress, 15)
-                    
-                elif "Found" in message and "papers" in message:
-                    import re
-                    match = re.search(r'(\d+)', message)
-                    if match:
-                        progress_state['papers_found'] = int(match.group(1))
-                    progress_state['phase'] = 'processing'
-                    progress_state['overall_progress'] = 15
-                    
-                elif "Processing paper" in message:
-                    import re
-                    match = re.search(r'Processing paper (\d+)/(\d+)', message)
-                    if match:
-                        current, total = int(match.group(1)), int(match.group(2))
-                        progress_state['papers_processed'] = current - 1
-                        progress_state['overall_progress'] = 15 + (current / total) * 70
-                        
-                        if kwargs.get('current_paper_title'):
-                            progress_state['current_paper'] = kwargs['current_paper_title']
-                    
-                elif "Extracting insights" in message:
-                    if kwargs.get('insights_generated'):
-                        progress_state['insights_generated'] = kwargs['insights_generated']
-                
-                elif "Processing complete" in message or progress >= 100:
-                    progress_state['phase'] = 'completed'
-                    progress_state['overall_progress'] = 100
-                    progress_state['current_paper'] = ''
-                    
-                elif "Error" in message:
-                    progress_state['phase'] = 'error'
-                    if kwargs.get('error_details'):
-                        progress_state['errors'].append(kwargs['error_details'])
-                
-                # Handle any additional updates from kwargs
-                for key, value in kwargs.items():
-                    if key.startswith('progress_'):
-                        field = key.replace('progress_', '')
-                        progress_state[field] = value
-                
-                # Update the display
-                update_progress_display(progress_state)
-            
-            # Start processing with enhanced progress tracking
-            try:
-                # Show initial state
-                update_progress_display(progress_state)
-                
-                # Call the processing function with enhanced callback
-                results = st.session_state.manual_controller.process_date_range_enhanced(
-                    start_datetime,
-                    end_datetime,
-                    max_papers=max_papers,
-                    skip_existing=skip_existing,
-                    progress_callback=enhanced_progress_callback
-                )
-                
-                # Display final results
-                if results.get('success'):
-                    progress_state['phase'] = 'completed'
-                    progress_state['overall_progress'] = 100
-                    progress_state['papers_processed'] = results['papers_processed']
-                    progress_state['insights_generated'] = results['papers_processed']
-                    update_progress_display(progress_state)
-                    
-                    st.success("✅ Processing completed successfully!")
-                    
-                    # Success rate calculation
-                    if results['papers_found'] > 0:
-                        success_rate = results['papers_processed'] / results['papers_found']
-                        if success_rate >= 0.9:
-                            st.success(f"🎉 Excellent success rate: {success_rate:.1%}")
-                        elif success_rate >= 0.7:
-                            st.info(f"✅ Good success rate: {success_rate:.1%}")
-                        else:
-                            st.warning(f"⚠️ Success rate: {success_rate:.1%} - some papers may have failed processing")
-                    
-                    # Estimate vs Actual comparison
-                    with st.expander("📊 Estimate vs Actual Comparison"):
-                        estimate_vs_actual = results.get('estimate_vs_actual', {})
-                        
-                        comparison_data = [
-                            {
-                                "Metric": "Papers",
-                                "Estimated": estimate_vs_actual.get('estimated_papers', 'N/A'),
-                                "Actual": estimate_vs_actual.get('actual_papers', 'N/A'),
-                                "Accuracy": "N/A"
-                            },
-                            {
-                                "Metric": "Cost",
-                                "Estimated": f"${estimate_vs_actual.get('estimated_cost', 0):.2f}",
-                                "Actual": f"${estimate_vs_actual.get('actual_cost', 0):.2f}",
-                                "Accuracy": "N/A"
-                            }
-                        ]
-                        
-                        # Calculate accuracy if we have the data
-                        if estimate_vs_actual.get('estimated_papers') and estimate_vs_actual.get('actual_papers'):
-                            est_papers = estimate_vs_actual['estimated_papers']
-                            act_papers = estimate_vs_actual['actual_papers']
-                            if est_papers > 0:
-                                accuracy = 100 - abs(est_papers - act_papers) / est_papers * 100
-                                comparison_data[0]['Accuracy'] = f"{accuracy:.1f}%"
-
-                        if estimate_vs_actual.get('estimated_cost') and estimate_vs_actual.get('actual_cost'):
-                            est_cost = estimate_vs_actual['estimated_cost']
-                            act_cost = estimate_vs_actual['actual_cost']
-                            if est_cost > 0:
-                                accuracy = 100 - abs(est_cost - act_cost) / est_cost * 100
-                                comparison_data[1]['Accuracy'] = f"{accuracy:.1f}%"
-                        
-                        comparison_df = prepare_dataframe_for_streamlit(pd.DataFrame(comparison_data))
-                        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
-                    
-                    # Reputation filtering info
-                    reputation_info = results.get('reputation_filtering', {})
-                    if reputation_info.get('active'):
-                        st.info(f"🎯 Reputation filtering applied (threshold: {reputation_info['threshold']:.2f}) - {reputation_info['papers_stored']} papers stored")
-                
-                else:
-                    progress_state['phase'] = 'error'
-                    progress_state['errors'].append(results.get('error', 'Unknown error'))
-                    update_progress_display(progress_state)
-                    st.error(f"❌ Processing failed: {results.get('error', 'Unknown error')}")
-            
-            except Exception as e:
-                progress_state['phase'] = 'error'
-                progress_state['errors'].append(str(e))
-                update_progress_display(progress_state)
-                st.error(f"❌ Unexpected error: {str(e)}")
 
 # Browse Insights Page - Updated for cloud-only
 elif page == "📚 Browse Insights":
@@ -736,12 +342,12 @@ elif page == "📚 Browse Insights":
         empty_context = UserContext(use_case_description="browse all papers")
         
         # Get papers using vector search with very low threshold to get all
-        Config.VECTOR_SIMILARITY_THRESHOLD = 0.0  # Temporarily lower threshold
+        Config.VECTOR_SIMILARITY_THRESHOLD = 0.0
         all_papers_data = st.session_state.storage.find_similar_papers(
             empty_context, 
             n_results=1000  # Get up to 1000 papers
         )
-        Config.VECTOR_SIMILARITY_THRESHOLD = 0.6  # Reset threshold
+        Config.VECTOR_SIMILARITY_THRESHOLD = 0.0  # Reset threshold
         
         # Convert to display format and apply filters
         all_papers = []
@@ -949,6 +555,268 @@ elif page == "🎯 Get Recommendations":
                                    f"Recency: {components.get('recency', 0):.2f} | "
                                    f"Case Study: {components.get('case_study', 0):.2f}")
 
+# Manual Processing Page
+elif page == "📅 Manual Processing" and MANUAL_PROCESSING_AVAILABLE:
+    st.header("Manual Processing Control")
+    
+    # Get available date ranges
+    available_ranges = st.session_state.manual_controller.get_available_date_ranges()
+    
+    # Custom date selection
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        start_date = st.date_input(
+            "Start Date",
+            value=st.session_state.get('selected_start', datetime.now() - timedelta(days=7)).date(),
+            max_value=datetime.now().date()
+        )
+    
+    with col2:
+        end_date = st.date_input(
+            "End Date",
+            value=st.session_state.get('selected_end', datetime.now() - timedelta(days=1)).date(),
+            max_value=datetime.now().date()
+        )
+
+    with col3:
+            max_papers = st.number_input(
+                "Maximum papers to process",
+                min_value=1,
+                max_value=1000,
+                value=100,
+                help="Limit the number of papers to process from this date range"
+            )
+    
+    # Convert to datetime
+    start_datetime = datetime.combine(start_date, datetime.min.time())
+    end_datetime = datetime.combine(end_date, datetime.max.time())
+    
+    # Validate date range
+    is_valid, error_msg = st.session_state.manual_controller.validate_date_range(start_datetime, end_datetime)
+    
+    if not is_valid:
+        st.error(f"Invalid date range: {error_msg}")
+    else:    
+        skip_existing = st.checkbox(
+            "Skip existing papers",
+            value=True,
+            help="Skip papers that have already been processed"
+        )
+        
+        # Check existing papers
+        existing_check = st.session_state.manual_controller.check_existing_papers(start_datetime, end_datetime)
+        
+        if existing_check['existing_papers'] > 0:
+            st.warning(f"⚠️ {existing_check['message']}")
+
+        # Processing button
+        if st.button("🔄 Process Papers", use_container_width=True, type="primary", disabled=not is_valid):
+            
+            # Create progress tracking UI containers
+            st.markdown("### Processing Progress")
+            
+            # Create empty containers that will be updated
+            phase_container = st.empty()
+            progress_bar = st.empty()
+            progress_text = st.empty()
+            stats_container = st.empty()
+            current_activity = st.empty()
+            error_container = st.empty()
+            
+            # Initialize progress tracking state
+            progress_state = {
+                'phase': 'initializing',
+                'overall_progress': 0,
+                'papers_found': 0,
+                'papers_processed': 0,
+                'insights_generated': 0,
+                'current_paper': '',
+                'start_time': datetime.now(),
+                'errors': []
+            }
+            
+            def update_progress_display(state):
+                """Update the progress display with current state."""
+                
+                # Phase indicator
+                phase_emojis = {
+                    'initializing': '🔧',
+                    'fetching': '📡',
+                    'processing': '⚙️',
+                    'completed': '✅',
+                    'error': '❌'
+                }
+                
+                phase_names = {
+                    'initializing': 'Initializing',
+                    'fetching': 'Fetching Papers',
+                    'processing': 'Extracting Insights',
+                    'completed': 'Processing Complete',
+                    'error': 'Error Occurred'
+                }
+                
+                phase_colors = {
+                    'initializing': '#0066FF',
+                    'fetching': '#17A2B8',
+                    'processing': '#FFC107',
+                    'completed': '#28A745',
+                    'error': '#DC3545'
+                }
+                
+                emoji = phase_emojis.get(state['phase'], '⚙️')
+                name = phase_names.get(state['phase'], 'Processing')
+                color = phase_colors.get(state['phase'], '#0066FF')
+                
+                # Update phase indicator
+                phase_container.markdown(f"""
+                <div style="background: linear-gradient(135deg, {color} 0%, {color}AA 100%); 
+                            padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h2 style="color: white; margin: 0; font-size: 1.8rem;">{emoji} {name}</h2>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Update progress bar
+                progress_bar.progress(state['overall_progress'] / 100)
+                
+                # Update progress text
+                elapsed = (datetime.now() - state['start_time']).total_seconds()
+                if elapsed < 60:
+                    time_str = f"{elapsed:.0f}s"
+                else:
+                    time_str = f"{elapsed/60:.1f}m"
+                
+                progress_text.markdown(f"""
+                **Progress:** {state['overall_progress']:.1f}% | **Elapsed:** {time_str}
+                """)
+                
+                # Update statistics
+                with stats_container.container():
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.metric("Papers Found", state['papers_found'])
+                    
+                    with col2:
+                        st.metric("Papers Processed", state['papers_processed'])
+                
+                # Update current activity
+                if state['current_paper']:
+                    current_activity.info(f"📄 Processing: {state['current_paper'][:100]}...")
+                else:
+                    current_activity.empty()
+                
+                # Update errors if any
+                if state['errors']:
+                    with error_container.expander(f"⚠️ Errors ({len(state['errors'])})"):
+                        for error in state['errors'][-3:]:
+                            st.error(f"• {error}")
+                else:
+                    error_container.empty()
+            
+            # Enhanced progress callback function
+            def enhanced_progress_callback(message, progress, **kwargs):
+                """Enhanced progress callback that handles detailed progress updates."""
+                
+                # Update progress state based on message and additional info
+                if "Fetching papers" in message:
+                    progress_state['phase'] = 'fetching'
+                    progress_state['overall_progress'] = min(progress, 15)
+                    
+                elif "Found" in message and "papers" in message:
+                    import re
+                    match = re.search(r'(\d+)', message)
+                    if match:
+                        progress_state['papers_found'] = int(match.group(1))
+                    progress_state['phase'] = 'processing'
+                    progress_state['overall_progress'] = 15
+                    
+                elif "Processing paper" in message:
+                    import re
+                    match = re.search(r'Processing paper (\d+)/(\d+)', message)
+                    if match:
+                        current, total = int(match.group(1)), int(match.group(2))
+                        progress_state['papers_processed'] = current - 1
+                        progress_state['overall_progress'] = 15 + (current / total) * 70
+                        
+                        if kwargs.get('current_paper_title'):
+                            progress_state['current_paper'] = kwargs['current_paper_title']
+                    
+                elif "Extracting insights" in message:
+                    if kwargs.get('insights_generated'):
+                        progress_state['insights_generated'] = kwargs['insights_generated']
+                
+                elif "Processing complete" in message or progress >= 100:
+                    progress_state['phase'] = 'completed'
+                    progress_state['overall_progress'] = 100
+                    progress_state['current_paper'] = ''
+                    
+                elif "Error" in message:
+                    progress_state['phase'] = 'error'
+                    if kwargs.get('error_details'):
+                        progress_state['errors'].append(kwargs['error_details'])
+                
+                # Handle any additional updates from kwargs
+                for key, value in kwargs.items():
+                    if key.startswith('progress_'):
+                        field = key.replace('progress_', '')
+                        progress_state[field] = value
+                
+                # Update the display
+                update_progress_display(progress_state)
+            
+            # Start processing with enhanced progress tracking
+            try:
+                # Show initial state
+                update_progress_display(progress_state)
+                
+                # Call the processing function with enhanced callback
+                results = st.session_state.manual_controller.process_date_range_enhanced(
+                    start_datetime,
+                    end_datetime,
+                    max_papers=max_papers,
+                    skip_existing=skip_existing,
+                    progress_callback=enhanced_progress_callback
+                )
+                
+                # Display final results
+                if results.get('success'):
+                    progress_state['phase'] = 'completed'
+                    progress_state['overall_progress'] = 100
+                    progress_state['papers_processed'] = results['papers_processed']
+                    progress_state['insights_generated'] = results['papers_processed']
+                    update_progress_display(progress_state)
+                    
+                    st.success("✅ Processing completed successfully!")
+                    
+                    # Success rate calculation
+                    if results['papers_found'] > 0:
+                        success_rate = results['papers_processed'] / results['papers_found']
+                        if success_rate >= 0.9:
+                            st.success(f"🎉 Excellent success rate: {success_rate:.1%}")
+                        elif success_rate >= 0.7:
+                            st.info(f"✅ Good success rate: {success_rate:.1%}")
+                        else:
+                            st.warning(f"⚠️ Success rate: {success_rate:.1%} - some papers may have failed processing")
+                    
+                    # Reputation filtering info
+                    reputation_info = results.get('reputation_filtering', {})
+                    if reputation_info.get('active'):
+                        st.info(f"🎯 Reputation filtering applied (threshold: {reputation_info['threshold']:.2f}) - {reputation_info['papers_stored']} papers stored")
+                
+                else:
+                    progress_state['phase'] = 'error'
+                    progress_state['errors'].append(results.get('error', 'Unknown error'))
+                    update_progress_display(progress_state)
+                    st.error(f"❌ Processing failed: {results.get('error', 'Unknown error')}")
+            
+            except Exception as e:
+                progress_state['phase'] = 'error'
+                progress_state['errors'].append(str(e))
+                update_progress_display(progress_state)
+                st.error(f"❌ Unexpected error: {str(e)}")
+
 # Settings Page
 elif page == "⚙️ Settings":
     st.header("Platform Settings")
@@ -964,29 +832,12 @@ elif page == "⚙️ Settings":
     """, unsafe_allow_html=True)
     
     # Cloud storage metrics
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.metric("Storage Type", "☁️ Supabase")
+        st.metric("Storage Type", "Supabase")
     
     with col2:
-        # Health check button
-        if st.button("🔍 Health Check"):
-            with st.spinner("Checking system health..."):
-                health_status = st.session_state.storage.health_check()
-                
-                if health_status['healthy']:
-                    st.success("✅ System is healthy")
-                else:
-                    st.error("❌ System health issues detected")
-                
-                # Show detailed health status
-                with st.expander("Health Check Details"):
-                    for check_name, check_result in health_status['checks'].items():
-                        status_icon = "✅" if check_result['status'] == 'ok' else "❌"
-                        st.write(f"{status_icon} **{check_name}**: {check_result['message']}")
-    
-    with col3:
         st.metric("Min Reputation", f"{Config.MINIMUM_REPUTATION_SCORE:.2f}")
     
     # Storage management
@@ -1028,7 +879,7 @@ elif page == "⚙️ Settings":
     stats_data = {
         "Metric": [
             "Total Papers",
-            "Total Insights", 
+            "Papers with Insights", 
             "Average Reputation Score",
             "Average Key Findings Count",
             "Papers with Code",
@@ -1060,7 +911,7 @@ elif page == "⚙️ Settings":
     - LLM Model: {Config.LLM_MODEL}
     - Batch Size: {Config.BATCH_SIZE}
     - Max Key Findings: {Config.MAX_KEY_FINDINGS}
-    - Cloud Storage: ☁️ Supabase
+    - Cloud Storage: Supabase
     - Enable Author Lookup: {'Yes' if Config.ENABLE_AUTHOR_LOOKUP else 'No'}
     - Manual Processing: {'Available' if MANUAL_PROCESSING_AVAILABLE else 'Unavailable'}
     - Vector Model: {Config.VECTOR_EMBEDDING_MODEL}
@@ -1070,7 +921,7 @@ elif page == "⚙️ Settings":
     
     # Manual Processing Status
     if MANUAL_PROCESSING_AVAILABLE:
-        st.subheader("📅 Manual Processing Configuration")
+        st.subheader("Manual Processing Configuration")
         
         st.markdown("""
         <div class="success-box">
@@ -1080,7 +931,7 @@ elif page == "⚙️ Settings":
         """, unsafe_allow_html=True)
         
     else:
-        st.subheader("📅 Manual Processing Status")
+        st.subheader("Manual Processing Status")
         
         st.markdown("""
         <div class="warning-box">
@@ -1118,6 +969,6 @@ elif page == "⚙️ Settings":
 st.markdown("---")
 st.markdown(f"""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>© 2025 GenAI Research Platform | Cloud-Only with Supabase</p>
+    <p>© 2025 Research Implementation Platform</p>
 </div>
 """, unsafe_allow_html=True)

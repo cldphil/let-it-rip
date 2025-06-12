@@ -3,9 +3,9 @@ Synthesis engine for creating personalized recommendations from paper insights.
 Uses a consultant-style LLM approach to match user contexts to relevant research.
 """
 
+import logging
 from typing import Dict, List, Optional
 from datetime import datetime
-import logging
 
 from anthropic import Anthropic
 
@@ -15,7 +15,6 @@ from .insight_schema import PaperInsights, UserContext, StudyType
 from config import Config
 
 logger = logging.getLogger(__name__)
-
 
 class SynthesisEngine:
     """

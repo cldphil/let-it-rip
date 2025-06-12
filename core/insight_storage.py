@@ -151,10 +151,13 @@ class InsightStorage:
             supabase_uuid = generate_paper_uuid(paper_id)
             
             # Generate embedding from insights only (no full text)
-            searchable_text = insights.to_searchable_text()
-            embedding = self.embedder.encode([searchable_text])[0]
+            embedding_key_findings = self.embedder.encode([insights.key_findings])[0]
+            embedding_limitations = self.embedder.encode([insights.limitations])[0]
+            embedding_problem_addressed = self.embedder.encode([insights.problem_addressed])[0]
+            embedding_prerequisites = self.embedder.encode([insights.prerequisites])[0]
+            embedding_real_world_applications = self.embedder.encode([insights.real_world_applications])[0]
             
-            logger.info(f"Generated embedding from insights for {paper_id} ({len(searchable_text)} chars)")
+            logger.info(f"Generated embedding from insights for {paper_id}")
             
             # Prepare insights data for Supabase
             insights_data = {
@@ -177,9 +180,11 @@ class InsightStorage:
                 'prerequisites': insights.prerequisites,
                 'real_world_applications': insights.real_world_applications,
                 'extraction_timestamp': insights.extraction_timestamp.isoformat(),
-                'embedding': embedding.tolist(),  # Store embedding for vector search
-                'full_insights': insights.to_supabase_dict()  # Store complete insights
-                # NOTE: searchable_text is NOT stored - only used for embedding generation
+                'embedding_key_findings': embedding_key_findings.tolist(),
+                'embedding_limitations': embedding_limitations.tolist(),
+                'embedding_problem_addressed': embedding_problem_addressed.tolist(),
+                'embedding_prerequisites': embedding_prerequisites.tolist(),
+                'embedding_real_world_applications': embedding_real_world_applications.tolist()
             }
             
             # Store insights
@@ -223,181 +228,181 @@ class InsightStorage:
         except Exception as e:
             logger.warning(f"Failed to store extraction metadata for {paper_id}: {e}")
     
-    def find_similar_papers(self, user_context: UserContext, 
-                           n_results: int = 20) -> List[Dict]:
-        """
-        Find papers matching user context using Supabase vector similarity.
+    # def find_similar_papers(self, user_context: UserContext,
+    #                        n_results: int = 20) -> List[Dict]:
+    #     """
+    #     Find papers matching user context using Supabase vector similarity.
         
-        Vector search is performed against insights embeddings (key findings,
-        limitations, problem addressed, prerequisites, real world applications).
+    #     Vector search is performed against insights embeddings (key findings,
+    #     limitations, problem addressed, prerequisites, real world applications).
         
-        Args:
-            user_context: User requirements and constraints
-            n_results: Number of results to return
+    #     Args:
+    #         user_context: User requirements and constraints
+    #         n_results: Number of results to return
             
-        Returns:
-            List of paper insights with similarity scores
-        """
-        try:
-            # Generate query embedding from user context
-            query_text = user_context.to_search_query()
-            query_embedding = self.embedder.encode([query_text])[0]
+    #     Returns:
+    #         List of paper insights with similarity scores
+    #     """
+    #     try:
+    #         # Generate query embedding from user context
+    #         query_text = user_context.to_search_query()
+    #         query_embedding = self.embedder.encode([query_text])[0]
             
-            logger.info(f"Searching for papers matching: '{query_text[:100]}...'")
+    #         logger.info(f"Searching for papers matching: '{query_text[:100]}...'")
             
-            # Use Supabase RPC function for vector similarity search
-            results = self.supabase.rpc(
-                Config.FUNCTION_MATCH_INSIGHTS,
-                {
-                    'query_embedding': query_embedding.tolist(),
-                    'match_threshold': Config.VECTOR_SIMILARITY_THRESHOLD,
-                    'match_count': min(n_results * 2, Config.MAX_VECTOR_SEARCH_RESULTS)  # Get extra for filtering
-                }
-            ).execute()
+    #         # Use Supabase RPC function for vector similarity search
+    #         results = self.supabase.rpc(
+    #             Config.FUNCTION_MATCH_INSIGHTS,
+    #             {
+    #                 'query_embedding': query_embedding.tolist(),
+    #                 'match_threshold': Config.VECTOR_SIMILARITY_THRESHOLD,
+    #                 'match_count': min(n_results * 2, Config.MAX_VECTOR_SEARCH_RESULTS)  # Get extra for filtering
+    #             }
+    #         ).execute()
             
-            if not results.data:
-                logger.info("No similar papers found")
-                return []
+    #         if not results.data:
+    #             logger.info("No similar papers found")
+    #             return []
             
-            # Process and filter results
-            similar_papers = []
-            for result in results.data:
-                try:
-                    # Load full insights from stored data
-                    if 'full_insights' in result and result['full_insights']:
-                        insights = PaperInsights.from_supabase_dict(result['full_insights'])
-                    else:
-                        # Fallback: reconstruct from individual fields
-                        insights = self._reconstruct_insights_from_result(result)
+    #         # Process and filter results
+    #         similar_papers = []
+    #         for result in results.data:
+    #             try:
+    #                 # Load full insights from stored data
+    #                 if 'key_findings' in result and result['key_findings']:
+    #                     insights = PaperInsights.from_supabase_dict(result['key_findings'])
+    #                 else:
+    #                     # Fallback: reconstruct from individual fields
+    #                     insights = self._reconstruct_insights_from_result(result)
                     
-                    # Apply user constraints
-                    if not self._matches_user_constraints(insights, user_context):
-                        continue
+    #                 # Apply user constraints
+    #                 if not self._matches_user_constraints(insights, user_context):
+    #                     continue
                     
-                    # Calculate enhanced ranking score
-                    similarity_score = result.get('similarity', 0)
-                    ranking_score = self._calculate_ranking_score(
-                        similarity_score, insights, result, user_context
-                    )
+    #                 # Calculate enhanced ranking score
+    #                 similarity_score = result.get('similarity', 0)
+    #                 ranking_score = self._calculate_ranking_score(
+    #                     similarity_score, insights, result, user_context
+    #                 )
                     
-                    similar_papers.append({
-                        'paper_id': result['paper_id'],
-                        'insights': insights,
-                        'similarity_score': similarity_score,
-                        'ranking_score': ranking_score,
-                        'metadata': {
-                            'reputation_score': result.get('reputation_score', 0),
-                            'study_type': result.get('study_type', 'unknown'),
-                            'complexity': result.get('implementation_complexity', 'unknown')
-                        }
-                    })
+    #                 similar_papers.append({
+    #                     'paper_id': result['paper_id'],
+    #                     'insights': insights,
+    #                     'similarity_score': similarity_score,
+    #                     'ranking_score': ranking_score,
+    #                     'metadata': {
+    #                         'reputation_score': result.get('reputation_score', 0),
+    #                         'study_type': result.get('study_type', 'unknown'),
+    #                         'complexity': result.get('implementation_complexity', 'unknown')
+    #                     }
+    #                 })
                     
-                except Exception as e:
-                    logger.warning(f"Error processing search result: {e}")
-                    continue
+    #             except Exception as e:
+    #                 logger.warning(f"Error processing search result: {e}")
+    #                 continue
             
-            # Sort by ranking score and return top results
-            similar_papers.sort(key=lambda x: x['ranking_score'], reverse=True)
+    #         # Sort by ranking score and return top results
+    #         similar_papers.sort(key=lambda x: x['ranking_score'], reverse=True)
             
-            logger.info(f"Found {len(similar_papers)} relevant papers for user context")
-            return similar_papers[:n_results]
+    #         logger.info(f"Found {len(similar_papers)} relevant papers for user context")
+    #         return similar_papers[:n_results]
             
-        except Exception as e:
-            logger.error(f"Vector search failed: {e}")
-            return []
+    #     except Exception as e:
+    #         logger.error(f"Vector search failed: {e}")
+    #         return []
     
-    def _reconstruct_insights_from_result(self, result: Dict) -> PaperInsights:
-        """Reconstruct PaperInsights from Supabase result when full_insights not available."""
-        from .insight_schema import StudyType, TechniqueCategory, ComplexityLevel
+    # def _reconstruct_insights_from_result(self, result: Dict) -> PaperInsights:
+    #     """Reconstruct PaperInsights from Supabase result when full_insights not available."""
+    #     from .insight_schema import StudyType, TechniqueCategory, ComplexityLevel
         
-        try:
-            # Map basic fields
-            insights_data = {
-                'paper_id': result.get('paper_id', ''),
-                'key_findings': result.get('key_findings', []),
-                'limitations': result.get('limitations', []),
-                'study_type': StudyType(result.get('study_type', 'unknown')),
-                'techniques_used': [TechniqueCategory(t) for t in result.get('techniques_used', [])],
-                'implementation_complexity': ComplexityLevel(result.get('implementation_complexity', 'unknown')),
-                'problem_addressed': result.get('problem_addressed', ''),
-                'prerequisites': result.get('prerequisites', []),
-                'real_world_applications': result.get('real_world_applications', []),
-                'total_author_hindex': result.get('total_author_hindex', 0),
-                'has_conference_mention': result.get('has_conference_mention', False),
-                'industry_validation': result.get('industry_validation', False),
-                'extraction_confidence': result.get('extraction_confidence', 0.5),
-                'has_code_available': result.get('has_code', False),
-                'has_dataset_available': result.get('has_dataset', False)
-            }
+    #     try:
+    #         # Map basic fields
+    #         insights_data = {
+    #             'paper_id': result.get('paper_id', ''),
+    #             'key_findings': result.get('key_findings', []),
+    #             'limitations': result.get('limitations', []),
+    #             'study_type': StudyType(result.get('study_type', 'unknown')),
+    #             'techniques_used': [TechniqueCategory(t) for t in result.get('techniques_used', [])],
+    #             'implementation_complexity': ComplexityLevel(result.get('implementation_complexity', 'unknown')),
+    #             'problem_addressed': result.get('problem_addressed', ''),
+    #             'prerequisites': result.get('prerequisites', []),
+    #             'real_world_applications': result.get('real_world_applications', []),
+    #             'total_author_hindex': result.get('total_author_hindex', 0),
+    #             'has_conference_mention': result.get('has_conference_mention', False),
+    #             'industry_validation': result.get('industry_validation', False),
+    #             'extraction_confidence': result.get('extraction_confidence', 0.5),
+    #             'has_code_available': result.get('has_code', False),
+    #             'has_dataset_available': result.get('has_dataset', False)
+    #         }
             
-            # Parse timestamp if available
-            if result.get('extraction_timestamp'):
-                try:
-                    insights_data['extraction_timestamp'] = datetime.fromisoformat(
-                        result['extraction_timestamp'].replace('Z', '+00:00')
-                    )
-                except:
-                    pass
+    #         # Parse timestamp if available
+    #         if result.get('extraction_timestamp'):
+    #             try:
+    #                 insights_data['extraction_timestamp'] = datetime.fromisoformat(
+    #                     result['extraction_timestamp'].replace('Z', '+00:00')
+    #                 )
+    #             except:
+    #                 pass
             
-            return PaperInsights(**insights_data)
+    #         return PaperInsights(**insights_data)
             
-        except Exception as e:
-            logger.error(f"Failed to reconstruct insights: {e}")
-            # Return minimal insights
-            return PaperInsights(
-                paper_id=result.get('paper_id', ''),
-                key_findings=['Reconstruction failed - limited data available']
-            )
+    #     except Exception as e:
+    #         logger.error(f"Failed to reconstruct insights: {e}")
+    #         # Return minimal insights
+    #         return PaperInsights(
+    #             paper_id=result.get('paper_id', ''),
+    #             key_findings=['Reconstruction failed - limited data available']
+    #         )
     
-    def _calculate_ranking_score(self, similarity_score: float, insights: PaperInsights, 
-                               result: Dict, user_context: UserContext) -> float:
-        """Calculate enhanced ranking score for search results."""
-        # Get publication year for recency scoring
-        pub_year = result.get('published_year', 2020)
-        current_year = datetime.now().year
+    # def _calculate_ranking_score(self, similarity_score: float, insights: PaperInsights, 
+    #                            result: Dict, user_context: UserContext) -> float:
+    #     """Calculate enhanced ranking score for search results."""
+    #     # Get publication year for recency scoring
+    #     pub_year = result.get('published_year', 2020)
+    #     current_year = datetime.now().year
         
-        # Recency score
-        recency_score = max(0, 1.0 - (current_year - pub_year) * Config.RECENCY_DECAY_RATE)
+    #     # Recency score
+    #     recency_score = max(0, 1.0 - (current_year - pub_year) * Config.RECENCY_DECAY_RATE)
         
-        # Reputation score
-        reputation_score = insights.get_reputation_score()
+    #     # Reputation score
+    #     reputation_score = insights.get_reputation_score()
         
-        # Key findings richness
-        findings_score = min(1.0, len(insights.key_findings) / 8.0)
+    #     # Key findings richness
+    #     findings_score = min(1.0, len(insights.key_findings) / 8.0)
         
-        # Technique relevance bonus
-        technique_bonus = 0.0
-        if user_context.preferred_techniques:
-            user_techniques = set(t.value for t in user_context.preferred_techniques)
-            paper_techniques = set(t.value for t in insights.techniques_used)
-            if user_techniques.intersection(paper_techniques):
-                technique_bonus = 0.1
+    #     # Technique relevance bonus
+    #     technique_bonus = 0.0
+    #     if user_context.preferred_techniques:
+    #         user_techniques = set(t.value for t in user_context.preferred_techniques)
+    #         paper_techniques = set(t.value for t in insights.techniques_used)
+    #         if user_techniques.intersection(paper_techniques):
+    #             technique_bonus = 0.1
         
-        # Risk tolerance alignment
-        risk_bonus = 0.0
-        if user_context.risk_tolerance == "conservative":
-            if insights.study_type.value == "case_study":
-                risk_bonus = 0.1
-            elif reputation_score > 0.7:
-                risk_bonus = 0.05
-        elif user_context.risk_tolerance == "aggressive":
-            if insights.implementation_complexity.value == "low":
-                risk_bonus = 0.1
+    #     # Risk tolerance alignment
+    #     risk_bonus = 0.0
+    #     if user_context.risk_tolerance == "conservative":
+    #         if insights.study_type.value == "case_study":
+    #             risk_bonus = 0.1
+    #         elif reputation_score > 0.7:
+    #             risk_bonus = 0.05
+    #     elif user_context.risk_tolerance == "aggressive":
+    #         if insights.implementation_complexity.value == "low":
+    #             risk_bonus = 0.1
         
-        # Industry validation bonus
-        validation_bonus = 0.1 if insights.industry_validation else 0.0
+    #     # Industry validation bonus
+    #     validation_bonus = 0.1 if insights.industry_validation else 0.0
         
-        # Calculate final score using configured weights
-        weights = Config.RANKING_WEIGHTS
-        final_score = (
-            similarity_score * weights['similarity'] +
-            reputation_score * weights['reputation'] +
-            recency_score * weights['recency'] +
-            findings_score * weights['findings_richness'] +
-            technique_bonus + risk_bonus + validation_bonus
-        )
+    #     # Calculate final score using configured weights
+    #     weights = Config.RANKING_WEIGHTS
+    #     final_score = (
+    #         similarity_score * weights['similarity'] +
+    #         reputation_score * weights['reputation'] +
+    #         recency_score * weights['recency'] +
+    #         findings_score * weights['findings_richness'] +
+    #         technique_bonus + risk_bonus + validation_bonus
+    #     )
         
-        return min(1.0, final_score)
+    #     return min(1.0, final_score)
     
     def _matches_user_constraints(self, insights: PaperInsights, 
                                  user_context: UserContext) -> bool:
@@ -441,8 +446,8 @@ class InsightStorage:
             insights_data = result.data[0]
             
             # Use full_insights if available
-            if 'full_insights' in insights_data and insights_data['full_insights']:
-                return PaperInsights.from_supabase_dict(insights_data['full_insights'])
+            if 'key_findings' in insights_data and insights_data['key_findings']:
+                return PaperInsights.from_supabase_dict(insights_data['key_findings'])
             else:
                 # Fallback: reconstruct from individual fields
                 return self._reconstruct_insights_from_result(insights_data)
@@ -697,47 +702,3 @@ class InsightStorage:
         except Exception as e:
             logger.error(f"Failed to clear all data: {e}")
             raise
-    
-    def health_check(self) -> Dict:
-        """
-        Perform health check on Supabase connection and tables.
-        
-        Returns:
-            Health status dictionary
-        """
-        health_status = {
-            'healthy': True,
-            'timestamp': datetime.utcnow().isoformat(),
-            'checks': {}
-        }
-        
-        # Test basic connectivity
-        try:
-            result = self.supabase.table(Config.TABLE_PAPERS).select('id').limit(1).execute()
-            health_status['checks']['connectivity'] = {'status': 'ok', 'message': 'Connected to Supabase'}
-        except Exception as e:
-            health_status['healthy'] = False
-            health_status['checks']['connectivity'] = {'status': 'error', 'message': str(e)}
-        
-        # Test vector search function
-        try:
-            dummy_embedding = [0.1] * 384  # 384-dimensional dummy vector
-            result = self.supabase.rpc(Config.FUNCTION_MATCH_INSIGHTS, {
-                'query_embedding': dummy_embedding,
-                'match_threshold': 0.5,
-                'match_count': 1
-            }).execute()
-            health_status['checks']['vector_search'] = {'status': 'ok', 'message': 'Vector search function working'}
-        except Exception as e:
-            health_status['healthy'] = False
-            health_status['checks']['vector_search'] = {'status': 'error', 'message': str(e)}
-        
-        # Test embedder
-        try:
-            test_embedding = self.embedder.encode(['test text'])
-            health_status['checks']['embedder'] = {'status': 'ok', 'message': f'Embedder working, dimension: {len(test_embedding[0])}'}
-        except Exception as e:
-            health_status['healthy'] = False
-            health_status['checks']['embedder'] = {'status': 'error', 'message': str(e)}
-        
-        return health_status

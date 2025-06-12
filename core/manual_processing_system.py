@@ -45,43 +45,6 @@ class ManualProcessingController:
         
         logger.info("Initialized manual processing controller")
     
-    def get_available_date_ranges(self) -> Dict:
-        """
-        Get suggested date ranges for processing.
-        
-        Returns:
-            Dict with suggested date ranges and their paper counts (estimated)
-        """
-        today = datetime.now()
-        
-        suggested_ranges = {
-            'last_24_hours': {
-                'start_date': today - timedelta(days=1),
-                'end_date': today,
-                'description': 'Last 24 hours',
-                'estimated_papers': '5-15'
-            },
-            'last_week': {
-                'start_date': today - timedelta(days=7),
-                'end_date': today,
-                'description': 'Last 7 days',
-                'estimated_papers': '20-50'
-            },
-            'last_month': {
-                'start_date': today - timedelta(days=30),
-                'end_date': today,
-                'description': 'Last 30 days',
-                'estimated_papers': '100-200'
-            },
-            'this_year': {
-                'start_date': datetime(today.year, 1, 1),
-                'end_date': today,
-                'description': f'Year {today.year}',
-                'estimated_papers': '1000+'
-            }
-        }
-        
-        return suggested_ranges
     
     def validate_date_range(self, start_date: datetime, end_date: datetime) -> Tuple[bool, str]:
         """
@@ -111,81 +74,6 @@ class ManualProcessingController:
             return False, "Start date cannot be before 1991"
         
         return True, ""
-    
-    def estimate_processing_cost(self, start_date: datetime, end_date: datetime, 
-                                max_papers: Optional[int] = None) -> Dict:
-        """
-        Estimate processing cost and time for a date range.
-        
-        This method provides estimates based on historical data and
-        typical GenAI paper volumes on arXiv.
-        
-        Args:
-            start_date: Start date
-            end_date: End date
-            max_papers: Maximum papers to process (None for no limit)
-            
-        Returns:
-            Dict with cost and time estimates
-        """
-        days_diff = (end_date - start_date).days
-        
-        # Rough estimates based on typical arXiv GenAI paper volumes
-        estimated_papers_per_day = {
-            'recent': 15,     # Last 30 days
-            'moderate': 10,   # 30-365 days ago
-            'older': 5        # More than 1 year ago
-        }
-        
-        # Determine paper density based on recency
-        days_ago = (datetime.now() - end_date).days
-        if days_ago <= 30:
-            papers_per_day = estimated_papers_per_day['recent']
-        elif days_ago <= 365:
-            papers_per_day = estimated_papers_per_day['moderate']
-        else:
-            papers_per_day = estimated_papers_per_day['older']
-        
-        estimated_total_papers = days_diff * papers_per_day
-        
-        # Apply max_papers limit if specified
-        if max_papers:
-            estimated_total_papers = min(estimated_total_papers, max_papers)
-        
-        # Cost estimates
-        cost_per_paper = 0.005  # $0.005 per paper (API costs)
-        estimated_cost = estimated_total_papers * cost_per_paper
-        
-        # Time estimates (based on 2 papers per minute processing)
-        estimated_time_minutes = estimated_total_papers * 0.5
-        
-        # Reputation filtering impact
-        min_reputation = Config.MINIMUM_REPUTATION_SCORE
-        if min_reputation > 0:
-            # Estimate filtering impact (rough approximation)
-            if min_reputation >= 0.5:
-                filtering_reduction = 0.7  # 70% filtered out
-            elif min_reputation >= 0.3:
-                filtering_reduction = 0.5  # 50% filtered out
-            elif min_reputation >= 0.1:
-                filtering_reduction = 0.3  # 30% filtered out
-            else:
-                filtering_reduction = 0.1  # 10% filtered out
-            
-            estimated_total_papers = int(estimated_total_papers * (1 - filtering_reduction))
-            estimated_cost *= (1 - filtering_reduction)
-            estimated_time_minutes *= (1 - filtering_reduction)
-        
-        return {
-            'estimated_papers': estimated_total_papers,
-            'estimated_cost_usd': round(estimated_cost, 2),
-            'estimated_time_minutes': round(estimated_time_minutes, 1),
-            'estimated_time_hours': round(estimated_time_minutes / 60, 1),
-            'days_in_range': days_diff,
-            'papers_per_day_avg': round(estimated_total_papers / max(days_diff, 1), 1),
-            'reputation_filter_active': min_reputation > 0,
-            'min_reputation_score': min_reputation
-        }
     
     def check_existing_papers(self, start_date: datetime, end_date: datetime) -> Dict:
         """
