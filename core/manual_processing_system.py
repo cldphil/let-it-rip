@@ -381,9 +381,6 @@ class ManualProcessingController:
                 insights_generated += 1
                 processed_papers += 1
                 
-                if metadata.estimated_cost_usd:
-                    stats['total_cost'] += metadata.estimated_cost_usd
-                
                 # Progress update after successful processing
                 if progress_callback:
                     current_progress = 15 + i / total_papers * 80
