@@ -164,9 +164,6 @@ class ManualProcessingController:
         if progress_callback:
             progress_callback("Validating date range and preparing...", 0, phase='initializing')
         
-        # Get cost estimate
-        estimate = self.estimate_processing_cost(start_date, end_date, max_papers)
-        
         if progress_callback:
             progress_callback(
                 f"Fetching papers from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}...", 
@@ -187,8 +184,7 @@ class ManualProcessingController:
             if not papers:
                 return {
                     'error': 'No papers found in the specified date range',
-                    'success': False,
-                    'estimate': estimate
+                    'success': False
                 }
             
             if progress_callback:
@@ -216,8 +212,7 @@ class ManualProcessingController:
                     'error': 'All papers in the date range have already been processed',
                     'success': True,
                     'papers_found': original_count,
-                    'papers_processed': 0,
-                    'estimate': estimate
+                    'papers_processed': 0
                 }
             
             # Process papers with enhanced progress tracking
@@ -268,12 +263,6 @@ class ManualProcessingController:
                     'end': end_date.strftime('%Y-%m-%d'),
                     'days': (end_date - start_date).days
                 },
-                'estimate_vs_actual': {
-                    'estimated_papers': estimate['estimated_papers'],
-                    'actual_papers': len(papers),
-                    'estimated_cost': estimate['estimated_cost_usd'],
-                    'actual_cost': stats.get('total_cost', 0)
-                },
                 'reputation_filtering': {
                     'active': Config.MINIMUM_REPUTATION_SCORE > 0,
                     'threshold': Config.MINIMUM_REPUTATION_SCORE,
@@ -298,8 +287,7 @@ class ManualProcessingController:
             
             return {
                 'error': error_msg,
-                'success': False,
-                'estimate': estimate
+                'success': False
             }
     
     def _filter_existing_papers(self, papers: List[Dict]) -> List[Dict]:
